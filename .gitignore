@@ -49,8 +49,12 @@ key.properties
 # Binary APKs and bundles
 *.apk
 *.aab
+*.zip
+*.tar.gz
 apks/
 apks_dist/
+release_assets/
+dist/
 
 # Symbolication & Obfuscation
 app.*.symbols
