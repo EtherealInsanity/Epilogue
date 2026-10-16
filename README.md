@@ -17,6 +17,12 @@
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" />
 </p>
 
+<p align="center">
+  <a href="https://distantpromise.github.io/Epilogue/"><strong>🌐 Official Website & Live Interactive Demo</strong></a> • 
+  <a href="https://github.com/DistantPromise/Epilogue/releases"><strong>📦 Download APKs</strong></a> • 
+  <a href="TIME_CAPSULE.md"><strong>📜 Architecture & Capsule</strong></a>
+</p>
+
 ```
 [System Message: Sub-channel #BI-7623 has opened.]
 [The Star Stream is broadcasting a new story.]
