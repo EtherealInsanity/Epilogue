@@ -1,0 +1,71 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+.gradle/
+.kotlin/
+
+# VS Code
+.vscode/
+
+# Flutter / Dart / Pub
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+
+# Android build outputs & local config
+android/local.properties
+android/.gradle/
+android/.kotlin/
+android/app/debug/
+android/app/profile/
+android/app/release/
+captures/
+GeneratedPluginRegistrant.java
+
+# Signing & Keystore files
+key.properties
+**/*.keystore
+**/*.jks
+
+# Binary APKs and bundles
+*.apk
+*.aab
+apks/
+apks_dist/
+
+# Symbolication & Obfuscation
+app.*.symbols
+app.*.map.json
+
+# AI assistants, prompt instructions, plan files & session capsules
+DEAR_FUTURE_ANTIGRAVITY.md
+TIME_CAPSULE.md
+.gemini/
+.antigravity/
+.cursor/
+.cursorrules
+.cline/
+.windsurf/
+.copilot/
+.aide/
+*.plan
+*plan*.md
