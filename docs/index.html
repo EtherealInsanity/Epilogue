@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Epilogue (독자의 에필로그) — The Sacred Reading Companion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Epilogue (독자의 에필로그) — The Distraction-Free Web Novel & EPUB Reader</title>
   
   <!-- SEO & Social Sharing OpenGraph Meta -->
-  <meta name="description" content="An immersive, high-performance EPUB & Web Novel reading companion for Android with Star Stream progression, dynamic viewport budgeting, and authentic ORV lore.">
+  <meta name="description" content="An open-source, distraction-free EPUB & web novel reader for Android. Built for 500+ chapter epics, 3 AM binge-reading marathons, and zero ads. Infused with Star Stream progression.">
   <meta name="keywords" content="Epilogue, EPUB reader, Android, Web Novel, Omniscient Reader's Viewpoint, ORV, Star Stream, Lord of the Mysteries, Light Novel reader">
-  <meta property="og:title" content="Epilogue (독자의 에필로그) — The Sacred Reading Companion">
-  <meta property="og:description" content="An immersive, high-performance EPUB & Web Novel reading companion for Android with Star Stream progression.">
+  <meta property="og:title" content="Epilogue (독자의 에필로그) — Built for 500+ Chapter Epics">
+  <meta property="og:description" content="An open-source, distraction-free reading companion for Android with Star Stream progression. Zero ads, zero subscriptions, zero bloat.">
   <meta property="og:image" content="assets/images/orvlogo.png">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
@@ -32,33 +32,36 @@
 
     <!-- Star Stream Channel Broadcast Bar -->
     <aside class="system-broadcast-bar" aria-label="System Broadcast">
-      <span class="tag">BROADCAST</span>
-      <span>[System Message: Sub-channel #BI-7623 has opened.]</span>
-      <span style="opacity: 0.5;">•</span>
-      <span>[The Star Stream is broadcasting a new story.]</span>
-      <span style="opacity: 0.5;">•</span>
-      <span>[The Fourth Wall is observing your reading composure.]</span>
+      <div class="broadcast-track">
+        <span class="tag">BROADCAST</span>
+        <span>[Sub-channel #BI-7623 is open]</span>
+        <span class="sep">•</span>
+        <span>[The Fourth Wall notices you reading at 2:47 AM]</span>
+        <span class="sep">•</span>
+        <span>[0 Ads • 0 Subscriptions • 100% Free & Open Source]</span>
+      </div>
     </aside>
 
     <!-- Top Navigation Header -->
     <header class="site-header">
       <div class="container nav-container">
         <a href="#" class="brand" aria-label="Epilogue Home">
-          <img src="assets/images/orvlogo.png" alt="Epilogue Emblem" class="brand-logo">
+          <img src="assets/images/orvlogo.png" alt="Epilogue Logo" class="brand-logo">
           <div class="brand-text">
             <span class="brand-title">Epilogue</span>
             <span class="brand-subtitle">독자의 에필로그</span>
           </div>
         </a>
 
+        <!-- Desktop & Mobile Navigation Menu -->
         <nav>
-          <ul class="nav-menu">
-            <li><a href="#philosophy" class="nav-link">Philosophy</a></li>
+          <ul class="nav-menu" id="nav-menu">
+            <li><a href="#why-epilogue" class="nav-link">Why Epilogue</a></li>
             <li><a href="#engine" class="nav-link">Reading Engine</a></li>
             <li><a href="#simulator" class="nav-link">Live Demo</a></li>
             <li><a href="#starstream" class="nav-link">Star Stream</a></li>
             <li><a href="#retrocognition" class="nav-link">Retrocognition</a></li>
-            <li><a href="#downloads" class="nav-link">Downloads</a></li>
+            <li><a href="#downloads" class="nav-link nav-link-cta">Download APK</a></li>
           </ul>
         </nav>
 
@@ -81,10 +84,14 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
             </svg>
-            <span>GitHub</span>
+            <span class="github-text">GitHub</span>
           </a>
 
-          <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open Navigation Menu">☰</button>
+          <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle Menu" aria-expanded="false">
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+          </button>
         </div>
       </div>
     </header>
@@ -95,20 +102,21 @@
         <div class="hero-content">
           <div class="hero-badge">
             <span class="pulse-dot"></span>
-            <span>SYSTEM RUNTIME: V1.0.0 STABLE</span>
+            <span>FOR THE 500+ CHAPTER MARATHONERS</span>
           </div>
 
           <h1 class="hero-title">
-            The Sacred Reading Companion for <span class="gradient-text">Web Novel Readers</span> & Constellations.
+            The Web Novel Reader That <span class="gradient-text">Actually Gets You</span>.
           </h1>
 
           <div class="fourth-wall-quote">
-            <span class="speaker">[The Fourth Wall speaks softly.]</span>
-            <span class="sacred-quote">「 T h i s &nbsp; s t o r y &nbsp; i s &nbsp; f o r &nbsp; j u s t &nbsp; t h a t &nbsp; o n e &nbsp; r e a d e r . 」</span>
+            <span class="speaker">[The Fourth Wall murmurs quietly]</span>
+            <span class="fourth-wall-text">「 T h i s &nbsp; s t o r y &nbsp; i s &nbsp; f o r &nbsp; t h a t &nbsp; o n e &nbsp; s l e e p - d e p r i v e d &nbsp; r e a d e r . 」</span>
           </div>
 
           <p class="hero-description">
-            <strong>Epilogue</strong> is an open-source, distraction-free reading sanctuary crafted specifically for 500+ chapter epics, light novels, and long-running web fiction (such as <em>Omniscient Reader's Viewpoint</em>, <em>Lord of the Mysteries</em>, and <em>Shadow Slave</em>). Built with pure paper typography, zero bloat, and living Star Stream progression.
+            Reading an epic like <em>Omniscient Reader's Viewpoint</em>, <em>Lord of the Mysteries</em>, or <em>Shadow Slave</em> on a cluttered app with coin paywalls and video ads is painful. 
+            <strong>Epilogue</strong> is a clean, hyper-fast Android EPUB reader built with paper-grade typography and a gamified Star Stream progression system that tracks your reading endurance.
           </p>
 
           <div class="hero-cta-group">
@@ -126,33 +134,37 @@
                 <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                 <line x1="12" y1="18" x2="12.01" y2="18"></line>
               </svg>
-              <span>Test Interactive Demo</span>
+              <span>Try Live Reader Demo</span>
             </a>
           </div>
 
           <div class="hero-stats-row">
             <div class="stat-item">
               <span class="stat-number">234</span>
-              <span class="stat-label">Modifiers</span>
+              <span class="stat-label">Constellation Titles</span>
             </div>
             <div class="stat-item">
               <span class="stat-number">45</span>
-              <span class="stat-label">Canon Fables</span>
+              <span class="stat-label">Story Fables</span>
             </div>
             <div class="stat-item">
               <span class="stat-number">150+</span>
-              <span class="stat-label">Scenarios</span>
+              <span class="stat-label">Quests & Scenarios</span>
             </div>
             <div class="stat-item">
-              <span class="stat-number">0ms</span>
-              <span class="stat-label">Parsing Lag</span>
+              <span class="stat-number">0</span>
+              <span class="stat-label">Ads or Trackers</span>
             </div>
           </div>
         </div>
 
-        <!-- Interactive Phone Mockup in Hero -->
+        <!-- Interactive Reader Demo (Desktop Bezel / Mobile Fluid Card) -->
         <div class="simulator-wrapper" id="simulator">
-          <!-- Interactive Controls Toolbar -->
+          <div class="simulator-header-label">
+            <span>TRY THE ENGINE BELOW</span>
+          </div>
+
+          <!-- Controls Chips -->
           <div class="simulator-controls-bar">
             <button class="sim-btn crt-btn" id="btn-sim-crt" title="Toggle Vintage CRT Scanline Shader">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -160,22 +172,21 @@
                 <line x1="8" y1="21" x2="16" y2="21"></line>
                 <line x1="12" y1="17" x2="12" y2="21"></line>
               </svg>
-              <span>CRT Scanlines</span>
+              <span>CRT Shader</span>
             </button>
-
-            <button class="sim-btn" id="btn-sim-mode">Mode: Page-Turn</button>
-            <button class="sim-btn" id="btn-sim-theme">Theme: Paper</button>
-            <button class="sim-btn" id="btn-sim-font">Font: SERIF</button>
-            <button class="sim-btn" id="btn-sim-hl" title="Cycle Star Stream Highlight Color">Color: CYAN</button>
+            <button class="sim-btn" id="btn-sim-mode">Page-Turn</button>
+            <button class="sim-btn" id="btn-sim-theme">Paper Light</button>
+            <button class="sim-btn" id="btn-sim-font">Serif</button>
+            <button class="sim-btn" id="btn-sim-hl" title="Cycle Star Stream Highlight Color">Cyan Highlight</button>
           </div>
 
-          <!-- Realistic Smartphone Mockup -->
+          <!-- Phone Mockup Frame (Responsive Card on Mobile) -->
           <div class="phone-mockup">
             <div class="phone-screen" id="phone-screen" data-reader-theme="paperLight">
               
-              <!-- Dynamic Island Notch & Status -->
+              <!-- Screen Status Bar -->
               <div class="phone-notch-area">
-                <span>09:41</span>
+                <span class="mockup-clock">02:47</span>
                 <div class="dynamic-island"></div>
                 <div class="phone-status-icons">
                   <span>5G</span>
@@ -189,12 +200,12 @@
                 <span class="reader-chapter-title" id="reader-page-indicator">Page 1 of 3</span>
               </div>
 
-              <!-- Reader Book Body -->
+              <!-- Reader Book Content -->
               <div class="reader-viewport" id="reader-viewport">
-                <!-- Populated dynamically by app.js -->
+                <!-- Dynamically populated by app.js -->
               </div>
 
-              <!-- In-App Floating Star Stream Dock -->
+              <!-- Reader In-App Dock -->
               <div class="reader-dock">
                 <div class="dock-item" id="btn-page-prev" title="Previous Page">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -213,14 +224,14 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                   </svg>
-                  <span>Scenario</span>
+                  <span>Quests</span>
                 </div>
                 <div class="dock-item">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                   </svg>
-                  <span>Tune</span>
+                  <span>Format</span>
                 </div>
                 <div class="dock-item" id="btn-page-next" title="Next Page">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -233,47 +244,47 @@
             </div>
           </div>
 
-          <!-- Live Dynamic Budget Math Badge -->
+          <!-- Dynamic Budget Math Indicator -->
           <div class="viewport-math-badge" id="viewport-math-badge">
-            Layout Math: Dynamic Budget Active
+            Dynamic Budget: 1,680 chars (100% Screen Filled)
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Reading Philosophy Section -->
-    <section class="section" id="philosophy">
+    <!-- Why Epilogue / Highlights -->
+    <section class="section" id="why-epilogue">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag">[ CORE PHILOSOPHY ]</span>
-          <h2 class="section-title">The Reading Experience is Sacred</h2>
+          <span class="section-tag">[ NO NONSENSE ]</span>
+          <h2 class="section-title">Built for Readers, Not Engagement Metrics</h2>
           <p class="section-subtitle">
-            Reading an epic story should never feel like browsing a commercial web app. Epilogue strips away the noise to leave only the words and the story.
+            Most reading apps try to squeeze you for micro-transactions or force 30-second video ads between chapters. Epilogue is completely free, offline-first, and respects your peace of mind.
           </p>
         </div>
 
         <div class="bento-grid">
           <div class="bento-card">
-            <div class="bento-card-icon">📖</div>
-            <h3 class="bento-card-title">Zero Ads & Zero Telemetry</h3>
+            <div class="bento-card-icon">🚫</div>
+            <h3 class="bento-card-title">Zero Ads, Zero Subscriptions</h3>
             <p class="bento-card-text">
-              100% offline-first. No advertisements, no paywalls, no behavioral tracking, and no external telemetry leaving your device. Your reading habits belong strictly to you.
+              No coin wallets. No unlock countdowns. No full-screen popups right when the protagonist is about to unleash their ultimate move. Just your books and pure peace.
             </p>
           </div>
 
           <div class="bento-card">
-            <div class="bento-card-icon">📜</div>
-            <h3 class="bento-card-title">Pure Paper Typography</h3>
+            <div class="bento-card-icon">📖</div>
+            <h3 class="bento-card-title">Paper-Clean Typography</h3>
             <p class="bento-card-text">
-              Crafted around a zero-yellowing paper aesthetic (<code style="color: var(--color-cyan);">#FFFFFF</code> surface with <code style="color: var(--color-cyan);">#111827</code> deep ink). Crisp serif and sans-serif typography, customizable line spacing, and margin padding.
+              Zero weird yellow tints. High-contrast ink text (<code style="color: var(--color-cyan);">#111827</code>) on crisp paper white (<code style="color: var(--color-cyan);">#FFFFFF</code>), with customizable line heights, fonts, and edge margins.
             </p>
           </div>
 
           <div class="bento-card">
             <div class="bento-card-icon">🌑</div>
-            <h3 class="bento-card-title">True OLED Pitch-Black</h3>
+            <h3 class="bento-card-title">OLED Black for 3 AM Binges</h3>
             <p class="bento-card-text">
-              A deep, absolute black theme (<code style="color: var(--color-cyan);">#000000</code>) engineered specifically for night-time reading sessions on modern AMOLED screens, eliminating battery drain and blue-light strain.
+              Telling yourself "just one more chapter" at 2:00 AM? The true pitch-black AMOLED theme shuts off your screen pixels completely to save battery and spare your retinas.
             </p>
           </div>
         </div>
@@ -284,35 +295,35 @@
     <section class="section" id="engine" style="background: rgba(6, 182, 212, 0.02);">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag">[ ARCHITECTURE & ENGINE ]</span>
-          <h2 class="section-title">Built for Massive 500+ Chapter Epics</h2>
+          <span class="section-tag">[ UNDER THE HOOD ]</span>
+          <h2 class="section-title">Engineered to Handle Massive 90MB+ EPUBs</h2>
           <p class="section-subtitle">
-            Engineered from scratch in Flutter to eliminate common mobile reader flaws and handle multi-volume giants without dropping a single frame.
+            Opening a 551-chapter epic with hundreds of embedded illustrations usually crashes standard readers. Epilogue was tuned specifically so it never drops a frame.
           </p>
         </div>
 
         <div class="bento-grid">
-          <!-- Dynamic Viewport Budgeting (Span 2) -->
+          <!-- Dynamic Viewport Budgeting -->
           <div class="bento-card span-2">
             <div class="bento-card-icon">📐</div>
-            <h3 class="bento-card-title">Dynamic Viewport Character Budgeting</h3>
+            <h3 class="bento-card-title">No More Awkward Empty Bottom Gaps</h3>
             <p class="bento-card-text">
-              Most mobile readers leave up to 40% of the screen blank on modern 20:9 and 21:9 displays due to hardcoded character counts. Epilogue calculates live character and line capacities directly from your display geometry:
+              Ever notice how reader apps on tall 20:9 or 21:9 phones leave the bottom 35% of the screen totally blank? That happens because of hardcoded character limits. Epilogue dynamically calculates line and character capacities live from your actual screen geometry:
             </p>
             <div class="bento-formula-box">
-              $$\text{Budget} = \lfloor \text{Usable Height} / \text{Line Height} \rfloor \times \lfloor \text{Usable Width} / (\text{Font Size} \times 0.52) \rfloor$$
+              <code>Budget = floor(Height / LineHeight) × floor(Width / (FontSize × 0.52))</code>
             </div>
             <p class="bento-card-text" style="margin-top: 12px; font-size: 0.88rem;">
-              Text breaks naturally at paragraph and sentence endings, completely filling the screen from top to bottom.
+              Text breaks at natural sentences and fills your entire screen cleanly from top to bottom.
             </p>
           </div>
 
           <!-- Original Book Styling -->
           <div class="bento-card">
             <div class="bento-card-icon">🎨</div>
-            <h3 class="bento-card-title">EPUB CSS Engine</h3>
+            <h3 class="bento-card-title">EPUB Styles That Don't Tear</h3>
             <p class="bento-card-text">
-              Extracts embedded stylesheets and &lt;style&gt; blocks on-the-fly. Preserves headers, centered text, blockquotes, and dividers without tearing HTML tags across page flips.
+              Renders original chapter headers, blockquotes, centered dialogue, and dividers faithfully without slicing HTML tags across page flips.
             </p>
           </div>
 
@@ -321,25 +332,25 @@
             <div class="bento-card-icon">📺</div>
             <h3 class="bento-card-title">Retro CRT Scanline Shader</h3>
             <p class="bento-card-text">
-              Powered by a custom GLSL fragment shader (<code>shaders/crt.frag</code>). Adds an optional vintage CRT scanline overlay with subtle phosphor glow, bringing a cyberpunk terminal ambiance to your reading.
+              Toggle the custom GLSL fragment shader (<code>shaders/crt.frag</code>) whenever you want your novel to look like an old-school cyberpunk terminal.
             </p>
           </div>
 
           <!-- Inline Image Pinch-to-Zoom -->
           <div class="bento-card">
             <div class="bento-card-icon">🖼️</div>
-            <h3 class="bento-card-title">Inline Image Pinch-to-Zoom</h3>
+            <h3 class="bento-card-title">Pinch-to-Zoom Illustrations</h3>
             <p class="bento-card-text">
-              Inspect maps, character illustrations, and volume covers in rich detail with interactive multi-touch pinch-to-zoom (0.8x to 4.0x) powered by Flutter's <code>InteractiveViewer</code>.
+              Pinch, pan, and zoom character illustrations and world maps from 0.8x up to 4.0x with smooth multi-touch gestures.
             </p>
           </div>
 
           <!-- 5 Star Stream Highlight Palettes -->
           <div class="bento-card">
             <div class="bento-card-icon">🖍️</div>
-            <h3 class="bento-card-title">5 Star Stream Highlight Palettes</h3>
+            <h3 class="bento-card-title">5 Highlight Color Palettes</h3>
             <p class="bento-card-text">
-              Categorize quotes, inner monologues, and epic moments using canon color palettes with attached notes and filterable archives:
+              Highlight your favorite quotes and comedic moments in canon palettes with attached personal notes and searchable archives:
             </p>
             <div class="palette-swatches">
               <span class="swatch-pill"><span class="swatch-dot" style="background: var(--color-cyan);"></span> Dokja Cyan</span>
@@ -357,104 +368,104 @@
     <section class="section starstream-showcase" id="starstream">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag">[ GAMIFICATION & LORE ]</span>
+          <span class="section-tag">[ GAMIFIED READING ]</span>
           <h2 class="section-title">The Star Stream Progression System</h2>
           <p class="section-subtitle">
-            Epilogue rewards your real-world reading habits. Every chapter, marathon session, and completed volume unlocks authentic Star Stream modifiers, fables, and coins.
+            Why read for free when you can earn Coins and Constellation Modifiers? Epilogue gamifies your real-world reading habits as you conquer chapters and marathons.
           </p>
         </div>
 
         <!-- Scenarios Showcase -->
         <div class="scenarios-container">
-          <div class="scenario-card" title="Click to sponsor coins!">
+          <div class="scenario-card" title="Tap to test coin sponsorship!">
             <div class="scenario-header">
               <span class="scenario-tag main">MAIN SCENARIO #1</span>
               <span class="scenario-difficulty">DIFF: F</span>
             </div>
             <h3 class="scenario-title">Proof of Value</h3>
-            <p class="scenario-desc">Read your first chapter and prove your presence to the observing constellations of the Star Stream.</p>
+            <p class="scenario-desc">Finish Chapter 1 without closing the app to scroll social media.</p>
             <div class="scenario-reward">
-              <span>🪙 Reward: 300 Coins + Title 'The Beginning Reader'</span>
+              <span>🪙 +300 Coins • Title: 'The Beginning Reader'</span>
             </div>
           </div>
 
-          <div class="scenario-card" title="Click to sponsor coins!">
+          <div class="scenario-card" title="Tap to test coin sponsorship!">
             <div class="scenario-header">
               <span class="scenario-tag bounty">BOUNTY QUEST</span>
               <span class="scenario-difficulty">DIFF: B</span>
             </div>
-            <h3 class="scenario-title">The 50,000-Word Marathon</h3>
-            <p class="scenario-desc">Maintain an unbroken reading streak across 3 consecutive days and consume over 50,000 words.</p>
+            <h3 class="scenario-title">The 3 AM Marathon</h3>
+            <p class="scenario-desc">Read 50,000 words while repeatedly telling yourself "just one more chapter, then I'll sleep."</p>
             <div class="scenario-reward">
-              <span>🪙 Reward: 1,500 Coins + Attribute 'Reading Endurance'</span>
+              <span>🪙 +1,500 Coins • Attribute: 'Reading Endurance'</span>
             </div>
           </div>
 
-          <div class="scenario-card" title="Click to sponsor coins!">
+          <div class="scenario-card" title="Tap to test coin sponsorship!">
             <div class="scenario-header">
               <span class="scenario-tag hidden">HIDDEN SCENARIO</span>
-              <span class="scenario-difficulty">DIFF: ???</span>
+              <span class="scenario-difficulty">DIFF: SSS</span>
             </div>
-            <h3 class="scenario-title">The Single Story Reader</h3>
-            <p class="scenario-desc">Complete all 551 chapters of Omniscient Reader's Viewpoint from beginning to end without abandoning the story.</p>
+            <h3 class="scenario-title">The 551-Chapter Survivor</h3>
+            <p class="scenario-desc">Survive the emotional damage of reading all 551 chapters of Omniscient Reader's Viewpoint.</p>
             <div class="scenario-reward">
-              <span>🪙 Reward: 10,000 Coins + Canon Fable 'One Who Opposes the Miracle'</span>
+              <span>🪙 +10,000 Coins • Fable: 'One Who Opposes the Miracle'</span>
             </div>
           </div>
 
-          <div class="scenario-card" title="Click to sponsor coins!">
+          <div class="scenario-card" title="Tap to test coin sponsorship!">
             <div class="scenario-header">
               <span class="scenario-tag hidden">HIDDEN SCENARIO</span>
               <span class="scenario-difficulty">DIFF: S</span>
             </div>
-            <h3 class="scenario-title">Archive of the Constellations</h3>
-            <p class="scenario-desc">Annotate over 100 highlights across all 5 Star Stream color palettes with attached personal commentary.</p>
+            <h3 class="scenario-title">Archive Chronicler</h3>
+            <p class="scenario-desc">Save over 100 color-coded quotes with your personal commentary and theories.</p>
             <div class="scenario-reward">
-              <span>🪙 Reward: 2,500 Coins + Modifier 'Chronicler of Ruin'</span>
+              <span>🪙 +2,500 Coins • Modifier: 'Chronicler of Ruin'</span>
             </div>
           </div>
         </div>
 
-        <!-- Constellation Modifiers Preview -->
-        <h3 style="text-align: center; margin-bottom: 24px; font-size: 1.3rem; font-family: var(--font-serif);">
+        <!-- Constellation Modifiers -->
+        <h3 style="text-align: center; margin-bottom: 24px; font-size: 1.25rem; font-family: var(--font-serif);">
           🌌 234 Canonical Constellation Modifiers
         </h3>
 
         <div class="constellations-grid">
-          <div class="constellation-card" title="Click for Constellation Reaction!">
+          <div class="constellation-card" title="Tap for Constellation reaction!">
             <span class="constellation-modifier">Demon King of Salvation</span>
-            <span class="constellation-rank">Rank: Myth-Grade Constellation</span>
-            <span class="constellation-quote">"I am the one who has survived to the very end of the story."</span>
+            <span class="constellation-rank">Rank: Myth-Grade</span>
+            <span class="constellation-quote">"Always planning something unhinged behind your back."</span>
           </div>
 
-          <div class="constellation-card" title="Click for Constellation Reaction!">
+          <div class="constellation-card" title="Tap for Constellation reaction!">
             <span class="constellation-modifier">Secretive Plotter</span>
-            <span class="constellation-rank">Rank: Outer God / Myth-Grade</span>
-            <span class="constellation-quote">"He remains silent, watching your journey across the world lines."</span>
+            <span class="constellation-rank">Rank: Myth-Grade</span>
+            <span class="constellation-quote">"Watches silently as you binge 40 chapters in one night."</span>
           </div>
 
-          <div class="constellation-card" title="Click for Constellation Reaction!">
+          <div class="constellation-card" title="Tap for Constellation reaction!">
             <span class="constellation-modifier">Prisoner of the Golden Headband</span>
-            <span class="constellation-rank">Rank: Great Sage Heaven's Equal</span>
-            <span class="constellation-quote">"He pulls at his hair in delight and sends a sponsorship of coins."</span>
+            <span class="constellation-rank">Rank: Great Sage</span>
+            <span class="constellation-quote">"Laughs out loud at the battle scene and sponsors coins."</span>
           </div>
 
-          <div class="constellation-card" title="Click for Constellation Reaction!">
+          <div class="constellation-card" title="Tap for Constellation reaction!">
             <span class="constellation-modifier">Demonic Judge of Fire</span>
-            <span class="constellation-rank">Rank: Archangel of Eden</span>
-            <span class="constellation-quote">"She clasps her hands, desperately hoping for your companions' safety."</span>
+            <span class="constellation-rank">Rank: Archangel</span>
+            <span class="constellation-quote">"Rooting aggressively for companion camaraderie."</span>
           </div>
 
-          <div class="constellation-card" title="Click for Constellation Reaction!">
+          <div class="constellation-card" title="Tap for Constellation reaction!">
             <span class="constellation-modifier">Abyssal Black Flame Dragon</span>
-            <span class="constellation-rank">Rank: Middle Boss of Black Cloud</span>
-            <span class="constellation-quote">"He claims that dark flames reside within your reading endurance."</span>
+            <span class="constellation-rank">Rank: Middle Boss</span>
+            <span class="constellation-quote">"Claims your reading streak is fueled by dark dragon fire."</span>
           </div>
 
-          <div class="constellation-card" title="Click for Constellation Reaction!">
+          <div class="constellation-card" title="Tap for Constellation reaction!">
             <span class="constellation-modifier">King of a Kingless World</span>
-            <span class="constellation-rank">Type: Giant Story Fable</span>
-            <span class="constellation-quote">"The story of a lone reader who dismantled the absolute throne."</span>
+            <span class="constellation-rank">Type: Story Fable</span>
+            <span class="constellation-quote">"For readers who refuse to bow to paid subscription traps."</span>
           </div>
         </div>
       </div>
@@ -465,25 +476,25 @@
       <div class="container">
         <div class="retrocognition-box">
           <div>
-            <span class="section-tag" style="color: var(--color-cyan);">[ WORLDLINE RECONCILIATION ]</span>
-            <h2 style="font-size: 2rem; margin: 8px 0 16px; font-weight: 800;">
-              Retrocognition (과거 회상 — Worldline Sync)
+            <span class="section-tag">[ WORLDLINE SYNC ]</span>
+            <h2 style="font-size: 1.85rem; margin: 8px 0 16px; font-weight: 800;">
+              Retrocognition (과거 회상)
             </h2>
-            <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px;">
-              Already have a vast digital library? Epilogue’s built-in <strong>Retrocognition Engine</strong> scans your existing EPUB collection, calculates words and chapters already consumed, and synchronizes your lifetime telemetry.
+            <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+              Already have hundreds of chapters read on other apps or in your Calibre library? You don’t have to start from scratch.
             </p>
             <p style="color: var(--text-secondary); line-height: 1.7;">
-              It immediately back-credits your earned Coins, clears historical Scenarios, and bestows the Constellation Modifiers and Fables you’ve rightfully earned across your reading lifetime.
+              Epilogue’s <strong>Retrocognition Engine</strong> scans your imported EPUB collection, calculates words already read, and immediately back-credits your earned Coins, clears historical Scenarios, and unlocks your rightful Fables and Modifiers.
             </p>
           </div>
 
           <!-- Telemetry Preview Monitor -->
           <div class="retro-telemetry-demo">
             <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
-              [RECOGNITION TELEMETRY STATUS]
+              [WORLDLINE TELEMETRY SCAN]
             </div>
             <div class="telemetry-row">
-              <span class="telemetry-label">Lifetime Words Scanned</span>
+              <span class="telemetry-label">Words Scanned</span>
               <span class="telemetry-value">3,428,910 words</span>
             </div>
             <div class="telemetry-row">
@@ -491,7 +502,7 @@
               <span class="telemetry-value">12 Volumes</span>
             </div>
             <div class="telemetry-row">
-              <span class="telemetry-label">Reading Speed (WPM)</span>
+              <span class="telemetry-label">Reading Speed</span>
               <span class="telemetry-value">345 WPM</span>
             </div>
             <div class="telemetry-row">
@@ -499,7 +510,7 @@
               <span class="telemetry-value">18,500 Coins</span>
             </div>
             <div class="telemetry-row" style="border: none;">
-              <span class="telemetry-label">Worldline Integrity</span>
+              <span class="telemetry-label">Sync Status</span>
               <span class="telemetry-value" style="color: var(--color-emerald);">100% Synchronized</span>
             </div>
           </div>
@@ -511,10 +522,10 @@
     <section class="section" id="downloads">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag">[ DIRECT DISTRIBUTION ]</span>
-          <h2 class="section-title">Download Epilogue for Android</h2>
+          <span class="section-tag">[ DIRECT DOWNLOAD ]</span>
+          <h2 class="section-title">Get Epilogue for Android</h2>
           <p class="section-subtitle">
-            Pre-compiled release binaries are hosted directly on GitHub Releases. Free, open-source, and zero tracking.
+            Pick the build that matches your hardware. If you're on a phone released after 2017, the <strong>ARM64-v8a</strong> build is what you want.
           </p>
         </div>
 
@@ -523,9 +534,9 @@
           <div class="download-card recommended">
             <span class="badge-recommended">RECOMMENDED</span>
             <h3 class="download-card-title">ARM64-v8a</h3>
-            <span class="download-card-arch">64-bit Architecture</span>
+            <span class="download-card-arch">64-bit Android</span>
             <p class="download-card-desc">
-              Tailored for 99% of modern Android smartphones (Android 9.0 to 15+). Lightest, fastest, and most battery efficient.
+              For 99% of modern phones (Samsung Galaxy, Google Pixel, Xiaomi, OnePlus). Fastest and most battery-friendly.
             </p>
             <span class="download-card-size">~20.7 MB • Split APK</span>
             <a href="https://github.com/DistantPromise/Epilogue/releases/download/v1.0.0/Epilogue-v1.0.0-arm64-v8a.apk" class="btn-download-apk">
@@ -541,9 +552,9 @@
           <!-- Universal -->
           <div class="download-card">
             <h3 class="download-card-title">Universal</h3>
-            <span class="download-card-arch">All CPU Architectures</span>
+            <span class="download-card-arch">All Devices</span>
             <p class="download-card-desc">
-              All-in-one APK containing native binaries for every device. Ideal for tablets, e-ink readers, or if unsure of your chipset.
+              Contains binaries for all chipsets. Great for Android tablets, e-ink displays, or if you aren't sure of your phone specs.
             </p>
             <span class="download-card-size">~24.6 MB • Standalone</span>
             <a href="https://github.com/DistantPromise/Epilogue/releases/download/v1.0.0/Epilogue-v1.0.0-universal.apk" class="btn-download-apk">
@@ -559,9 +570,9 @@
           <!-- ARMeabi-v7a -->
           <div class="download-card">
             <h3 class="download-card-title">ARMeabi-v7a</h3>
-            <span class="download-card-arch">32-bit Legacy ARM</span>
+            <span class="download-card-arch">32-bit Legacy</span>
             <p class="download-card-desc">
-              Crafted specifically for older Android phones, legacy e-readers, and budget 32-bit hardware.
+              For older budget phones, legacy e-readers, and devices running vintage 32-bit Android versions.
             </p>
             <span class="download-card-size">~18.4 MB • Split APK</span>
             <a href="https://github.com/DistantPromise/Epilogue/releases/download/v1.0.0/Epilogue-v1.0.0-armeabi-v7a.apk" class="btn-download-apk">
@@ -577,9 +588,9 @@
           <!-- x86_64 -->
           <div class="download-card">
             <h3 class="download-card-title">x86_64</h3>
-            <span class="download-card-arch">Intel & AMD 64-bit</span>
+            <span class="download-card-arch">Emulators & PC</span>
             <p class="download-card-desc">
-              Optimized for Android emulators (Android Studio, BlueStacks, LDPlayer), Chromebooks, and Intel-based tablets.
+              For Android emulators on PC (Android Studio, LDPlayer, BlueStacks) and Intel/AMD Chromebooks.
             </p>
             <span class="download-card-size">~22.3 MB • Split APK</span>
             <a href="https://github.com/DistantPromise/Epilogue/releases/download/v1.0.0/Epilogue-v1.0.0-x86_64.apk" class="btn-download-apk">
@@ -595,13 +606,13 @@
 
         <!-- Installation Instructions -->
         <div class="install-guide-box">
-          <h3 style="font-size: 1.15rem; font-weight: 700;">How to Install Unsigned APK on Android</h3>
+          <h3 style="font-size: 1.15rem; font-weight: 700;">30-Second Installation</h3>
           <div class="install-steps">
             <div class="step-item">
               <div class="step-num">1</div>
               <div class="step-text">
                 <h4>Download the APK</h4>
-                <p>Tap the recommended ARM64-v8a APK above using Chrome or your device browser.</p>
+                <p>Tap the ARM64-v8a build above directly from your Android browser.</p>
               </div>
             </div>
 
@@ -609,7 +620,7 @@
               <div class="step-num">2</div>
               <div class="step-text">
                 <h4>Allow Unknown Sources</h4>
-                <p>When prompted by Android, permit your browser to install unknown applications.</p>
+                <p>When Android prompts you, tap "Settings" and toggle permission to install from your browser.</p>
               </div>
             </div>
 
@@ -617,7 +628,7 @@
               <div class="step-num">3</div>
               <div class="step-text">
                 <h4>Open & Import</h4>
-                <p>Launch Epilogue, select your book folder or import your EPUBs, and begin reading.</p>
+                <p>Open Epilogue, select your EPUB folder or import files, and dive right in.</p>
               </div>
             </div>
           </div>
@@ -638,18 +649,18 @@
               </div>
             </div>
             <p>
-              A non-commercial, open-source fan creation inspired by <em>Omniscient Reader's Viewpoint</em> (전지적 독자 시점) by authors Sing Shong (싱숑). Built with love for that one reader.
+              An open-source fan project inspired by <em>Omniscient Reader's Viewpoint</em> (전지적 독자 시점) by authors Sing Shong (싱숑). Built by readers, for readers.
             </p>
           </div>
 
           <div class="footer-col">
-            <h5>Navigation</h5>
+            <h5>Quick Links</h5>
             <ul>
-              <li><a href="#philosophy">Reading Philosophy</a></li>
+              <li><a href="#why-epilogue">Why Epilogue</a></li>
               <li><a href="#engine">Engine & Viewport Math</a></li>
               <li><a href="#starstream">Star Stream Progression</a></li>
               <li><a href="#retrocognition">Retrocognition Sync</a></li>
-              <li><a href="#downloads">Download APKs</a></li>
+              <li><a href="#downloads">Download APK</a></li>
             </ul>
           </div>
 
@@ -657,8 +668,8 @@
             <h5>Open Source</h5>
             <ul>
               <li><a href="https://github.com/DistantPromise/Epilogue" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
-              <li><a href="https://github.com/DistantPromise/Epilogue/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a></li>
-              <li><a href="https://github.com/DistantPromise/Epilogue/issues" target="_blank" rel="noopener noreferrer">Issue Tracker</a></li>
+              <li><a href="https://github.com/DistantPromise/Epilogue/releases" target="_blank" rel="noopener noreferrer">Releases & Changelogs</a></li>
+              <li><a href="https://github.com/DistantPromise/Epilogue/issues" target="_blank" rel="noopener noreferrer">Report an Issue</a></li>
               <li><a href="https://github.com/DistantPromise/Epilogue/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
             </ul>
           </div>

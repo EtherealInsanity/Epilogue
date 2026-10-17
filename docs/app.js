@@ -1,7 +1,7 @@
 /**
  * 🌌 EPILOGUE (독자의 에필로그) — OFFICIAL INTERACTIVE SCRIPT
  * Handles Starfield Canvas, Phone Mockup Reader Engine, CRT Shader,
- * Star Stream Easter Eggs, and Platform Auto-detection.
+ * Star Stream Easter Eggs, and Mobile Drawer Interactions.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,7 +23,9 @@ function initStarfield() {
   const ctx = canvas.getContext('2d');
   let width, height;
   let stars = [];
-  const starCount = 85;
+  // Reduce star count slightly on small mobile devices for battery efficiency
+  const isMobile = window.innerWidth < 768;
+  const starCount = isMobile ? 45 : 80;
 
   function resize() {
     width = canvas.width = window.innerWidth;
@@ -37,11 +39,11 @@ function initStarfield() {
       stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: Math.random() * 1.5 + 0.4,
-        alpha: Math.random() * 0.8 + 0.2,
+        radius: Math.random() * 1.4 + 0.3,
+        alpha: Math.random() * 0.75 + 0.25,
         twinkleSpeed: (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: (Math.random() - 0.5) * 0.15,
+        vx: (Math.random() - 0.5) * 0.12,
+        vy: (Math.random() - 0.5) * 0.12,
       });
     }
   }
@@ -56,8 +58,8 @@ function initStarfield() {
         const dy = stars[i].y - stars[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 110) {
-          const lineAlpha = (1 - dist / 110) * 0.12 * Math.min(stars[i].alpha, stars[j].alpha);
+        if (dist < 100) {
+          const lineAlpha = (1 - dist / 100) * 0.12 * Math.min(stars[i].alpha, stars[j].alpha);
           ctx.strokeStyle = `rgba(6, 182, 212, ${lineAlpha})`;
           ctx.lineWidth = 0.6;
           ctx.beginPath();
@@ -118,14 +120,14 @@ function initThemeToggle() {
     if (theme === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
       toggleBtn.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>`;
       toggleBtn.setAttribute('title', 'Switch to Cosmic Dark');
     } else {
       document.documentElement.removeAttribute('data-theme');
       toggleBtn.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="5"></circle>
           <line x1="12" y1="1" x2="12" y2="3"></line>
           <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -163,47 +165,50 @@ function initPhoneSimulator() {
   const pages = [
     `<h3>PROLOGUE</h3>
      <p>『There are three ways to survive in a ruined world. Now, I have forgotten a few. But one thing is certain: you who are reading this will survive.』</p>
-     <p>A web novel bulletin board. A generic, unoriginal text. However, those words were written there.</p>
-     <p>My name is Kim Dokja. 28 years old. An office worker at a subsidiary of a game company. My hobby was reading web novels on the subway commute.</p>
-     <blockquote>[The Constellation 'Demon King of Salvation' has not yet reached his final destination.]</blockquote>`,
+     <p>A web novel bulletin board. A text that seemed ordinary enough. Yet, those exact words were written there.</p>
+     <p>My name is Kim Dokja. 28 years old, an office worker at a game company affiliate. My sole hobby was reading web novels during the subway commute home.</p>
+     <blockquote>[The Constellation 'Demon King of Salvation' glances at your late-night reading habits.]</blockquote>`,
 
-    `<h3>CHAPTER 1: STARTING THE PAID SERVICE</h3>
+    `<h3>CHAPTER 1: THE PAID SERVICE BEGINS</h3>
      <p>『The paid service of the 8,612th world line will now begin.』</p>
-     <p>The blue notification window floated in the empty air of the train compartment. The subway carriage rattled violently along Dongdaemun station.</p>
-     <p>“Huh? What’s this?”</p>
-     <p>“Is this a promotional stunt for a new AR game?”</p>
-     <p class="hl-cyan">People whispered in confusion. Only I knew. The world of the novel I had been reading for over ten years had just become reality.</p>`,
+     <p>A bright blue notification window floated in the empty air of the train compartment. The subway carriage rattled violently past Dongdaemun station.</p>
+     <p>“Wait, is this an augmented reality ad?”</p>
+     <p>“Who hacked the subway screens?”</p>
+     <p class="hl-cyan">People chuckled nervously. Only I knew. The 3,149-chapter novel I had followed for over ten years had just become reality.</p>`,
 
-    `<h3>CHAPTER 1: THE DOKKAEBI APPEARS</h3>
-     <p>A creature with small horns and a fluffy white fur body appeared from the void, floating in midair.</p>
-     <p>“Aha, ladies and gentlemen! You’re all looking so peaceful!”</p>
+    `<h3>CHAPTER 1: A DOKKAEBI ARRIVES</h3>
+     <p>A fluffy creature with two small horns floated into the subway car out of thin air, chuckling softly.</p>
+     <p>“Aha! Everyone looks so relaxed and peaceful!”</p>
      <p class="hl-gold">『Main Scenario #1 — Proof of Value has arrived.』</p>
      <p>Genre: Survival<br>Difficulty: F<br>Time Limit: 30 minutes<br>Clear Condition: Kill one or more living organisms.</p>
-     <p class="hl-crimson">The doors hissed shut. The lights plunged into total darkness.</p>`
+     <p class="hl-crimson">The lights snapped off. The subway doors sealed shut with a deafening hiss.</p>`
   ];
 
   let currentPage = 0;
   let isContinuousScroll = false;
   let isCrtMode = false;
   const themes = ['paperLight', 'sepiaWarm', 'slateGray', 'oledDark'];
+  const themeLabels = ['Paper Light', 'Sepia Warm', 'Slate Gray', 'OLED Pitch'];
   let currentThemeIdx = 0;
   const fonts = ['serif', 'sans', 'mono'];
+  const fontLabels = ['Serif', 'Sans', 'Mono'];
   let currentFontIdx = 0;
   const highlights = ['hl-cyan', 'hl-gold', 'hl-crimson', 'hl-emerald', 'hl-violet'];
+  const hlLabels = ['Cyan', 'Gold', 'Crimson', 'Emerald', 'Violet'];
   let currentHlIdx = 0;
 
   function renderPage() {
     if (isContinuousScroll) {
-      viewport.innerHTML = pages.join('<hr style="margin: 20px 0; border: none; border-top: 1px dashed rgba(120,120,120,0.3);">');
+      viewport.innerHTML = pages.join('<hr style="margin: 18px 0; border: none; border-top: 1px dashed rgba(120,120,120,0.3); opacity: 0.5;">');
       if (pageIndicator) pageIndicator.innerText = 'Continuous Scroll';
-      if (prevPageBtn) prevPageBtn.style.display = 'none';
-      if (nextPageBtn) nextPageBtn.style.display = 'none';
+      if (prevPageBtn) prevPageBtn.style.opacity = '0.3';
+      if (nextPageBtn) nextPageBtn.style.opacity = '0.3';
       updateBudgetMath(3200, 48, 67);
     } else {
       viewport.innerHTML = pages[currentPage];
       if (pageIndicator) pageIndicator.innerText = `Page ${currentPage + 1} of ${pages.length}`;
-      if (prevPageBtn) prevPageBtn.style.display = 'inline-block';
-      if (nextPageBtn) nextPageBtn.style.display = 'inline-block';
+      if (prevPageBtn) prevPageBtn.style.opacity = currentPage === 0 ? '0.3' : '1';
+      if (nextPageBtn) nextPageBtn.style.opacity = currentPage === pages.length - 1 ? '0.3' : '1';
       viewport.scrollTop = 0;
       updateBudgetMath(1680, 26, 64);
     }
@@ -211,7 +216,7 @@ function initPhoneSimulator() {
 
   function updateBudgetMath(budget, lines, chars) {
     if (!mathBadge) return;
-    mathBadge.innerText = `Layout Math: Usable Lines: ${lines} × Chars: ${chars} = Budget: ${budget} (100% Filled)`;
+    mathBadge.innerText = `Dynamic Budget: Usable Lines ${lines} × Chars ${chars} = ${budget.toLocaleString()} chars (100% Filled)`;
   }
 
   // CRT Scanline Shader Toggle
@@ -222,8 +227,8 @@ function initPhoneSimulator() {
       crtBtn.classList.toggle('active', isCrtMode);
       playSynthChime(isCrtMode ? 660 : 330, 'square');
       showStarstreamToast(isCrtMode ? 
-        "[Shader Active: Retro CRT Scanline Shader 60Hz Overlay]" : 
-        "[Shader Inactive: Standard Dynamic Viewport Engine]"
+        "[Shader Active: Retro CRT Scanlines enabled]" : 
+        "[Shader Inactive: Clean vector mode]"
       );
     });
   }
@@ -232,25 +237,25 @@ function initPhoneSimulator() {
   if (modeBtn) {
     modeBtn.addEventListener('click', () => {
       isContinuousScroll = !isContinuousScroll;
-      modeBtn.innerText = isContinuousScroll ? 'Mode: Scroll' : 'Mode: Page-Turn';
+      modeBtn.innerText = isContinuousScroll ? 'Continuous Scroll' : 'Page-Turn';
       modeBtn.classList.toggle('active', isContinuousScroll);
       playSynthChime(440, 'sine');
       renderPage();
     });
   }
 
-  // Reader Themes (Paper Light, Sepia, Slate, OLED Dark)
+  // Reader Themes
   if (themeBtn) {
     themeBtn.addEventListener('click', () => {
       currentThemeIdx = (currentThemeIdx + 1) % themes.length;
       const selected = themes[currentThemeIdx];
       phoneScreen.setAttribute('data-reader-theme', selected);
-      themeBtn.innerText = `Theme: ${selected.replace('Warm', '').replace('Dark', '').replace('Light', '')}`;
+      themeBtn.innerText = themeLabels[currentThemeIdx];
       playSynthChime(520, 'sine');
     });
   }
 
-  // Fonts (Serif, Sans, Mono)
+  // Fonts
   if (fontBtn) {
     fontBtn.addEventListener('click', () => {
       currentFontIdx = (currentFontIdx + 1) % fonts.length;
@@ -258,7 +263,7 @@ function initPhoneSimulator() {
       viewport.classList.remove('font-sans', 'font-mono');
       if (font === 'sans') viewport.classList.add('font-sans');
       if (font === 'mono') viewport.classList.add('font-mono');
-      fontBtn.innerText = `Font: ${font.toUpperCase()}`;
+      fontBtn.innerText = fontLabels[currentFontIdx];
       playSynthChime(480, 'sine');
     });
   }
@@ -273,15 +278,17 @@ function initPhoneSimulator() {
         highlights.forEach(h => el.classList.remove(h));
         el.classList.add(colorClass);
       });
+      hlBtn.innerText = `${hlLabels[currentHlIdx]} Highlight`;
       playSynthChime(580, 'triangle');
-      showStarstreamToast(`[Annotation Palette Selected: ${colorClass.replace('hl-', '').toUpperCase()}]`);
+      showStarstreamToast(`[Annotation Palette: ${hlLabels[currentHlIdx]}]`);
     });
   }
 
-  // Page Buttons
+  // Page Navigation Buttons
   if (prevPageBtn) {
-    prevPageBtn.addEventListener('click', () => {
-      if (currentPage > 0) {
+    prevPageBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!isContinuousScroll && currentPage > 0) {
         currentPage--;
         playSynthChime(380, 'sine');
         renderPage();
@@ -290,8 +297,9 @@ function initPhoneSimulator() {
   }
 
   if (nextPageBtn) {
-    nextPageBtn.addEventListener('click', () => {
-      if (currentPage < pages.length - 1) {
+    nextPageBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!isContinuousScroll && currentPage < pages.length - 1) {
         currentPage++;
         playSynthChime(460, 'sine');
         renderPage();
@@ -299,25 +307,44 @@ function initPhoneSimulator() {
     });
   }
 
-  // Tap left/right side of reader viewport to turn page (mirroring Epilogue tap zones)
-  viewport.addEventListener('click', (e) => {
+  // Left/Right Tap zones inside reader viewport (only horizontal tap, no vertical drag hijack)
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  viewport.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  viewport.addEventListener('touchend', (e) => {
     if (isContinuousScroll) return;
-    const rect = viewport.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    if (clickX < rect.width * 0.35) {
-      if (currentPage > 0) {
-        currentPage--;
-        playSynthChime(380, 'sine');
-        renderPage();
-      }
-    } else if (clickX > rect.width * 0.65) {
-      if (currentPage < pages.length - 1) {
-        currentPage++;
-        playSynthChime(460, 'sine');
-        renderPage();
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // If user was swiping vertically, don't trigger page turn
+    if (Math.abs(deltaY) > 30) return;
+
+    // If subtle tap (not swipe)
+    if (Math.abs(deltaX) < 15) {
+      const rect = viewport.getBoundingClientRect();
+      const clickX = touchEndX - rect.left;
+      if (clickX < rect.width * 0.35) {
+        if (currentPage > 0) {
+          currentPage--;
+          playSynthChime(380, 'sine');
+          renderPage();
+        }
+      } else if (clickX > rect.width * 0.65) {
+        if (currentPage < pages.length - 1) {
+          currentPage++;
+          playSynthChime(460, 'sine');
+          renderPage();
+        }
       }
     }
-  });
+  }, { passive: true });
 
   renderPage();
 }
@@ -328,13 +355,13 @@ function initPhoneSimulator() {
 function initConstellationInteractions() {
   const cards = document.querySelectorAll('.constellation-card, .scenario-card');
   const toasts = [
-    "[The Constellation, 'Demon King of Salvation', has sponsored 100 coins.]",
-    "[The Constellation, 'Secretive Plotter', is silent.]",
+    "[The Constellation, 'Demon King of Salvation', sponsors 100 coins and tells you to go to sleep.]",
+    "[The Constellation, 'Secretive Plotter', silently observes your 3 AM reading spree.]",
     "[The Constellation, 'Prisoner of the Golden Headband', bursts into laughter and sends 200 coins.]",
-    "[The Constellation, 'Demonic Judge of Fire', is praying for your companions.]",
-    "[The Constellation, 'Abyssal Black Flame Dragon', glares with pitch-black flames.]",
-    "[The Fourth Wall speaks: 『You are reading the story well.』]",
-    "[System: Retrocognition sequence completed. +500 Coins rewarded.]"
+    "[The Constellation, 'Demonic Judge of Fire', is shedding tears over your companion loyalty.]",
+    "[The Constellation, 'Abyssal Black Flame Dragon', is flexing his dark dragon flames.]",
+    "[The Fourth Wall murmurs: 『One more chapter won't hurt, right?』]",
+    "[System: Retrocognition complete. 18,500 Coins back-credited to your account.]"
   ];
 
   cards.forEach(card => {
@@ -357,8 +384,8 @@ function showStarstreamToast(message) {
   const toast = document.createElement('div');
   toast.className = 'starstream-toast';
   toast.innerHTML = `
-    <span style="color: var(--color-gold); font-size: 1rem;">🪙</span>
-    <span>${message}</span>
+    <span style="color: var(--color-gold); font-size: 0.95rem; flex-shrink: 0;">🪙</span>
+    <span style="flex: 1;">${message}</span>
   `;
 
   container.appendChild(toast);
@@ -366,9 +393,9 @@ function showStarstreamToast(message) {
   setTimeout(() => {
     toast.style.opacity = '0';
     toast.style.transform = 'translateY(10px)';
-    toast.style.transition = 'all 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
-  }, 4200);
+    toast.style.transition = 'all 0.25s ease';
+    setTimeout(() => toast.remove(), 250);
+  }, 3800);
 }
 
 /* Web Audio API Sound Chime (Zero external audio files required) */
@@ -382,16 +409,16 @@ function playSynthChime(freq = 440, type = 'sine') {
 
     osc.type = type;
     osc.frequency.setValueAtTime(freq, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.4, ctx.currentTime + 0.12);
 
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start();
-    osc.stop(ctx.currentTime + 0.3);
+    osc.stop(ctx.currentTime + 0.25);
   } catch (e) {
     // Audio context may be blocked by autoplay policies until user clicks
   }
@@ -414,26 +441,52 @@ function initPlatformDetection() {
 }
 
 /* ==========================================================================
-   6. Mobile Menu Navigation
+   6. Mobile Navigation Menu Drawer
    ========================================================================== */
 function initMobileNav() {
   const mobileBtn = document.getElementById('mobile-menu-btn');
-  const navMenu = document.querySelector('.nav-menu');
+  const navMenu = document.getElementById('nav-menu');
 
-  if (mobileBtn && navMenu) {
-    mobileBtn.addEventListener('click', () => {
-      const isVisible = navMenu.style.display === 'flex';
-      navMenu.style.display = isVisible ? 'none' : 'flex';
-      if (!isVisible) {
-        navMenu.style.flexDirection = 'column';
-        navMenu.style.position = 'absolute';
-        navMenu.style.top = '72px';
-        navMenu.style.left = '0';
-        navMenu.style.width = '100%';
-        navMenu.style.background = 'var(--bg-glass-strong)';
-        navMenu.style.padding = '24px';
-        navMenu.style.borderBottom = '1px solid var(--border-subtle)';
-      }
-    });
+  if (!mobileBtn || !navMenu) return;
+
+  function toggleMenu() {
+    const isOpen = navMenu.classList.toggle('open');
+    mobileBtn.classList.toggle('open', isOpen);
+    mobileBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    document.body.style.overflow = isOpen ? 'hidden' : '';
   }
+
+  function closeMenu() {
+    navMenu.classList.remove('open');
+    mobileBtn.classList.remove('open');
+    mobileBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  mobileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  // Close automatically when any nav link is tapped
+  const navLinks = navMenu.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
+    });
+  });
+
+  // Close when tapping outside the menu
+  document.addEventListener('click', (e) => {
+    if (navMenu.classList.contains('open') && !navMenu.contains(e.target) && !mobileBtn.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navMenu.classList.contains('open')) {
+      closeMenu();
+    }
+  });
 }
