@@ -18,8 +18,8 @@
 </p>
 
 <p align="center">
-  <a href="https://distantpromise.github.io/Epilogue/"><strong>🌐 Official Website & Live Interactive Demo</strong></a> • 
-  <a href="https://github.com/DistantPromise/Epilogue/releases"><strong>📦 Download APKs</strong></a> • 
+  <a href="https://etherealinsanity.github.io/Epilogue/"><strong>🌐 Official Website & Live Interactive Demo</strong></a> • 
+  <a href="https://github.com/EtherealInsanity/Epilogue/releases"><strong>📦 Download APKs</strong></a> • 
   <a href="TIME_CAPSULE.md"><strong>📜 Architecture & Capsule</strong></a>
 </p>
 
@@ -155,7 +155,7 @@ Color-code memorable quotes with authentic constellation palettes:
 
 ## 📦 Download & Installation
 
-Pre-compiled release APKs are available on the [**GitHub Releases Page**](https://github.com/DistantPromise/Epilogue/releases):
+Pre-compiled release APKs are available on the [**GitHub Releases Page**](https://github.com/EtherealInsanity/Epilogue/releases):
 
 | APK Package | Recommended For |
 | :--- | :--- |
@@ -177,7 +177,7 @@ Pre-compiled release APKs are available on the [**GitHub Releases Page**](https:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/DistantPromise/Epilogue.git
+git clone https://github.com/EtherealInsanity/Epilogue.git
 cd Epilogue
 
 # 2. Install dependencies

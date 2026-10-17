@@ -154,7 +154,6 @@ function initPhoneSimulator() {
   const themeBtn = document.getElementById('btn-sim-theme');
   const fontBtn = document.getElementById('btn-sim-font');
   const hlBtn = document.getElementById('btn-sim-hl');
-  const mathBadge = document.getElementById('viewport-math-badge');
   const prevPageBtn = document.getElementById('btn-page-prev');
   const nextPageBtn = document.getElementById('btn-page-next');
   const pageIndicator = document.getElementById('reader-page-indicator');
@@ -203,20 +202,13 @@ function initPhoneSimulator() {
       if (pageIndicator) pageIndicator.innerText = 'Continuous Scroll';
       if (prevPageBtn) prevPageBtn.style.opacity = '0.3';
       if (nextPageBtn) nextPageBtn.style.opacity = '0.3';
-      updateBudgetMath(3200, 48, 67);
     } else {
       viewport.innerHTML = pages[currentPage];
       if (pageIndicator) pageIndicator.innerText = `Page ${currentPage + 1} of ${pages.length}`;
       if (prevPageBtn) prevPageBtn.style.opacity = currentPage === 0 ? '0.3' : '1';
       if (nextPageBtn) nextPageBtn.style.opacity = currentPage === pages.length - 1 ? '0.3' : '1';
       viewport.scrollTop = 0;
-      updateBudgetMath(1680, 26, 64);
     }
-  }
-
-  function updateBudgetMath(budget, lines, chars) {
-    if (!mathBadge) return;
-    mathBadge.innerText = `Dynamic Budget: Usable Lines ${lines} × Chars ${chars} = ${budget.toLocaleString()} chars (100% Filled)`;
   }
 
   // CRT Scanline Shader Toggle
