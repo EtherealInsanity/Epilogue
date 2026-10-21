@@ -7,69 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release Tag Name (e.g. v2.0.3)'
+        description: 'Release Tag Name (e.g. v2.0.4)'
         required: false
-        default: 'v2.0.3'
+        default: 'v2.0.4'
 
 permissions:
   contents: write
 
 jobs:
-  build-android:
-    name: Build Android APKs
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build Split APKs
-        run: flutter build apk --split-per-abi --release
-
-      - name: Build Universal APK
-        run: flutter build apk --release
-
-      - name: Determine Version
-        id: version
-        shell: bash
-        run: |
-          TAG="${{ github.event.inputs.tag_name }}"
-          if [ -z "$TAG" ]; then
-            TAG="${{ github.ref_name }}"
-          fi
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-
-      - name: Stage Android Release Artifacts
-        shell: bash
-        run: |
-          TAG="${{ steps.version.outputs.tag }}"
-          mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "dist/Epilogue-${TAG}-arm64-v8a.apk"
-          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "dist/Epilogue-${TAG}-armeabi-v7a.apk"
-          cp build/app/outputs/flutter-apk/app-x86_64-release.apk "dist/Epilogue-${TAG}-x86_64.apk"
-          cp build/app/outputs/flutter-apk/app-release.apk "dist/Epilogue-${TAG}-universal.apk"
-
-      - name: Upload Android Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-release-apks
-          path: dist/*
-          if-no-files-found: error
-
   build-linux:
     name: Build Linux Desktop
     runs-on: ubuntu-latest
@@ -154,12 +99,25 @@ jobs:
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Package Windows Zip Archive
+      - name: Package Windows Portable Zip Archive
         shell: pwsh
         run: |
           $TAG = "${{ steps.version.outputs.tag }}"
           New-Item -ItemType Directory -Force -Path dist
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "dist\Epilogue-$TAG-windows-x64.zip"
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "dist\Epilogue-$TAG-windows-portable.zip"
+
+      - name: Build Windows Setup Installer (Inno Setup)
+        shell: pwsh
+        run: |
+          $TAG = "${{ steps.version.outputs.tag }}"
+          $CLEAN_TAG = $TAG -replace '^v', ''
+          
+          if (!(Get-Command iscc.exe -ErrorAction SilentlyContinue)) {
+            choco install innosetup --no-progress -y
+            $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
+          }
+          
+          & iscc.exe /DMyAppVersion="$CLEAN_TAG" windows\installer\epilogue_setup.iss
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
@@ -170,7 +128,7 @@ jobs:
 
   publish-release:
     name: Publish GitHub Release
-    needs: [build-android, build-linux, build-windows]
+    needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -185,12 +143,6 @@ jobs:
             TAG="${{ github.ref_name }}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-
-      - name: Download Android Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: android-release-apks
-          path: release-assets
 
       - name: Download Linux Artifacts
         uses: actions/download-artifact@v4

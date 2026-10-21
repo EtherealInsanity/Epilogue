@@ -802,4 +802,13 @@ class OrvService {
     final updated = state.copyWith(coins: state.coins + amount);
     await storageService.saveOrvState(updated);
   }
+
+  Future<bool> spendCoins(int amount) async {
+    if (amount <= 0) return true;
+    final state = storageService.loadOrvState();
+    if (state.coins < amount) return false;
+    final updated = state.copyWith(coins: state.coins - amount);
+    await storageService.saveOrvState(updated);
+    return true;
+  }
 }

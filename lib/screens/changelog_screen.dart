@@ -24,10 +24,32 @@ class ChangelogScreen extends StatelessWidget {
 
   static const List<ChangelogItem> changelogs = [
     ChangelogItem(
+      version: 'v2.0.4',
+      date: 'October 2026',
+      title: 'Real-Time Settings, Streak Restore & Quality of Life',
+      isLatest: true,
+      features: [
+        'Real-Time Reactive Settings: Switches, sliders, theme chips, and controls inside categories update instantly on the fly without needing to back out and re-enter.',
+        'Reader TOC Auto-Scroll: Opening Table of Contents in reader mode automatically and smoothly scrolls to the chapter currently being read.',
+        'Reading Streak Restore (🪙 10K Coins): Missed yesterday\'s scenario? Incarnations can now spend 10,000 Coins from the Star Stream to repair broken streaks.',
+        'Manual Reading Streak Import: Enter your historical streak days directly into the Manual Reading Telemetry import dialog.',
+        'Cleaned Attributes Screen: Reading Telemetry & Streaks moved up directly beneath the Incarnation card, with Modifiers, Attributes, and Fables collapsed by default.',
+        'Toggleable Epilogue Studio: Studio is now off by default and toggleable via Settings > Reading Engine & Controls, keeping the navigation bar clean for pure reading.',
+        'Polished 4th Wall Visuals: Upgraded 4th Wall shield card, palette chips with color indicator swatches, and illuminated reader mode action button.',
+        'Default Large Cover Grid: Library view mode now defaults to large cover display cards.',
+        'Community & Bug Reporting: One-tap access to the Discord community, GitHub bug/issue tracker, and developer profile.',
+      ],
+      fixes: [
+        'Completely removed legacy online catalog / OPDS dependencies for faster startup and zero bloat.',
+        'Fixed subpage route rebuild desynchronization in settings categories.',
+        'Resolved unreadable color contrast on 4th Wall shield chips and descriptions.',
+      ],
+    ),
+    ChangelogItem(
       version: 'v2.0.3',
       date: 'October 2026',
       title: 'Epilogue Studio & The 4th Wall',
-      isLatest: true,
+      isLatest: false,
       features: [
         'Epilogue Studio: Full-featured EPUB 3.3 and EPUB 2 NCX authoring and editing suite built directly into Android.',
         'Tri-Mode Chapter Editor: Seamlessly toggle between Visual WYSIWYG, Markdown, and Raw XHTML/CSS Source Inspector with sticky formatting toolbar.',

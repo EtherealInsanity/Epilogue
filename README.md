@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://etherealinsanity.github.io/Epilogue/"><strong>🌐 Official Website & Live Interactive Demo</strong></a> • 
+  <a href="https://etherealinsanity.github.io/Epilogue/"><strong>🌐 Official Website</strong></a> • 
   <a href="https://github.com/EtherealInsanity/Epilogue/releases"><strong>📦 Download Releases (Android, Linux, Windows)</strong></a> • 
   <a href="TIME_CAPSULE.md"><strong>📜 Architecture & Capsule</strong></a>
 </p>

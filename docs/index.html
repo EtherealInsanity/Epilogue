@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Epilogue (독자의 에필로그) — Professional EPUB Studio & Reader for Android</title>
+  <title>Epilogue (독자의 에필로그) — Distraction-Free Book Reader & Studio</title>
   
   <!-- SEO & Social Sharing OpenGraph Meta -->
-  <meta name="description" content="Professional EPUB 3.3 creation studio and sub-200ms distraction-free Android reader. Author retail-grade books from scratch, edit existing libraries, and read 500+ chapter epics with zero ads and zero tracking.">
-  <meta name="keywords" content="Epilogue, EPUB Studio, EPUB Editor, EPUB Creator, Android EPUB Reader, Web Novel Reader, EPUB 3.3, Star Stream, W3C Compliant">
-  <meta property="og:title" content="Epilogue (독자의 에필로그) — EPUB Studio & Reader">
-  <meta property="og:description" content="Professional EPUB 3.3 authoring suite & sub-200ms Android reader with Star Stream progression. 100% Free & Open Source. Zero ads.">
-  <meta property="og:image" content="assets/images/orvlogo.png">
+  <meta name="description" content="A clean, distraction-free book reader and authoring studio for Android, Windows, and Linux. Read 500+ chapter books instantly with zero ads, zero tracking, and beautiful themes.">
+  <meta name="keywords" content="Epilogue, EPUB Reader, EPUB Editor, Book Reader, Android Reader, Web Novel Reader, Free EPUB Reader">
+  <meta property="og:title" content="Epilogue (독자의 에필로그) — Book Reader & Studio">
+  <meta property="og:description" content="A clean, distraction-free book reader and authoring studio for Android, Windows, and Linux. 100% Free & Open Source. Zero ads.">
+  <meta property="og:image" content="assets/images/orv_hero.webp">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   
   <link rel="icon" type="image/png" href="assets/images/orvlogo.png">
 
-  <!-- Google Fonts: Inter (Sans), Merriweather & Cinzel (Serif), JetBrains Mono (Mono) -->
+  <!-- Google Fonts: Inter (Sans), Merriweather (Serif), JetBrains Mono (Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
@@ -30,18 +30,6 @@
 
   <div class="site-wrapper">
 
-    <!-- System Broadcast Bar -->
-    <aside class="system-broadcast-bar" aria-label="System Broadcast">
-      <div class="broadcast-track">
-        <span class="tag">RELEASE</span>
-        <span>[Epilogue v2.0.4 Available]</span>
-        <span class="sep">•</span>
-        <span>[Epilogue Studio: Full EPUB 3.3 & EPUB 2 Authoring Suite]</span>
-        <span class="sep">•</span>
-        <span>[100% Free & Open Source • Zero Ads • Zero Tracking]</span>
-      </div>
-    </aside>
-
     <!-- Top Navigation Header -->
     <header class="site-header">
       <div class="container nav-container">
@@ -53,14 +41,13 @@
           </div>
         </a>
 
-        <!-- Desktop & Mobile Navigation Menu -->
+        <!-- Desktop Navigation Menu -->
         <nav>
           <ul class="nav-menu" id="nav-menu">
+            <li><a href="#reading" class="nav-link">Reading</a></li>
             <li><a href="#studio" class="nav-link">Studio</a></li>
-            <li><a href="#engine" class="nav-link">Reading Engine</a></li>
-            <li><a href="#theming" class="nav-link">4th Wall & Theming</a></li>
-            <li><a href="#starstream" class="nav-link">Star Stream</a></li>
-            <li><a href="#downloads" class="nav-link nav-link-cta">Download App</a></li>
+            <li><a href="#themes" class="nav-link">Themes</a></li>
+            <li><a href="#downloads" class="nav-link nav-link-cta">Download</a></li>
           </ul>
         </nav>
 
@@ -108,15 +95,15 @@
         <div class="hero-content">
           <div class="hero-badge">
             <span class="pulse-dot"></span>
-            <span id="latest-version-badge">VERSION 2.0.4 • EPILOGUE STUDIO & STAR STREAM SUITE</span>
+            <span id="latest-version-badge">VERSION 2.0.4 • FREE & OPEN SOURCE</span>
           </div>
 
           <h1 class="hero-title">
-            Professional EPUB Studio & <span class="gradient-text">Distraction-Free Reader</span>.
+            A clean, distraction-free <span class="gradient-text">book reader & editor</span>.
           </h1>
 
           <p class="hero-description">
-            A complete EPUB 3.3 authoring studio and hyper-optimized reader for Android, Windows & Linux. Author retail-grade books from scratch, edit existing collections, and read 500+ chapter epics with zero ads, zero subscriptions, and instant sub-200ms JIT loading.
+            Read your favorite books and web novels without ads, tracking, or subscriptions. Open massive 500+ chapter books instantly, customize your reading comfort, or write and edit books of your own.
           </p>
 
           <div class="hero-cta-group">
@@ -126,7 +113,16 @@
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              <span id="hero-download-label">Download APK (v2.0.4)</span>
+              <span id="hero-download-label">Download APK (v2.0.4 • Android)</span>
+            </a>
+
+            <a href="#downloads" class="btn-secondary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+              <span>Desktop Editions</span>
             </a>
 
             <a href="https://discord.gg/dBSRDDrNUV" target="_blank" rel="noopener noreferrer" class="btn-discord-hero">
@@ -135,264 +131,174 @@
               </svg>
               <span>Join Discord</span>
             </a>
-
-            <a href="#studio" class="btn-secondary">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-              </svg>
-              <span>Studio Suite</span>
-            </a>
           </div>
 
           <div class="hero-stats-row">
             <div class="stat-item">
-              <span class="stat-number">EPUB 3.3</span>
-              <span class="stat-label">W3C Compliant</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number">&lt; 200ms</span>
-              <span class="stat-label">JIT Launch Latency</span>
-            </div>
-            <div class="stat-item">
               <span class="stat-number">100% Free</span>
-              <span class="stat-label">Zero Ads or Trackers</span>
+              <span class="stat-label">No ads or paywalls</span>
             </div>
             <div class="stat-item">
-              <span class="stat-number">MIT</span>
-              <span class="stat-label">Open Source</span>
+              <span class="stat-number">Instant</span>
+              <span class="stat-label">Opens giant books fast</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">Offline</span>
+              <span class="stat-label">Zero tracking or data collection</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">Open</span>
+              <span class="stat-label">MIT Licensed</span>
             </div>
           </div>
         </div>
 
-        <!-- Architectural Showcase Card -->
-        <div class="showcase-wrapper">
-          <div class="showcase-card">
-            <div class="showcase-header">
-              <div class="window-dots">
-                <span class="dot dot-red"></span>
-                <span class="dot dot-yellow"></span>
-                <span class="dot dot-green"></span>
-              </div>
-              <div class="showcase-tabs">
-                <button class="showcase-tab active" data-tab="studio">Epilogue Studio</button>
-                <button class="showcase-tab" data-tab="reader">JIT Reader</button>
-                <button class="showcase-tab" data-tab="fourthwall">The 4th Wall</button>
-              </div>
-            </div>
-
-            <!-- Tab 1: Epilogue Studio -->
-            <div class="showcase-pane active" id="pane-studio">
-              <div class="studio-mockup">
-                <div class="mockup-toolbar">
-                  <span class="toolbar-item"><b>B</b></span>
-                  <span class="toolbar-item"><i>I</i></span>
-                  <span class="toolbar-item">H1</span>
-                  <span class="toolbar-item">H2</span>
-                  <span class="toolbar-item">&ldquo;&rdquo;</span>
-                  <span class="toolbar-pill">Visual</span>
-                  <span class="toolbar-pill active">Markdown</span>
-                  <span class="toolbar-pill">Raw XHTML</span>
-                </div>
-                <div class="mockup-code-body">
-                  <div class="code-line"><span class="token-kw"># Chapter 1: The Scenario Begins</span></div>
-                  <div class="code-line">&nbsp;</div>
-                  <div class="code-line"><span class="token-str">&gt; [The main scenario has arrived.]</span></div>
-                  <div class="code-line">&nbsp;</div>
-                  <div class="code-line">The subway train jerked violently to a halt. The flickering fluorescent lights buzzed overhead before cutting out entirely.</div>
-                  <div class="code-line">&nbsp;</div>
-                  <div class="code-line"><span class="token-tag">&lt;div class="stat-box"&gt;</span></div>
-                  <div class="code-line">&nbsp;&nbsp;<span class="token-attr">Difficulty:</span> F | <span class="token-attr">Time Limit:</span> 30 minutes</div>
-                  <div class="code-line"><span class="token-tag">&lt;/div&gt;</span></div>
-                </div>
-                <div class="mockup-footer">
-                  <span class="status-indicator">● Pre-Flight Linter: 0 Issues Found</span>
-                  <span class="status-badge">EPUB 3.3 + NCX Validated</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tab 2: JIT Reader -->
-            <div class="showcase-pane" id="pane-reader">
-              <div class="reader-mockup">
-                <div class="reader-page-header">
-                  <span>Omniscient Reader's Viewpoint</span>
-                  <span>Chapter 1 • Page 1 of 4</span>
-                </div>
-                <div class="reader-prose-body">
-                  <p><span class="mockup-dropcap">T</span>here are three ways to survive in a ruined world. Now, I have forgotten a few. But one thing is certain: you who are reading this will survive.</p>
-                  <p>A web novel bulletin board. A text that seemed ordinary enough. Yet, those exact words were written there.</p>
-                  <div class="mockup-quote">[The exclusive skill, 'The 4th Wall' is active.]</div>
-                </div>
-                <div class="mockup-footer">
-                  <span>Viewport Geometry: 20:9 Full-Bleed</span>
-                  <span class="status-badge">148ms JIT Load</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tab 3: The 4th Wall -->
-            <div class="showcase-pane" id="pane-fourthwall">
-              <div class="fourthwall-mockup">
-                <div class="fourthwall-status-pill">
-                  <span>[The exclusive skill, 'The 4th Wall' has been activated.]</span>
-                </div>
-                <div class="fourthwall-code">
-                  <div class="fw-hex">Palette: <code>#0A192F</code> (Midnight Blue)</div>
-                  <div class="fw-accent">Accent: <code>#64FFDA</code> (Phosphorescent Cyan)</div>
-                  <p style="margin-top: 14px; font-size: 0.88rem; line-height: 1.6; color: #cbd5e1;">
-                    The entire user interface transitions instantly into a high-contrast midnight blue canvas, protecting eye comfort during late-night reading and editing sessions.
-                  </p>
-                </div>
-                <div class="mockup-footer">
-                  <span>Custom Hex Code Support</span>
-                  <span class="status-badge" style="background: rgba(100, 255, 218, 0.2); color: #64ffda;">Active</span>
-                </div>
-              </div>
+        <!-- ORV Themed Hero Artwork -->
+        <div class="hero-media-wrapper">
+          <div class="hero-artwork-frame">
+            <img src="assets/images/orv_hero.webp" alt="The Reader under the Star Stream" class="hero-artwork-img" loading="eager">
+            <div class="hero-artwork-overlay">
+              <span class="quote-speaker">[The Fourth Wall whispers]</span>
+              <p class="quote-text">"There are three ways to survive in a ruined world... you who are reading this will survive."</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Epilogue Studio Section -->
-    <section class="section" id="studio">
+    <!-- Reading Section -->
+    <section class="section" id="reading">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag">[ EPUB CREATOR & EDITOR ]</span>
-          <h2 class="section-title">Author, Edit & Package Retail-Ready EPUBs</h2>
+          <span class="section-tag">[ DISTRACTION-FREE READING ]</span>
+          <h2 class="section-title">Engineered for Serious Readers</h2>
           <p class="section-subtitle">
-            Epilogue Studio is a complete EPUB authoring suite built right into your reading app. Create new publications from scratch or edit books from your existing library with desktop-grade precision.
+            Built specifically for long binge-reading sessions. Everything you need to get lost in a good story, with zero clutter.
           </p>
         </div>
 
         <div class="bento-grid">
-          <!-- Tri-Mode Editor -->
+          <!-- Instant Loading -->
           <div class="bento-card span-2">
-            <div class="bento-card-icon">✍️</div>
-            <h3 class="bento-card-title">Tri-Mode Chapter Editor</h3>
-            <p class="bento-card-text">
-              Write and edit chapters the way you want. Seamlessly toggle between Visual WYSIWYG, clean Markdown, and raw XHTML/CSS Source Inspector with real-time word counting and formatting toolbars.
-            </p>
-            <div class="bento-formula-box">
-              <code>WYSIWYG Visual Editor ⇄ Markdown Fast Draft ⇄ Raw XHTML/CSS Inspector</code>
+            <div class="bento-card-header">
+              <img src="assets/images/icon_reading.png" alt="Fast Reading" class="bento-icon-img">
+              <div>
+                <h3 class="bento-card-title">Instant Loading for Huge Books</h3>
+                <span class="bento-pill">Zero Lag</span>
+              </div>
             </div>
-          </div>
-
-          <!-- Pre-Flight Linter -->
-          <div class="bento-card">
-            <div class="bento-card-icon">🛡️</div>
-            <h3 class="bento-card-title">Pre-Flight Linter & Auto-Fix</h3>
             <p class="bento-card-text">
-              Real-time validation engine detects unclosed XHTML tags, unescaped ampersands, missing Dublin Core UUIDs, and empty chapters with 1-click automatic syntax repair.
+              Never wait on loading screens. Even massive 1,000+ chapter web novels and 100MB+ EPUBs open in the blink of an eye. Epilogue loads upcoming chapters quietly in the background as you read, keeping memory usage light and battery life high.
             </p>
           </div>
 
-          <!-- Genre Templates -->
-          <div class="bento-card">
-            <div class="bento-card-icon">📚</div>
-            <h3 class="bento-card-title">Professional Genre Templates</h3>
-            <p class="bento-card-text">
-              Instant project scaffolding with pre-tuned typography: Classic Novels (drop caps, scene breaks), Light Novels / Fantasy (Star Stream status cards), and Non-Fiction (hierarchical headings, callouts).
-            </p>
-          </div>
-
-          <!-- Spine Hierarchy -->
-          <div class="bento-card">
-            <div class="bento-card-icon">📑</div>
-            <h3 class="bento-card-title">Drag-and-Drop Spine Hierarchy</h3>
-            <p class="bento-card-text">
-              Reorder chapters effortlessly using tactile drag-and-drop handles. Duplicate existing chapters, rename titles, and inspect chapter-by-chapter word counts at a glance.
-            </p>
-          </div>
-
-          <!-- Dual EPUB Standards -->
-          <div class="bento-card">
-            <div class="bento-card-icon">📦</div>
-            <h3 class="bento-card-title">EPUB 3.3 + EPUB 2 NCX Compiler</h3>
-            <p class="bento-card-text">
-              Direct packaging generates byte-exact uncompressed <code>mimetype</code> at offset 30, dual <code>nav.xhtml</code> and <code>toc.ncx</code>, passing W3C <code>epubcheck</code> for Kindle, Apple Books, and Kobo.
-            </p>
-          </div>
-
-          <!-- Non-Destructive Library Editing -->
-          <div class="bento-card span-2">
-            <div class="bento-card-icon">⚡</div>
-            <h3 class="bento-card-title">Non-Destructive Library Editing</h3>
-            <p class="bento-card-text">
-              Import any book directly from your Archive library into Studio with a single tap. Fix formatting, adjust metadata, add illustrations, or recompile into standard <code>.epub</code> or <code>.kepub.epub</code> without modifying original files.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Reading Engine Section -->
-    <section class="section" id="engine" style="background: rgba(6, 182, 212, 0.02);">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">[ PERFORMANCE & TYPOGRAPHY ]</span>
-          <h2 class="section-title">Sub-200ms JIT Engine for 500+ Chapter Epics</h2>
-          <p class="section-subtitle">
-            Engineered specifically to handle massive 100MB+ EPUBs with hundreds of chapters and embedded illustrations with zero UI stutter.
-          </p>
-        </div>
-
-        <div class="bento-grid">
-          <!-- Sub-200ms JIT Window -->
-          <div class="bento-card span-2">
-            <div class="bento-card-icon">⚡</div>
-            <h3 class="bento-card-title">Sub-200ms Sliding Window JIT</h3>
-            <p class="bento-card-text">
-              Instead of parsing hundreds of chapters synchronously on opening, Epilogue loads book metadata and only parses an initial sliding window (&plusmn;2 chapters). Background prefetching resolves adjacent chapters smoothly as you read.
-            </p>
-            <div class="bento-formula-box">
-              <code>Initial Parse Latency: &lt; 150ms | Background Prefetching: Active Chapter &plusmn; 2</code>
-            </div>
-          </div>
-
-          <!-- Dynamic Viewport Geometry -->
-          <div class="bento-card">
-            <div class="bento-card-icon">📐</div>
-            <h3 class="bento-card-title">Dynamic Viewport Budgeting</h3>
-            <p class="bento-card-text">
-              Eliminates awkward bottom blank spaces on tall 20:9 and 21:9 displays by computing character capacity directly from device screen geometry and font metrics.
-            </p>
-          </div>
-
-          <!-- Dual Reading Modes -->
+          <!-- Continuous Scroll or Page Flip -->
           <div class="bento-card">
             <div class="bento-card-icon">📖</div>
-            <h3 class="bento-card-title">Continuous Scroll & Page-Turn</h3>
+            <h3 class="bento-card-title">Scroll or Turn Pages</h3>
             <p class="bento-card-text">
-              Switch seamlessly between buttery-smooth continuous vertical scrolling and tactile horizontal page-turning with volume key navigation support.
+              Read whichever way feels best. Choose smooth continuous vertical scrolling, or tap to flip pages with optional volume key turning.
             </p>
           </div>
 
           <!-- Original Book Stylesheet -->
           <div class="bento-card">
             <div class="bento-card-icon">🎨</div>
-            <h3 class="bento-card-title">Original Book Stylesheet Mode</h3>
+            <h3 class="bento-card-title">Keeps Original Book Styles</h3>
             <p class="bento-card-text">
-              Preserve embedded publisher typography, custom fonts, scene dividers, and blockquotes with an instant toggle in reader settings.
+              Preserves custom author typography, scene break dividers, centered dialogue, and quotes just as the publisher intended.
             </p>
           </div>
 
           <!-- Gesture Zoom -->
           <div class="bento-card">
             <div class="bento-card-icon">🖼️</div>
-            <h3 class="bento-card-title">Multi-Touch Illustration Zoom</h3>
+            <h3 class="bento-card-title">Pinch to Zoom Pictures</h3>
             <p class="bento-card-text">
-              Pinch, pan, and zoom character illustrations and high-resolution world maps from 0.8x up to 4.0x with smooth multi-touch gestures.
+              Double-tap or pinch to smoothly inspect maps, character profiles, and high-resolution book illustrations.
             </p>
           </div>
 
           <!-- Annotations & Search -->
-          <div class="bento-card span-2">
+          <div class="bento-card">
             <div class="bento-card-icon">🖍️</div>
-            <h3 class="bento-card-title">5 Annotation Palettes & Archive Search</h3>
+            <h3 class="bento-card-title">Highlights & Notes</h3>
             <p class="bento-card-text">
-              Highlight memorable passages in 5 distinct palettes with attached notes. All annotations are indexed locally and searchable instantly across your entire library.
+              Highlight memorable lines in five soothing colors, attach personal thoughts, and search through your notes anytime.
+            </p>
+          </div>
+
+          <!-- Private & Ad-Free -->
+          <div class="bento-card span-2">
+            <div class="bento-card-icon">🛡️</div>
+            <h3 class="bento-card-title">100% Private & Ad-Free</h3>
+            <p class="bento-card-text">
+              No account creation, no analytics tracking, no banner ads, and no pop-ups. Epilogue runs completely on your own device and never uploads your reading history anywhere.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Epilogue Studio Section -->
+    <section class="section" id="studio" style="background: rgba(6, 182, 212, 0.02);">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">[ BUILT-IN BOOK STUDIO ]</span>
+          <h2 class="section-title">Create & Edit Books Easily</h2>
+          <p class="section-subtitle">
+            Write your own stories or tweak books in your existing library with simple, powerful editing tools.
+          </p>
+        </div>
+
+        <div class="bento-grid">
+          <!-- Easy Formatting -->
+          <div class="bento-card span-2">
+            <div class="bento-card-header">
+              <img src="assets/images/icon_studio.png" alt="Book Studio" class="bento-icon-img">
+              <div>
+                <h3 class="bento-card-title">Simple, Friendly Formatting</h3>
+                <span class="bento-pill">Visual Editor ⇄ Markdown Mode</span>
+              </div>
+            </div>
+            <p class="bento-card-text">
+              Write and format your chapters without getting bogged down in code. Use familiar buttons for bold, italics, headings, and quotes, or switch over to clean markdown whenever you want to type fast.
+            </p>
+          </div>
+
+          <!-- Edit Existing Books -->
+          <div class="bento-card">
+            <div class="bento-card-icon">✏️</div>
+            <h3 class="bento-card-title">Edit Books in Your Library</h3>
+            <p class="bento-card-text">
+              Fix annoying typos, rename chapter headings, or add missing book covers to any book already saved in your app.
+            </p>
+          </div>
+
+          <!-- Drag and Drop Organization -->
+          <div class="bento-card">
+            <div class="bento-card-icon">📑</div>
+            <h3 class="bento-card-title">Drag & Drop Chapters</h3>
+            <p class="bento-card-text">
+              Rearrange chapter order effortlessly with a finger or mouse, see chapter word counts at a glance, and duplicate sections in one tap.
+            </p>
+          </div>
+
+          <!-- Automatic Error Checking -->
+          <div class="bento-card">
+            <div class="bento-card-icon">🛡️</div>
+            <h3 class="bento-card-title">Automatic Error Checking</h3>
+            <p class="bento-card-text">
+              The built-in checker automatically detects unclosed formatting tags or empty chapters before you save, keeping your books error-free.
+            </p>
+          </div>
+
+          <!-- Works Everywhere -->
+          <div class="bento-card">
+            <div class="bento-card-icon">📦</div>
+            <h3 class="bento-card-title">Works on Any E-Reader</h3>
+            <p class="bento-card-text">
+              Exports clean, standard EPUB books that open properly on Kindle, Kobo, Apple Books, and Android readers without formatting glitches.
             </p>
           </div>
         </div>
@@ -400,44 +306,40 @@
     </section>
 
     <!-- The 4th Wall & Theming Section -->
-    <section class="section" id="theming">
+    <section class="section" id="themes">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag">[ EXCLUSIVE THEME SUITE ]</span>
-          <h2 class="section-title">The 4th Wall Mode & Dynamic Theming</h2>
+          <span class="section-tag">[ EYE COMFORT & THEMES ]</span>
+          <h2 class="section-title">Easy on Your Eyes, Day or Night</h2>
           <p class="section-subtitle">
-            Switch themes seamlessly at runtime across the entire application shell, navigation bars, and reader canvas.
+            Choose from carefully tuned reading palettes designed to protect your eyes during late-night binge reading.
           </p>
         </div>
 
         <div class="bento-grid">
           <!-- The 4th Wall Card -->
-          <div class="bento-card span-2" style="border-color: rgba(100, 255, 218, 0.4); background: rgba(10, 25, 47, 0.6);">
-            <div class="bento-card-icon">🌌</div>
-            <h3 class="bento-card-title" style="color: #64ffda;">"The 4th Wall" Exclusive Mode</h3>
-            <p class="bento-card-text">
-              Activated via Settings or the quick-action HUD inside the reader. Transforms the entire UI into Midnight Blue (<code>#0A192F</code>) with luminescent cyan accents, accompanied by authentic Star Stream skill notifications upon activation and deactivation.
-            </p>
-            <div class="bento-formula-box" style="border-color: rgba(100, 255, 218, 0.3);">
-              <code>[The exclusive skill, 'The 4th Wall' has been activated.]</code>
+          <div class="bento-card span-2" style="border-color: rgba(100, 255, 218, 0.4); background: rgba(10, 25, 47, 0.65);">
+            <div class="bento-card-header">
+              <img src="assets/images/icon_themes.png" alt="Themes" class="bento-icon-img">
+              <div>
+                <h3 class="bento-card-title" style="color: #64ffda;">"The Fourth Wall" Mode</h3>
+                <span class="bento-pill" style="border-color: rgba(100, 255, 218, 0.3); color: #64ffda;">Signature Midnight Theme</span>
+              </div>
             </div>
-          </div>
-
-          <!-- Custom Hex Picker -->
-          <div class="bento-card">
-            <div class="bento-card-icon">🎯</div>
-            <h3 class="bento-card-title">Custom Hex Palette Engine</h3>
             <p class="bento-card-text">
-              Prefer a specific midnight hue? Configure any custom 6-digit hex code in Settings to customize your personal 4th Wall experience.
+              Transforms the entire app into a high-contrast midnight blue canvas with glowing cyan accents. Perfect for late-night reading in dark rooms without harsh glare.
             </p>
+            <div class="bento-formula-box" style="border-color: rgba(100, 255, 218, 0.3); color: #64ffda;">
+              <code>[The exclusive skill, 'The 4th Wall' is active.]</code>
+            </div>
           </div>
 
           <!-- Core Presets -->
           <div class="bento-card">
             <div class="bento-card-icon">☀️</div>
-            <h3 class="bento-card-title">Paper Light</h3>
+            <h3 class="bento-card-title">Paper White</h3>
             <p class="bento-card-text">
-              High-contrast crisp black text on pure paper white (<code>#F9FAFB</code>) for bright daylight environments.
+              Crisp dark text on soft paper white for bright daylight and sunny outdoor reading.
             </p>
           </div>
 
@@ -445,57 +347,24 @@
             <div class="bento-card-icon">📜</div>
             <h3 class="bento-card-title">Warm Sepia</h3>
             <p class="bento-card-text">
-              Soft amber background (<code>#FBF0D9</code>) with warm ink typography for vintage eye comfort.
+              Soft amber tone with warm ink typography for vintage eye comfort during afternoon reading.
             </p>
           </div>
 
           <div class="bento-card">
             <div class="bento-card-icon">🌑</div>
-            <h3 class="bento-card-title">OLED Pitch Dark</h3>
+            <h3 class="bento-card-title">OLED Pitch Black</h3>
             <p class="bento-card-text">
-              True AMOLED black (<code>#000000</code>) that completely turns off screen pixels to conserve battery life during night reading.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Star Stream Progression Section -->
-    <section class="section" id="starstream" style="background: rgba(6, 182, 212, 0.02);">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">[ GAMIFIED READING ]</span>
-          <h2 class="section-title">The Star Stream Progression System</h2>
-          <p class="section-subtitle">
-            Canonically tracks your real-world reading habits, chapter completions, endurance streaks, and volumes finished.
-          </p>
-        </div>
-
-        <div class="bento-grid">
-          <!-- Scenarios & Quests -->
-          <div class="bento-card">
-            <div class="bento-card-icon">⚔️</div>
-            <h3 class="bento-card-title">150+ Reading Scenarios</h3>
-            <p class="bento-card-text">
-              Conquer Main Scenarios, Sub-Quests, and Bounty Trials as you read through chapters, maintain reading streaks, and finish books.
+              Pure pitch black that turns off screen pixels on modern phones to conserve battery life and prevent eye fatigue.
             </p>
           </div>
 
-          <!-- Constellations -->
+          <!-- Offline Reading Habits -->
           <div class="bento-card">
-            <div class="bento-card-icon">🌌</div>
-            <h3 class="bento-card-title">234 Constellation Titles</h3>
+            <div class="bento-card-icon">📊</div>
+            <h3 class="bento-card-title">Offline Reading Habits</h3>
             <p class="bento-card-text">
-              Unlock canonical Constellation modifiers and Story Fables that reflect your reading endurance and volume milestones.
-            </p>
-          </div>
-
-          <!-- Retrocognition -->
-          <div class="bento-card">
-            <div class="bento-card-icon">🔄</div>
-            <h3 class="bento-card-title">Retrocognition Worldline Sync</h3>
-            <p class="bento-card-text">
-              Already have hundreds of chapters read on Calibre or other readers? Retrocognition scans your imported EPUBs, tallies words read, and back-credits your earned Coins and completed scenarios.
+              Track how many chapters you've read, daily reading streaks, and total hours finished—stored 100% locally on your device.
             </p>
           </div>
         </div>
@@ -503,13 +372,13 @@
     </section>
 
     <!-- Downloads Section -->
-    <section class="section" id="downloads">
+    <section class="section" id="downloads" style="background: rgba(6, 182, 212, 0.02);">
       <div class="container">
         <div class="section-header">
           <span class="section-tag">[ DIRECT DOWNLOAD ]</span>
           <h2 class="section-title">Get Epilogue for Android, Windows & Linux</h2>
           <p class="section-subtitle">
-            Download the latest release directly. For Android phones, select <strong>ARM64-v8a</strong>. For desktop, download our portable Windows or Linux packages.
+            100% free and open source. Download the latest release directly. For modern Android phones, select <strong>ARM64-v8a</strong>.
           </p>
         </div>
 
@@ -518,9 +387,9 @@
           <div class="download-card recommended">
             <span class="badge-recommended">RECOMMENDED</span>
             <h3 class="download-card-title">ARM64-v8a</h3>
-            <span class="download-card-arch">64-bit Android</span>
+            <span class="download-card-arch">Modern Android Phones</span>
             <p class="download-card-desc">
-              Optimized for modern phones (Samsung Galaxy, Google Pixel, Xiaomi, OnePlus, Motorola). Fastest execution and highest battery efficiency.
+              Recommended for modern phones (Samsung Galaxy, Google Pixel, Xiaomi, OnePlus, Motorola). Fastest and most battery-friendly.
             </p>
             <span class="download-card-size" id="size-arm64">~20.7 MB • Split APK</span>
             <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.4-arm64-v8a.apk" class="btn-download-apk" id="dl-arm64">
@@ -536,9 +405,9 @@
           <!-- Universal -->
           <div class="download-card">
             <h3 class="download-card-title">Universal</h3>
-            <span class="download-card-arch">All Devices</span>
+            <span class="download-card-arch">All Android Devices</span>
             <p class="download-card-desc">
-              Contains binaries for all hardware architectures. Recommended for Android tablets, e-ink displays, or unknown device specs.
+              Works on all Android phones, tablets, and e-ink displays. Choose this if you are unsure of your phone model.
             </p>
             <span class="download-card-size" id="size-universal">~24.6 MB • Standalone</span>
             <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.4-universal.apk" class="btn-download-apk" id="dl-universal">
@@ -554,9 +423,9 @@
           <!-- ARMeabi-v7a -->
           <div class="download-card">
             <h3 class="download-card-title">ARMeabi-v7a</h3>
-            <span class="download-card-arch">32-bit Legacy</span>
+            <span class="download-card-arch">Older 32-bit Phones</span>
             <p class="download-card-desc">
-              For older budget phones, legacy e-readers, and vintage 32-bit Android devices.
+              For older budget phones and vintage 32-bit Android devices.
             </p>
             <span class="download-card-size" id="size-armeabi">~18.4 MB • Split APK</span>
             <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.4-armeabi-v7a.apk" class="btn-download-apk" id="dl-armeabi">
@@ -572,9 +441,9 @@
           <!-- x86_64 -->
           <div class="download-card">
             <h3 class="download-card-title">x86_64</h3>
-            <span class="download-card-arch">Emulators & PC</span>
+            <span class="download-card-arch">PC Emulators & ChromeOS</span>
             <p class="download-card-desc">
-              For Android emulators on PC (Android Studio, LDPlayer, BlueStacks) and Intel/AMD Chromebooks.
+              For Android emulators on PC (BlueStacks, LDPlayer) and Intel/AMD Chromebooks.
             </p>
             <span class="download-card-size" id="size-x86_64">~22.3 MB • Split APK</span>
             <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.4-x86_64.apk" class="btn-download-apk" id="dl-x86_64">
@@ -594,38 +463,43 @@
             <span class="section-tag">[ DESKTOP EDITIONS ]</span>
             <h3 style="font-size: 1.5rem; font-weight: 800; margin-top: 6px; letter-spacing: -0.02em;">Desktop for Windows & Linux</h3>
             <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px;">
-              Enjoy big-screen reading, keyboard shortcuts, and full Epilogue Studio authoring on your PC or workstation.
+              Read and edit books on your computer with full keyboard shortcuts and large-screen comfort.
             </p>
           </div>
 
           <div class="download-matrix-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
             <!-- Windows x64 -->
             <div class="download-card">
-              <h3 class="download-card-title">Windows x64</h3>
+              <h3 class="download-card-title">Windows</h3>
               <span class="download-card-arch">Windows 10 / 11 (64-bit)</span>
               <p class="download-card-desc">
-                High-performance Win32 native desktop runner with full GPU acceleration. Extract and run directly without installer overhead.
+                Fast desktop runner with keyboard shortcuts. Choose between the installer setup or portable zip.
               </p>
-              <span class="download-card-size" id="size-windows">~18 MB • Portable Zip</span>
-              <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.3-windows-x64.zip" class="btn-download-apk" id="dl-windows">
+              <span class="download-card-size" id="size-windows">~18 MB • Setup Installer</span>
+              <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.4-windows-setup.exe" class="btn-download-apk" id="dl-windows">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="7 10 12 15 17 10"></polyline>
                   <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
-                <span>Download Windows Zip</span>
+                <span>Download Installer (.exe)</span>
               </a>
+              <div style="margin-top: 10px; font-size: 0.8rem; text-align: center;">
+                <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.4-windows-portable.zip" id="dl-windows-portable" style="color: var(--text-secondary); text-decoration: underline;">
+                  Download Portable (.zip)
+                </a>
+              </div>
             </div>
 
             <!-- Linux x86_64 -->
             <div class="download-card">
-              <h3 class="download-card-title">Linux x86_64</h3>
+              <h3 class="download-card-title">Linux</h3>
               <span class="download-card-arch">Ubuntu, Debian, Fedora, Arch</span>
               <p class="download-card-desc">
-                Native GTK3 desktop bundle. Self-contained portable archive supporting all modern 64-bit Linux distributions.
+                Native GTK desktop bundle. Self-contained portable archive supporting all modern 64-bit Linux distributions.
               </p>
               <span class="download-card-size" id="size-linux">~12.0 MB • Portable Archive</span>
-              <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.3-linux-x86_64.tar.gz" class="btn-download-apk" id="dl-linux">
+              <a href="https://github.com/EtherealInsanity/Epilogue/releases/latest/download/Epilogue-v2.0.4-linux-x86_64.tar.gz" class="btn-download-apk" id="dl-linux">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="7 10 12 15 17 10"></polyline>
@@ -645,7 +519,7 @@
               <div class="step-num">1</div>
               <div class="step-text">
                 <h4>Download the APK</h4>
-                <p>Tap the ARM64-v8a build above directly from your Android browser.</p>
+                <p>Tap the ARM64-v8a button above on your Android phone.</p>
               </div>
             </div>
 
@@ -653,15 +527,15 @@
               <div class="step-num">2</div>
               <div class="step-text">
                 <h4>Allow Unknown Sources</h4>
-                <p>When Android prompts you, tap "Settings" and grant permission to install from your browser.</p>
+                <p>When prompted by Android, tap "Settings" and allow installation from your browser.</p>
               </div>
             </div>
 
             <div class="step-item">
               <div class="step-num">3</div>
               <div class="step-text">
-                <h4>Launch & Enjoy</h4>
-                <p>Open Epilogue, author new books in Studio or import your EPUB collection to start reading.</p>
+                <h4>Open & Enjoy</h4>
+                <p>Launch Epilogue, import your EPUB books, or start writing your first story.</p>
               </div>
             </div>
           </div>
@@ -682,27 +556,26 @@
               </div>
             </div>
             <p>
-              An open-source EPUB 3.3 authoring studio and reader inspired by <em>Omniscient Reader's Viewpoint</em>. Built by readers, for readers.
+              An open-source e-book reader and studio inspired by <em>Omniscient Reader's Viewpoint</em>. Built by readers, for readers.
             </p>
           </div>
 
           <div class="footer-col">
             <h5>Navigation</h5>
             <ul>
-              <li><a href="#studio">Epilogue Studio</a></li>
-              <li><a href="#engine">Reading Engine</a></li>
-              <li><a href="#theming">4th Wall & Theming</a></li>
-              <li><a href="#starstream">Star Stream System</a></li>
-              <li><a href="#downloads">Download Epilogue</a></li>
+              <li><a href="#reading">Reading</a></li>
+              <li><a href="#studio">Studio</a></li>
+              <li><a href="#themes">Themes</a></li>
+              <li><a href="#downloads">Download App</a></li>
             </ul>
           </div>
 
           <div class="footer-col">
-            <h5>Community & Author</h5>
+            <h5>Community</h5>
             <ul>
               <li><a href="https://discord.gg/dBSRDDrNUV" target="_blank" rel="noopener noreferrer">Discord Server</a></li>
               <li><a href="https://github.com/EtherealInsanity" target="_blank" rel="noopener noreferrer">Developer Profile (@EtherealInsanity)</a></li>
-              <li><a href="https://github.com/EtherealInsanity/Epilogue/issues" target="_blank" rel="noopener noreferrer">Report a Bug / Issues</a></li>
+              <li><a href="https://github.com/EtherealInsanity/Epilogue/issues" target="_blank" rel="noopener noreferrer">Report a Bug / Feedback</a></li>
             </ul>
           </div>
 
@@ -711,7 +584,6 @@
             <ul>
               <li><a href="https://github.com/EtherealInsanity/Epilogue" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
               <li><a href="https://github.com/EtherealInsanity/Epilogue/releases" target="_blank" rel="noopener noreferrer">Releases & Changelog</a></li>
-              <li><a href="https://github.com/EtherealInsanity/Epilogue/issues" target="_blank" rel="noopener noreferrer">Report an Issue</a></li>
               <li><a href="https://github.com/EtherealInsanity/Epilogue/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
             </ul>
           </div>

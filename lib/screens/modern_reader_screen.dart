@@ -733,46 +733,58 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          IconButton(
-                            tooltip: 'The 4th Wall Glow Mode',
-                            icon: Icon(
-                              _fourthWallActive ? Icons.shield : Icons.shield_outlined,
-                              color: _fourthWallActive ? EpilogueTheme.cyanAccent : EpilogueTheme.textSecondary,
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            decoration: BoxDecoration(
+                              color: _fourthWallActive ? EpilogueTheme.cyanAccent.withValues(alpha: 0.15) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: _fourthWallActive ? EpilogueTheme.cyanAccent.withValues(alpha: 0.5) : Colors.transparent,
+                                width: 1,
+                              ),
                             ),
-                            onPressed: () {
-                              _recordInteraction();
-                              setState(() => _fourthWallActive = !_fourthWallActive);
-                              final updated = _config.copyWith(fourthWallActive: _fourthWallActive);
-                              EpilogueTheme.applyConfig(updated);
-                              widget.storageService.saveConfig(updated);
+                            child: IconButton(
+                              tooltip: 'The 4th Wall Glow Mode',
+                              icon: Icon(
+                                _fourthWallActive ? Icons.shield : Icons.shield_outlined,
+                                color: _fourthWallActive ? EpilogueTheme.cyanAccent : EpilogueTheme.textSecondary,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                _recordInteraction();
+                                setState(() => _fourthWallActive = !_fourthWallActive);
+                                final updated = _config.copyWith(fourthWallActive: _fourthWallActive);
+                                EpilogueTheme.applyConfig(updated);
+                                widget.storageService.saveConfig(updated);
 
-                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    _fourthWallActive
-                                        ? '[The exclusive skill, \'The 4th Wall\' has been activated.]'
-                                        : '[The exclusive skill, \'The 4th Wall\' has been deactivated.]',
-                                    style: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                      letterSpacing: 0.3,
-                                      color: Color(0xFFE6F1FF),
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      _fourthWallActive
+                                          ? '[The exclusive skill, \'The 4th Wall\' has been activated.]'
+                                          : '[The exclusive skill, \'The 4th Wall\' has been deactivated.]',
+                                      style: const TextStyle(
+                                        fontFamily: 'monospace',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        letterSpacing: 0.3,
+                                        color: Color(0xFFE6F1FF),
+                                      ),
+                                    ),
+                                    backgroundColor: _fourthWallActive ? const Color(0xFF0A192F) : EpilogueTheme.accent,
+                                    duration: const Duration(seconds: 3),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      side: BorderSide(
+                                        color: _fourthWallActive ? const Color(0xFF64FFDA) : EpilogueTheme.border,
+                                      ),
                                     ),
                                   ),
-                                  backgroundColor: _fourthWallActive ? const Color(0xFF0A192F) : EpilogueTheme.accent,
-                                  duration: const Duration(seconds: 3),
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    side: BorderSide(
-                                      color: _fourthWallActive ? const Color(0xFF64FFDA) : EpilogueTheme.border,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                           IconButton(
                             tooltip: 'Add Bookmark',

@@ -98,8 +98,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
   @override
   Widget build(BuildContext context) {
     final orvState = widget.storageService.loadOrvState();
+    final showStudio = _config.enableEpubStudio;
 
-    final screens = [
+    final screens = <Widget>[
       LibraryScreen(
         storageService: widget.storageService,
         config: _config,
@@ -107,11 +108,42 @@ class _MainShellScreenState extends State<MainShellScreen> {
       ),
       ScenarioScreen(storageService: widget.storageService),
       AttributeWindowScreen(storageService: widget.storageService),
-      const StudioDashboardScreen(),
+      if (showStudio) const StudioDashboardScreen(),
       SettingsScreen(
         initialConfig: _config,
         storageService: widget.storageService,
         onConfigChanged: _onConfigChanged,
+      ),
+    ];
+
+    final safeIndex = _currentIndex.clamp(0, screens.length - 1);
+
+    final destinations = <NavigationDestination>[
+      NavigationDestination(
+        icon: const Icon(Icons.auto_awesome_outlined, size: 24),
+        selectedIcon: Icon(Icons.auto_awesome, size: 24, color: EpilogueTheme.accent),
+        label: 'Archive',
+      ),
+      NavigationDestination(
+        icon: _buildRuneIcon(false),
+        selectedIcon: _buildRuneIcon(true),
+        label: 'Scenarios',
+      ),
+      NavigationDestination(
+        icon: _buildAvatarIcon(orvState, false),
+        selectedIcon: _buildAvatarIcon(orvState, true),
+        label: 'Attributes',
+      ),
+      if (showStudio)
+        NavigationDestination(
+          icon: const Icon(Icons.edit_note_outlined, size: 24),
+          selectedIcon: Icon(Icons.edit_note, size: 24, color: EpilogueTheme.accent),
+          label: 'Studio',
+        ),
+      NavigationDestination(
+        icon: const Icon(Icons.settings_suggest_outlined, size: 24),
+        selectedIcon: Icon(Icons.settings_suggest, size: 24, color: EpilogueTheme.accent),
+        label: 'Settings',
       ),
     ];
 
@@ -126,46 +158,20 @@ class _MainShellScreenState extends State<MainShellScreen> {
         child: Scaffold(
           backgroundColor: EpilogueTheme.background,
           body: IndexedStack(
-            index: _currentIndex,
+            index: safeIndex,
             children: screens,
           ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _currentIndex,
-          onDestinationSelected: (idx) => setState(() => _currentIndex = idx),
-          backgroundColor: EpilogueTheme.surface,
-          elevation: 2,
-          surfaceTintColor: Colors.transparent,
-          indicatorColor: EpilogueTheme.surfaceElevated,
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.auto_awesome_outlined, size: 24),
-              selectedIcon: Icon(Icons.auto_awesome, size: 24, color: EpilogueTheme.accent),
-              label: 'Archive',
-            ),
-            NavigationDestination(
-              icon: _buildRuneIcon(false),
-              selectedIcon: _buildRuneIcon(true),
-              label: 'Scenarios',
-            ),
-            NavigationDestination(
-              icon: _buildAvatarIcon(orvState, false),
-              selectedIcon: _buildAvatarIcon(orvState, true),
-              label: 'Attributes',
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.edit_note_outlined, size: 24),
-              selectedIcon: Icon(Icons.edit_note, size: 24, color: EpilogueTheme.accent),
-              label: 'Studio',
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.settings_suggest_outlined, size: 24),
-              selectedIcon: Icon(Icons.settings_suggest, size: 24, color: EpilogueTheme.accent),
-              label: 'Settings',
-            ),
-          ],
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: safeIndex,
+            onDestinationSelected: (idx) => setState(() => _currentIndex = idx),
+            backgroundColor: EpilogueTheme.surface,
+            elevation: 2,
+            surfaceTintColor: Colors.transparent,
+            indicatorColor: EpilogueTheme.surfaceElevated,
+            destinations: destinations,
+          ),
         ),
       ),
-    ),
-  );
+    );
 }
 }

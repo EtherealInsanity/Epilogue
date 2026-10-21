@@ -25,9 +25,9 @@ class AttributeWindowScreen extends StatefulWidget {
 class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
   late OrvService _orvService;
 
-  bool _fablesCollapsed = false;
-  bool _attributesCollapsed = false;
-  bool _modifiersCollapsed = false;
+  bool _fablesCollapsed = true;
+  bool _attributesCollapsed = true;
+  bool _modifiersCollapsed = true;
   String _fablesSearch = '';
   String _attributesSearch = '';
   String _modifiersSearch = '';
@@ -124,6 +124,68 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
       ),
     );
     if (mounted) setState(() {});
+  }
+
+  void _restoreStreak(OrvState state) async {
+    const cost = 10000;
+    if (state.coins < cost) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('[System: Insufficient coins. You need 10,000 coins to restore your reading streak. Current: ${state.coins}]'),
+          backgroundColor: EpilogueTheme.dangerAccent,
+        ),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: EpilogueTheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: EpilogueTheme.border),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.local_fire_department, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Restore Reading Streak?'),
+          ],
+        ),
+        content: Text(
+          'Spend 10,000 coins to repair yesterday\'s broken scenario and immediately resume your reading streak?\n\nRemaining coins: ${state.coins - cost}',
+          style: TextStyle(fontSize: 13, color: EpilogueTheme.textPrimary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: EpilogueTheme.starGold),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('RESTORE (🪙 10K)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final success = await _orvService.spendCoins(cost);
+      if (success) {
+        await widget.storageService.restoreBrokenStreak();
+        setState(() {});
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('[The constellation \'Demon-like Judge of Fire\' rejoices at your dedication. Your reading streak has been restored!]'),
+              backgroundColor: EpilogueTheme.accent,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Future<void> _pickCustomAvatar() async {
@@ -1064,6 +1126,118 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
           ),
           const SizedBox(height: 14),
 
+          // Reading Telemetry & Streak Card (Positioned directly below Profile / Retrocognition)
+          Card(
+            color: EpilogueTheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: EpilogueTheme.border),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'READING TELEMETRY & STREAKS',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: EpilogueTheme.textSecondary,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.storageService.isStreakBroken()) ...[
+                            FilledButton.icon(
+                              onPressed: () => _restoreStreak(state),
+                              icon: const Icon(Icons.restore, size: 13, color: Colors.black),
+                              label: const Text('RESTORE (🪙 10K)', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.black)),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: EpilogueTheme.starGold,
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          TextButton.icon(
+                            onPressed: _openManualImportDialog,
+                            icon: const Icon(Icons.edit, size: 14),
+                            label: const Text('MANUAL IMPORT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Current Reading Streak', style: TextStyle(fontSize: 13, color: EpilogueTheme.textSecondary)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$currentStreak Days 🔥',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: currentStreak > 0 ? EpilogueTheme.starGold : EpilogueTheme.textPrimary,
+                            ),
+                          ),
+                          if (widget.storageService.isStreakBroken()) ...[
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () => _restoreStreak(state),
+                              borderRadius: BorderRadius.circular(4),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: EpilogueTheme.dangerAccent.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: EpilogueTheme.dangerAccent.withValues(alpha: 0.5)),
+                                ),
+                                child: Text(
+                                  'BROKEN (RESTORE)',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: EpilogueTheme.dangerAccent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 18),
+                  _statRow('Longest Streak Record', '$longestStreak Days'),
+                  Divider(color: EpilogueTheme.border, height: 18),
+                  _statRow('Read Today', '${todayStats.totalWords} Words (${(todayStats.totalSeconds / 60).toStringAsFixed(0)} mins)'),
+                  Divider(color: EpilogueTheme.border, height: 18),
+                  _statRow('Total Reading Time', '$hours Hours'),
+                  Divider(color: EpilogueTheme.border, height: 18),
+                  _statRow('Total Words Consumed', '$wordsFormatted Words'),
+                  Divider(color: EpilogueTheme.border, height: 18),
+                  _statRow('Total Pages Read', '$totalPages Pages'),
+                  Divider(color: EpilogueTheme.border, height: 18),
+                  _statRow('Average Reading Velocity', '$wpm WPM'),
+                  Divider(color: EpilogueTheme.border, height: 18),
+                  _statRow('Completed Volumes', '$completedBooks Completed'),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+
           // Constellation Modifier Collapsible Card
           _buildCollapsibleOwnedSection(
             title: 'CONSTELLATION MODIFIERS',
@@ -1105,59 +1279,6 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
             chipIcon: null,
             emptyMessage: 'No Attributes unlocked yet. Unlock attributes from the store or clear high-rank Scenarios.',
             searchHint: 'Search unlocked attributes...',
-          ),
-          const SizedBox(height: 14),
-
-          // Reading Telemetry & Streak Card
-          Card(
-            color: EpilogueTheme.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: EpilogueTheme.border),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'READING TELEMETRY & STREAKS',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: EpilogueTheme.textSecondary,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: _openManualImportDialog,
-                        icon: const Icon(Icons.edit, size: 14),
-                        label: const Text('MANUAL IMPORT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  _statRow('Current Reading Streak', '$currentStreak Days 🔥'),
-                  Divider(color: EpilogueTheme.border, height: 18),
-                  _statRow('Longest Streak Record', '$longestStreak Days'),
-                  Divider(color: EpilogueTheme.border, height: 18),
-                  _statRow('Read Today', '${todayStats.totalWords} Words (${(todayStats.totalSeconds / 60).toStringAsFixed(0)} mins)'),
-                  Divider(color: EpilogueTheme.border, height: 18),
-                  _statRow('Total Reading Time', '$hours Hours'),
-                  Divider(color: EpilogueTheme.border, height: 18),
-                  _statRow('Total Words Consumed', '$wordsFormatted Words'),
-                  Divider(color: EpilogueTheme.border, height: 18),
-                  _statRow('Total Pages Read', '$totalPages Pages'),
-                  Divider(color: EpilogueTheme.border, height: 18),
-                  _statRow('Average Reading Velocity', '$wpm WPM'),
-                  Divider(color: EpilogueTheme.border, height: 18),
-                  _statRow('Completed Volumes', '$completedBooks Completed'),
-                ],
-              ),
-            ),
           ),
           const SizedBox(height: 14),
 

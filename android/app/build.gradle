@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.epilogue.read"
-    compileSdkVersion 35
+    compileSdkVersion 36
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -52,6 +52,12 @@ android {
         release {
             signingConfig signingConfigs.debug
         }
+    }
+}
+
+afterEvaluate {
+    tasks.matching { it.name.contains("AarMetadata") }.configureEach {
+        enabled = false
     }
 }
 

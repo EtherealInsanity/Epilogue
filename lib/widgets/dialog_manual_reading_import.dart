@@ -21,6 +21,7 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
   final _wordsController = TextEditingController();
   final _volumesController = TextEditingController();
   final _pagesController = TextEditingController();
+  final _streakController = TextEditingController();
 
   @override
   void dispose() {
@@ -28,6 +29,7 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
     _wordsController.dispose();
     _volumesController.dispose();
     _pagesController.dispose();
+    _streakController.dispose();
     super.dispose();
   }
 
@@ -36,27 +38,34 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
     final words = int.tryParse(_wordsController.text.trim()) ?? 0;
     final volumes = int.tryParse(_volumesController.text.trim()) ?? 0;
     final pages = int.tryParse(_pagesController.text.trim()) ?? 0;
+    final streakDays = int.tryParse(_streakController.text.trim()) ?? 0;
 
     final seconds = (hours * 3600).round();
 
-    if (seconds <= 0 && words <= 0 && volumes <= 0 && pages <= 0) {
+    if (seconds <= 0 && words <= 0 && volumes <= 0 && pages <= 0 && streakDays <= 0) {
       Navigator.pop(context);
       return;
     }
 
-    await widget.storageService.addManualPastReading(
-      additionalSeconds: seconds,
-      additionalWords: words,
-      additionalVolumes: volumes,
-      additionalPages: pages,
-    );
+    if (seconds > 0 || words > 0 || volumes > 0 || pages > 0) {
+      await widget.storageService.addManualPastReading(
+        additionalSeconds: seconds,
+        additionalWords: words,
+        additionalVolumes: volumes,
+        additionalPages: pages,
+      );
+    }
+
+    if (streakDays > 0) {
+      await widget.storageService.importPastStreakDays(streakDays);
+    }
 
     widget.onSaved();
     if (mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Reading history successfully synchronized.'),
+          content: const Text('Reading history & streaks successfully synchronized.'),
           backgroundColor: EpilogueTheme.accent,
         ),
       );
@@ -91,7 +100,7 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Log reading hours and word count accumulated in past apps (Kindle, Moon+, Mihon, etc.) to merge into your telemetry.',
+              'Log reading hours, word count, and daily streak accumulated in past apps (Kindle, Moon+, Mihon, etc.) to merge into your telemetry.',
               style: TextStyle(fontSize: 13, color: EpilogueTheme.textSecondary),
             ),
             const SizedBox(height: 16),
@@ -141,6 +150,20 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
               decoration: InputDecoration(
                 labelText: 'Past Books/Volumes Completed',
                 labelStyle: TextStyle(color: EpilogueTheme.textSecondary),
+                filled: true,
+                fillColor: EpilogueTheme.surfaceElevated,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: EpilogueTheme.border)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _streakController,
+              keyboardType: TextInputType.number,
+              style: TextStyle(color: EpilogueTheme.textPrimary),
+              decoration: InputDecoration(
+                labelText: 'Past Consecutive Days Streak (e.g. 30)',
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary),
+                prefixIcon: const Icon(Icons.local_fire_department, color: Colors.orange, size: 20),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: EpilogueTheme.border)),

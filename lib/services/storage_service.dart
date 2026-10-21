@@ -132,7 +132,7 @@ class StorageService {
   }
 
   bool isGridView() {
-    return _prefs.getBool('library_grid_view') ?? false;
+    return _prefs.getBool('library_grid_view') ?? true;
   }
 
   Future<bool> setGridView(bool value) async {
@@ -378,6 +378,67 @@ class StorageService {
       }
     }
     return longest;
+  }
+
+  /// Checks if yesterday was missed, breaking the consecutive streak.
+  bool isStreakBroken() {
+    final records = loadDailyRecords();
+    if (records.isEmpty) return true;
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final yesterdayKey = "${yesterday.year.toString().padLeft(4, '0')}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}";
+    final rec = records[yesterdayKey];
+    return rec == null || (rec.totalSeconds <= 60 && rec.totalWords <= 50);
+  }
+
+  /// Imports past consecutive reading streak days by generating daily records for the past N days.
+  Future<void> importPastStreakDays(int days) async {
+    if (days <= 0) return;
+    final records = loadDailyRecords();
+    final now = DateTime.now();
+
+    for (int i = 0; i < days; i++) {
+      final date = now.subtract(Duration(days: i));
+      final dateKey = "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+      if (!records.containsKey(dateKey) || (records[dateKey]!.totalSeconds < 120 && records[dateKey]!.totalWords < 100)) {
+        records[dateKey] = DailyReadingRecord(
+          dateKey: dateKey,
+          totalSeconds: 1800,
+          totalWords: 1500,
+        );
+      }
+    }
+    final map = records.map((key, val) => MapEntry(key, val.toMap()));
+    await _prefs.setString(_keyDailyRecords, jsonEncode(map));
+  }
+
+  /// Restores a broken streak by backfilling yesterday's reading record with qualifying reading stats.
+  Future<bool> restoreBrokenStreak() async {
+    final records = loadDailyRecords();
+    final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(days: 1));
+    final yesterdayKey = "${yesterday.year.toString().padLeft(4, '0')}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}";
+
+    final existing = records[yesterdayKey];
+    final addedSeconds = (existing?.totalSeconds ?? 0) < 1800 ? 1800 : existing!.totalSeconds;
+    final addedWords = (existing?.totalWords ?? 0) < 1000 ? 1000 : existing!.totalWords;
+
+    records[yesterdayKey] = DailyReadingRecord(
+      dateKey: yesterdayKey,
+      totalSeconds: addedSeconds,
+      totalWords: addedWords,
+    );
+
+    final todayKey = "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final todayRec = records[todayKey];
+    records[todayKey] = DailyReadingRecord(
+      dateKey: todayKey,
+      totalSeconds: (todayRec?.totalSeconds ?? 0) < 600 ? 600 : todayRec!.totalSeconds,
+      totalWords: (todayRec?.totalWords ?? 0) < 500 ? 500 : todayRec!.totalWords,
+    );
+
+    final map = records.map((key, val) => MapEntry(key, val.toMap()));
+    await _prefs.setString(_keyDailyRecords, jsonEncode(map));
+    return true;
   }
 
   // --- Reading Session Telemetry ---

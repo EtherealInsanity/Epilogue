@@ -21,10 +21,34 @@ class ModernTocBottomSheet extends StatefulWidget {
 class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
   String _query = '';
   final _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToCurrentChapter();
+    });
+  }
+
+  void _scrollToCurrentChapter() {
+    if (!_scrollController.hasClients) return;
+    final targetIndex = widget.chapters.indexWhere((ch) => ch.index == widget.currentChapterIndex);
+    if (targetIndex > 0) {
+      // Approximate 56px per tile + divider, offset to give some breathing room
+      final targetOffset = (targetIndex * 56.0 - 60.0).clamp(0.0, _scrollController.position.maxScrollExtent);
+      _scrollController.animateTo(
+        targetOffset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -89,6 +113,7 @@ class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
           const SizedBox(height: 12),
           Expanded(
             child: ListView.separated(
+              controller: _scrollController,
               itemCount: filtered.length,
               separatorBuilder: (_, __) => Divider(height: 1, color: EpilogueTheme.border),
               itemBuilder: (context, index) {
@@ -96,13 +121,14 @@ class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
                 final isCurrent = ch.index == widget.currentChapterIndex;
 
                 return ListTile(
-                  tileColor: isCurrent ? const Color(0xFFE0F2FE) : Colors.transparent,
+                  tileColor: isCurrent ? EpilogueTheme.accent.withValues(alpha: 0.12) : Colors.transparent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   leading: Text(
                     '${ch.index + 1}',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                      color: isCurrent ? EpilogueTheme.cyanAccent : EpilogueTheme.textSecondary,
+                      color: isCurrent ? EpilogueTheme.accent : EpilogueTheme.textSecondary,
                     ),
                   ),
                   title: Text(
@@ -110,12 +136,12 @@ class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                      color: isCurrent ? EpilogueTheme.cyanAccent : EpilogueTheme.textPrimary,
+                      color: isCurrent ? EpilogueTheme.accent : EpilogueTheme.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  trailing: isCurrent ? Icon(Icons.bookmark, color: EpilogueTheme.cyanAccent, size: 18) : null,
+                  trailing: isCurrent ? Icon(Icons.bookmark, color: EpilogueTheme.accent, size: 18) : null,
                   onTap: () {
                     Navigator.pop(context);
                     widget.onChapterSelected(ch.index);

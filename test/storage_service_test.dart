@@ -151,11 +151,11 @@ void main() {
     test('StorageService toggles grid view state', () async {
       final storage = await StorageService.initialize();
 
-      expect(storage.isGridView(), isFalse);
-      await storage.setGridView(true);
       expect(storage.isGridView(), isTrue);
       await storage.setGridView(false);
       expect(storage.isGridView(), isFalse);
+      await storage.setGridView(true);
+      expect(storage.isGridView(), isTrue);
     });
 
     test('StorageService saves, loads, and deletes highlights', () async {
@@ -323,6 +323,30 @@ void main() {
 
       final longestStreak = storage.getLongestStreakDays();
       expect(longestStreak, greaterThanOrEqualTo(1));
+    });
+
+    test('StorageService streak import and streak restore operate accurately', () async {
+      final storage = await StorageService.initialize();
+      
+      // Import past streak of 15 days
+      await storage.importPastStreakDays(15);
+      expect(storage.getCurrentStreakDays(), equals(15));
+      expect(storage.getLongestStreakDays(), equals(15));
+
+      // Restore streak
+      await storage.restoreBrokenStreak();
+      expect(storage.getCurrentStreakDays(), greaterThanOrEqualTo(15));
+    });
+
+    test('ReaderConfig enableEpubStudio defaults to false and serializes accurately', () {
+      const config = ReaderConfig();
+      expect(config.enableEpubStudio, isFalse);
+
+      final modified = config.copyWith(enableEpubStudio: true);
+      expect(modified.enableEpubStudio, isTrue);
+
+      final reloaded = ReaderConfig.fromJson(modified.toJson());
+      expect(reloaded.enableEpubStudio, isTrue);
     });
 
     test('ORV Service contains 150+ scaled scenarios with prerequisite locks', () async {

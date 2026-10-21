@@ -1,13 +1,12 @@
 /**
  * 🌌 EPILOGUE (독자의 에필로그) — OFFICIAL WEB PLATFORM SCRIPT
- * Handles Starfield Canvas, Showcase Architecture Tabs, Dynamic Latest Releases,
+ * Handles Starfield Canvas, Dynamic Latest Releases,
  * and Responsive Mobile Navigation.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   initStarfield();
   initThemeToggle();
-  initShowcaseTabs();
   initDynamicReleases();
   initMobileNav();
 });
@@ -142,29 +141,7 @@ function initThemeToggle() {
 }
 
 /* ==========================================================================
-   3. Showcase Architecture Tabs
-   ========================================================================== */
-function initShowcaseTabs() {
-  const tabs = document.querySelectorAll('.showcase-tab');
-  const panes = document.querySelectorAll('.showcase-pane');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const targetTab = tab.getAttribute('data-tab');
-      tabs.forEach(t => t.classList.remove('active'));
-      panes.forEach(p => p.classList.remove('active'));
-
-      tab.classList.add('active');
-      const targetPane = document.getElementById(`pane-${targetTab}`);
-      if (targetPane) {
-        targetPane.classList.add('active');
-      }
-    });
-  });
-}
-
-/* ==========================================================================
-   4. Dynamic GitHub Releases & Latest Downloads
+   3. Dynamic GitHub Releases & Latest Downloads
    ========================================================================== */
 async function initDynamicReleases() {
   const REPO = 'EtherealInsanity/Epilogue';
@@ -198,16 +175,16 @@ async function initDynamicReleases() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const release = await res.json();
 
-    const tag = release.tag_name || 'v2.0.3';
+    const tag = release.tag_name || 'v2.0.4';
     const cleanVersion = tag.replace(/^v/, '');
 
     if (latestBadge) {
-      latestBadge.innerText = `VERSION ${cleanVersion} • EPILOGUE STUDIO & STAR STREAM SUITE`;
+      latestBadge.innerText = `VERSION ${cleanVersion} • FREE & OPEN SOURCE`;
     }
 
     if (heroDownloadLabel) {
       if (isAndroid) {
-        heroDownloadLabel.innerText = `Download APK (${cleanVersion} • ARM64)`;
+        heroDownloadLabel.innerText = `Download APK (${cleanVersion} • Android)`;
       } else if (isWindows) {
         heroDownloadLabel.innerText = `Download for Windows (${cleanVersion})`;
       } else if (isLinux) {
@@ -238,10 +215,18 @@ async function initDynamicReleases() {
         } else if (name.includes('x86_64.apk')) {
           if (x86_64Link) x86_64Link.href = url;
           if (sizeX86_64) sizeX86_64.innerText = `~${sizeMb} MB • Split APK`;
-        } else if (name.includes('windows') && name.endsWith('.zip')) {
+        } else if (name.includes('windows') && name.endsWith('.exe')) {
           if (windowsLink) windowsLink.href = url;
-          if (sizeWindows) sizeWindows.innerText = `~${sizeMb} MB • Portable Zip`;
+          if (sizeWindows) sizeWindows.innerText = `~${sizeMb} MB • Setup Installer`;
           if (heroDownloadBtn && isWindows) heroDownloadBtn.href = url;
+        } else if (name.includes('windows') && name.endsWith('.zip')) {
+          const windowsPortableLink = document.getElementById('dl-windows-portable');
+          if (windowsPortableLink) windowsPortableLink.href = url;
+          if (windowsLink && !windowsLink.href.includes('.exe')) {
+            windowsLink.href = url;
+            if (sizeWindows) sizeWindows.innerText = `~${sizeMb} MB • Portable Zip`;
+            if (heroDownloadBtn && isWindows) heroDownloadBtn.href = url;
+          }
         } else if (name.includes('linux') && (name.endsWith('.tar.gz') || name.endsWith('.zip'))) {
           if (linuxLink) linuxLink.href = url;
           if (sizeLinux) sizeLinux.innerText = `~${sizeMb} MB • Portable Archive`;
@@ -258,7 +243,7 @@ async function initDynamicReleases() {
 }
 
 /* ==========================================================================
-   5. Mobile Navigation Menu Drawer
+   4. Mobile Navigation Menu Drawer
    ========================================================================== */
 function initMobileNav() {
   const mobileBtn = document.getElementById('mobile-menu-btn');

@@ -12,7 +12,6 @@ import '../widgets/bottom_sheet_book_detail.dart';
 import '../widgets/dialog_edit_metadata.dart';
 import 'in_app_file_explorer_screen.dart';
 import 'modern_reader_screen.dart';
-import 'opds_browser_screen.dart';
 import 'retrocognition_screen.dart';
 
 enum BookSortOrder {
@@ -46,7 +45,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   BookSortOrder _sortOrder = BookSortOrder.lastRead;
 
   bool _isLoading = false;
-  bool _isGridView = false;
+  bool _isGridView = true;
   bool _isBackfilling = false;
   String _searchQuery = '';
   final _searchController = TextEditingController();
@@ -483,16 +482,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
     _loadBooksAndShelves();
   }
 
-  void _openOpdsBrowser() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OpdsBrowserScreen(storageService: widget.storageService),
-      ),
-    );
-    _loadBooksAndShelves();
-  }
-
   Widget _buildCoverThumbnail(BookInfo book, {required double width, required double height, double borderRadius = 8}) {
     final hasCover = book.coverImagePath != null && File(book.coverImagePath!).existsSync();
     return ClipRRect(
@@ -599,11 +588,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
             tooltip: 'Retrocognition (Sync Past Progress)',
             icon: Icon(Icons.history_edu, color: EpilogueTheme.starGold),
             onPressed: _openRetrocognition,
-          ),
-          IconButton(
-            tooltip: 'Online Catalogs & Downloader',
-            icon: Icon(Icons.wifi, color: EpilogueTheme.cyanAccent),
-            onPressed: _openOpdsBrowser,
           ),
           IconButton(
             tooltip: _isGridView ? 'Switch to List View' : 'Switch to Grid View',

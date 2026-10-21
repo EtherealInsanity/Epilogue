@@ -9,7 +9,6 @@ import '../services/url_launcher_service.dart';
 import '../theme/epilogue_theme.dart';
 import 'changelog_screen.dart';
 import 'feature_manual_screen.dart';
-import 'opds_browser_screen.dart';
 import 'retrocognition_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -408,387 +407,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _toggleFourthWall(bool enable) {
-    final next = _config.copyWith(fourthWallActive: enable);
-    _updateConfig(next);
-    if (mounted) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            enable
-                ? '[The exclusive skill, \'The 4th Wall\' has been activated.]'
-                : '[The exclusive skill, \'The 4th Wall\' has been deactivated.]',
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              letterSpacing: 0.3,
-              color: Color(0xFFE6F1FF),
-            ),
-          ),
-          backgroundColor: enable ? const Color(0xFF0A192F) : EpilogueTheme.accent,
-          duration: const Duration(seconds: 4),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(
-              color: enable ? const Color(0xFF64FFDA) : EpilogueTheme.border,
-              width: 1.5,
-            ),
-          ),
-        ),
-      );
-    }
-  }
-
-  void _showCustomHexDialog() {
-    final hexCtrl = TextEditingController(text: _config.fourthWallHexColor);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: EpilogueTheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: EpilogueTheme.border),
-        ),
-        title: const Text('Custom 4th Wall Hex Color'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Enter a 6-digit hex color code (e.g., #0B192C, #0F172A, #10002B):',
-              style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: hexCtrl,
-              style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold),
-              decoration: const InputDecoration(
-                labelText: 'Hex Color Code',
-                hintText: '#0A192F',
-                prefixIcon: Icon(Icons.palette),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF64FFDA)),
-            onPressed: () {
-              var hex = hexCtrl.text.trim();
-              if (!hex.startsWith('#')) hex = '#$hex';
-              if (RegExp(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$').hasMatch(hex)) {
-                _updateConfig(_config.copyWith(fourthWallHexColor: hex));
-                Navigator.pop(ctx);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Invalid hex color format. Use #RRGGBB.'),
-                    backgroundColor: EpilogueTheme.dangerAccent,
-                  ),
-                );
-              }
-            },
-            child: const Text('APPLY HEX', style: TextStyle(color: Color(0xFF0A192F))),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _themePresetTile(ReaderThemePreset preset, String label, Color bg, Color text) {
-    final isSelected = _config.themePreset == preset;
-    return Expanded(
-      child: InkWell(
-        onTap: () => _updateConfig(_config.copyWith(themePreset: preset)),
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isSelected ? EpilogueTheme.accent : EpilogueTheme.border,
-              width: isSelected ? 2.0 : 1.0,
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Aa',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: text),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: text),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _fourthWallColorChip(String label, String hex) {
-    final isSelected = _config.fourthWallHexColor.toUpperCase() == hex.toUpperCase();
-    return FilterChip(
-      selected: isSelected,
-      label: Text(label),
-      labelStyle: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.bold,
-        color: isSelected ? const Color(0xFF0A192F) : EpilogueTheme.textPrimary,
-      ),
-      selectedColor: const Color(0xFF64FFDA),
-      backgroundColor: EpilogueTheme.surfaceElevated,
-      side: BorderSide(
-        color: isSelected ? const Color(0xFF64FFDA) : EpilogueTheme.border,
-      ),
-      onSelected: (_) => _updateConfig(_config.copyWith(fourthWallHexColor: hex)),
-    );
-  }
-
   // --- ANDROID SETTINGS SUB-PAGES ---
-
-  Widget _buildDisplaySettingsPage() {
-    return Scaffold(
-      backgroundColor: EpilogueTheme.background,
-      appBar: AppBar(title: const Text('Display & Appearance')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        children: [
-          Card(
-            color: EpilogueTheme.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: EpilogueTheme.border),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Global UI Scale', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: EpilogueTheme.textPrimary)),
-                          const SizedBox(height: 2),
-                          Text('Scale entire app buttons & typography', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE0F2FE),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${(_config.uiScale * 100).toStringAsFixed(0)}%',
-                          style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent, fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Slider(
-                    value: _config.uiScale,
-                    min: 0.85,
-                    max: 1.35,
-                    divisions: 10,
-                    activeColor: EpilogueTheme.accent,
-                    onChanged: (val) => _updateConfig(_config.copyWith(uiScale: val)),
-                  ),
-                  Divider(color: EpilogueTheme.border, height: 20),
-
-                  Text('Reading Theme Preset', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _themePresetTile(ReaderThemePreset.paperLight, 'Pure Paper', const Color(0xFFFFFFFF), const Color(0xFF111827)),
-                      const SizedBox(width: 8),
-                      _themePresetTile(ReaderThemePreset.sepiaWarm, 'Warm Book', const Color(0xFFFBF0D9), const Color(0xFF2C2416)),
-                      const SizedBox(width: 8),
-                      _themePresetTile(ReaderThemePreset.slateGray, 'Slate Gray', const Color(0xFFE2E8F0), const Color(0xFF0F172A)),
-                      const SizedBox(width: 8),
-                      _themePresetTile(ReaderThemePreset.oledDark, 'OLED Ink', Colors.black, const Color(0xFFE5E7EB)),
-                    ],
-                  ),
-                  Divider(color: EpilogueTheme.border, height: 20),
-
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('Keep Screen Awake', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: Text('Prevents display dimming while reading', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
-                    value: _config.keepScreenAwake,
-                    activeThumbColor: EpilogueTheme.accent,
-                    onChanged: (val) => _updateConfig(_config.copyWith(keepScreenAwake: val)),
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('Show Reading Header & Footer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: Text('Displays subtle book title and chapter progress in canvas', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
-                    value: _config.showReadingHeaderFooter,
-                    activeThumbColor: EpilogueTheme.accent,
-                    onChanged: (val) => _updateConfig(_config.copyWith(showReadingHeaderFooter: val)),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          // The 4th Wall Consciousness Shield
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _config.fourthWallActive
-                  ? const Color(0xFF0A192F).withValues(alpha: 0.9)
-                  : EpilogueTheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _config.fourthWallActive
-                    ? const Color(0xFF64FFDA)
-                    : EpilogueTheme.border,
-                width: _config.fourthWallActive ? 1.5 : 1.0,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Row(
-                    children: [
-                      Icon(
-                        _config.fourthWallActive ? Icons.shield : Icons.shield_outlined,
-                        color: _config.fourthWallActive ? const Color(0xFF64FFDA) : EpilogueTheme.cyanAccent,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'The 4th Wall Consciousness Shield',
-                        style: TextStyle(
-                          fontFamily: 'monospace',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Color(0xFF64FFDA),
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    'Shifts entire UI into Midnight Blue or custom hex, shielding reading consciousness.',
-                    style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary),
-                  ),
-                  value: _config.fourthWallActive,
-                  activeThumbColor: const Color(0xFF64FFDA),
-                  onChanged: _toggleFourthWall,
-                ),
-                if (_config.fourthWallActive) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    'Shield Hex Color Palette:',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 6,
-                    children: [
-                      _fourthWallColorChip('Midnight Blue', '#0A192F'),
-                      _fourthWallColorChip('Abyssal Navy', '#0D1B2A'),
-                      _fourthWallColorChip('Cyber Teal', '#022B3A'),
-                      _fourthWallColorChip('Void Indigo', '#10002B'),
-                      ActionChip(
-                        avatar: const Icon(Icons.colorize, size: 14, color: Color(0xFF64FFDA)),
-                        label: Text(
-                          'Custom: ${_config.fourthWallHexColor}',
-                          style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
-                        ),
-                        onPressed: _showCustomHexDialog,
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReadingControlsPage() {
-    return Scaffold(
-      backgroundColor: EpilogueTheme.background,
-      appBar: AppBar(title: const Text('Reading Engine & Controls')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        children: [
-          Card(
-            color: EpilogueTheme.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: EpilogueTheme.border),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('Volume Keys Page Turn', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: Text('Use hardware volume up/down buttons to turn pages', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
-                    value: _config.volumeKeysPaging,
-                    activeThumbColor: EpilogueTheme.accent,
-                    onChanged: (val) => _updateConfig(_config.copyWith(volumeKeysPaging: val)),
-                  ),
-                  Divider(color: EpilogueTheme.border, height: 16),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('Haptic Tap Feedback', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: Text('Light vibration feedback when turning pages', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
-                    value: _config.hapticFeedback,
-                    activeThumbColor: EpilogueTheme.accent,
-                    onChanged: (val) => _updateConfig(_config.copyWith(hapticFeedback: val)),
-                  ),
-                  Divider(color: EpilogueTheme.border, height: 16),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('Star Stream Constellation CSS', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: Text('Renders constellation notifications [...] with glowing cyan border and monospace font', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
-                    value: _config.customCssEnabled,
-                    activeThumbColor: EpilogueTheme.cyanAccent,
-                    onChanged: (val) => _updateConfig(_config.copyWith(customCssEnabled: val)),
-                  ),
-                  Divider(color: EpilogueTheme.border, height: 16),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('Original Book Formatting (EPUB CSS)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: Text('Renders original chapter headings, centered text, dividers, and styling classes embedded in the EPUB', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
-                    value: _config.useOriginalBookStyles,
-                    activeThumbColor: EpilogueTheme.cyanAccent,
-                    onChanged: (val) => _updateConfig(_config.copyWith(useOriginalBookStyles: val)),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildDataHubPage() {
     return Scaffold(
@@ -819,22 +438,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => RetrocognitionScreen(storageService: widget.storageService),
-                        ),
-                      );
-                    },
-                  ),
-                  Divider(color: EpilogueTheme.border, height: 16),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(Icons.wifi, color: EpilogueTheme.cyanAccent),
-                    title: const Text('Online Catalogs & Downloader', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    subtitle: const Text('Connect to Calibre/Kavita OPDS servers or download direct web EPUBs', style: TextStyle(fontSize: 11)),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OpdsBrowserScreen(storageService: widget.storageService),
                         ),
                       );
                     },
@@ -1161,20 +764,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             iconColor: EpilogueTheme.cyanAccent,
             title: 'Display & Appearance',
             subtitle: 'Global UI scale, theme presets, The 4th Wall shield',
-            pageBuilder: _buildDisplaySettingsPage,
+            pageBuilder: () => _DisplaySettingsPage(initialConfig: _config, onConfigChanged: _updateConfig),
           ),
           _buildCategoryTile(
             icon: Icons.menu_book_outlined,
             iconColor: EpilogueTheme.greenAccent,
             title: 'Reading Engine & Controls',
-            subtitle: 'Volume keys paging, haptics, constellation CSS, original book styles',
-            pageBuilder: _buildReadingControlsPage,
+            subtitle: 'Volume keys paging, haptics, constellation CSS, Epilogue Studio',
+            pageBuilder: () => _ReadingControlsPage(initialConfig: _config, onConfigChanged: _updateConfig),
           ),
           _buildCategoryTile(
             icon: Icons.cloud_sync_outlined,
             iconColor: EpilogueTheme.starGold,
             title: 'Data Hub & Cloud Sync',
-            subtitle: 'Retrocognition, online OPDS catalogs, JSON backup, WebDAV sync',
+            subtitle: 'Retrocognition, JSON backup & restore, WebDAV cloud sync',
             pageBuilder: _buildDataHubPage,
           ),
           _buildCategoryTile(
@@ -1197,6 +800,483 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'About & System Updates',
             subtitle: 'Check for updates, changelog, version info & open source license',
             pageBuilder: _buildAboutUpdatesPage,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DisplaySettingsPage extends StatefulWidget {
+  final ReaderConfig initialConfig;
+  final ValueChanged<ReaderConfig> onConfigChanged;
+
+  const _DisplaySettingsPage({
+    required this.initialConfig,
+    required this.onConfigChanged,
+  });
+
+  @override
+  State<_DisplaySettingsPage> createState() => _DisplaySettingsPageState();
+}
+
+class _DisplaySettingsPageState extends State<_DisplaySettingsPage> {
+  late ReaderConfig _config;
+
+  @override
+  void initState() {
+    super.initState();
+    _config = widget.initialConfig;
+  }
+
+  void _update(ReaderConfig next) {
+    setState(() {
+      _config = next;
+    });
+    widget.onConfigChanged(next);
+  }
+
+  void _toggleFourthWall(bool enable) {
+    final next = _config.copyWith(fourthWallActive: enable);
+    _update(next);
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            enable
+                ? '[The exclusive skill, \'The 4th Wall\' has been activated.]'
+                : '[The exclusive skill, \'The 4th Wall\' has been deactivated.]',
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              letterSpacing: 0.3,
+              color: Color(0xFFE6F1FF),
+            ),
+          ),
+          backgroundColor: enable ? const Color(0xFF0F172A) : EpilogueTheme.accent,
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: enable ? const Color(0xFF38BDF8) : EpilogueTheme.border,
+              width: 1.5,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _showCustomHexDialog() {
+    final hexCtrl = TextEditingController(text: _config.fourthWallHexColor);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: EpilogueTheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: EpilogueTheme.border),
+        ),
+        title: const Text('Custom 4th Wall Hex Color'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enter a 6-digit hex color code (e.g., #0B192C, #0F172A, #10002B):',
+              style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: hexCtrl,
+              style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold),
+              decoration: const InputDecoration(
+                labelText: 'Hex Color Code',
+                hintText: '#0A192F',
+                prefixIcon: Icon(Icons.palette),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF38BDF8)),
+            onPressed: () {
+              var hex = hexCtrl.text.trim();
+              if (!hex.startsWith('#')) hex = '#$hex';
+              if (RegExp(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$').hasMatch(hex)) {
+                _update(_config.copyWith(fourthWallHexColor: hex));
+                Navigator.pop(ctx);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Invalid hex color format. Use #RRGGBB.'),
+                    backgroundColor: EpilogueTheme.dangerAccent,
+                  ),
+                );
+              }
+            },
+            child: const Text('APPLY HEX', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _themePresetTile(ReaderThemePreset preset, String label, Color bg, Color text) {
+    final isSelected = _config.themePreset == preset;
+    return Expanded(
+      child: InkWell(
+        onTap: () => _update(_config.copyWith(themePreset: preset)),
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? EpilogueTheme.accent : EpilogueTheme.border,
+              width: isSelected ? 2.0 : 1.0,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Aa',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: text),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: text),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _fourthWallColorChip(String label, String hex) {
+    final isSelected = _config.fourthWallHexColor.toUpperCase() == hex.toUpperCase();
+    final hexColor = Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    final isDark = _config.fourthWallActive;
+
+    return FilterChip(
+      selected: isSelected,
+      showCheckmark: isSelected,
+      checkmarkColor: const Color(0xFF38BDF8),
+      avatar: Container(
+        width: 14,
+        height: 14,
+        decoration: BoxDecoration(
+          color: hexColor,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white38, width: 1),
+        ),
+      ),
+      label: Text(label),
+      labelStyle: TextStyle(
+        fontSize: 11,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: isDark
+            ? (isSelected ? Colors.white : const Color(0xFFCBD5E1))
+            : (isSelected ? EpilogueTheme.textPrimary : EpilogueTheme.textSecondary),
+      ),
+      selectedColor: const Color(0xFF38BDF8).withValues(alpha: 0.25),
+      backgroundColor: isDark ? const Color(0xFF1E293B) : EpilogueTheme.surfaceElevated,
+      side: BorderSide(
+        color: isSelected ? const Color(0xFF38BDF8) : (isDark ? const Color(0xFF334155) : EpilogueTheme.border),
+        width: isSelected ? 1.5 : 1.0,
+      ),
+      onSelected: (_) => _update(_config.copyWith(fourthWallHexColor: hex)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: EpilogueTheme.background,
+      appBar: AppBar(title: const Text('Display & Appearance')),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        children: [
+          Card(
+            color: EpilogueTheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: EpilogueTheme.border),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Global UI Scale', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: EpilogueTheme.textPrimary)),
+                          const SizedBox(height: 2),
+                          Text('Scale entire app buttons & typography', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F2FE),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${(_config.uiScale * 100).toStringAsFixed(0)}%',
+                          style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent, fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    value: _config.uiScale,
+                    min: 0.85,
+                    max: 1.35,
+                    divisions: 10,
+                    activeColor: EpilogueTheme.accent,
+                    onChanged: (val) => _update(_config.copyWith(uiScale: val)),
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 20),
+
+                  Text('Reading Theme Preset', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _themePresetTile(ReaderThemePreset.paperLight, 'Pure Paper', const Color(0xFFFFFFFF), const Color(0xFF111827)),
+                      const SizedBox(width: 8),
+                      _themePresetTile(ReaderThemePreset.sepiaWarm, 'Warm Book', const Color(0xFFFBF0D9), const Color(0xFF2C2416)),
+                      const SizedBox(width: 8),
+                      _themePresetTile(ReaderThemePreset.slateGray, 'Slate Gray', const Color(0xFFE2E8F0), const Color(0xFF0F172A)),
+                      const SizedBox(width: 8),
+                      _themePresetTile(ReaderThemePreset.oledDark, 'OLED Ink', Colors.black, const Color(0xFFE5E7EB)),
+                    ],
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 20),
+
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Keep Screen Awake', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Prevents display dimming while reading', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    value: _config.keepScreenAwake,
+                    activeThumbColor: EpilogueTheme.accent,
+                    onChanged: (val) => _update(_config.copyWith(keepScreenAwake: val)),
+                  ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Show Reading Header & Footer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Displays subtle book title and chapter progress in canvas', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    value: _config.showReadingHeaderFooter,
+                    activeThumbColor: EpilogueTheme.accent,
+                    onChanged: (val) => _update(_config.copyWith(showReadingHeaderFooter: val)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // The 4th Wall Consciousness Shield
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _config.fourthWallActive
+                  ? const Color(0xFF0F172A)
+                  : EpilogueTheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _config.fourthWallActive
+                    ? const Color(0xFF38BDF8)
+                    : EpilogueTheme.border,
+                width: _config.fourthWallActive ? 1.5 : 1.0,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Row(
+                    children: [
+                      Icon(
+                        _config.fourthWallActive ? Icons.shield : Icons.shield_outlined,
+                        color: _config.fourthWallActive ? const Color(0xFF38BDF8) : EpilogueTheme.cyanAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'The 4th Wall Consciousness Shield',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: _config.fourthWallActive ? const Color(0xFFE2E8F0) : EpilogueTheme.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  subtitle: Text(
+                    'Shifts entire UI into Midnight Blue or custom hex, shielding reading consciousness.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: _config.fourthWallActive ? const Color(0xFF94A3B8) : EpilogueTheme.textSecondary,
+                    ),
+                  ),
+                  value: _config.fourthWallActive,
+                  activeThumbColor: const Color(0xFF38BDF8),
+                  onChanged: _toggleFourthWall,
+                ),
+                if (_config.fourthWallActive) ...[
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Shield Hex Color Palette:',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFE2E8F0),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      _fourthWallColorChip('Midnight Blue', '#0A192F'),
+                      _fourthWallColorChip('Abyssal Navy', '#0D1B2A'),
+                      _fourthWallColorChip('Cyber Teal', '#022B3A'),
+                      _fourthWallColorChip('Void Indigo', '#10002B'),
+                      ActionChip(
+                        avatar: const Icon(Icons.colorize, size: 14, color: Color(0xFF38BDF8)),
+                        backgroundColor: const Color(0xFF1E293B),
+                        side: const BorderSide(color: Color(0xFF334155)),
+                        label: Text(
+                          'Custom: ${_config.fourthWallHexColor}',
+                          style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: Color(0xFFE2E8F0)),
+                        ),
+                        onPressed: _showCustomHexDialog,
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReadingControlsPage extends StatefulWidget {
+  final ReaderConfig initialConfig;
+  final ValueChanged<ReaderConfig> onConfigChanged;
+
+  const _ReadingControlsPage({
+    required this.initialConfig,
+    required this.onConfigChanged,
+  });
+
+  @override
+  State<_ReadingControlsPage> createState() => _ReadingControlsPageState();
+}
+
+class _ReadingControlsPageState extends State<_ReadingControlsPage> {
+  late ReaderConfig _config;
+
+  @override
+  void initState() {
+    super.initState();
+    _config = widget.initialConfig;
+  }
+
+  void _update(ReaderConfig next) {
+    setState(() {
+      _config = next;
+    });
+    widget.onConfigChanged(next);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: EpilogueTheme.background,
+      appBar: AppBar(title: const Text('Reading Engine & Controls')),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        children: [
+          Card(
+            color: EpilogueTheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: EpilogueTheme.border),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Volume Keys Page Turn', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Use hardware volume up/down buttons to turn pages', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    value: _config.volumeKeysPaging,
+                    activeThumbColor: EpilogueTheme.accent,
+                    onChanged: (val) => _update(_config.copyWith(volumeKeysPaging: val)),
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Haptic Tap Feedback', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Light vibration feedback when turning pages', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    value: _config.hapticFeedback,
+                    activeThumbColor: EpilogueTheme.accent,
+                    onChanged: (val) => _update(_config.copyWith(hapticFeedback: val)),
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Star Stream Constellation CSS', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Renders constellation notifications [...] with glowing cyan border and monospace font', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    value: _config.customCssEnabled,
+                    activeThumbColor: EpilogueTheme.cyanAccent,
+                    onChanged: (val) => _update(_config.copyWith(customCssEnabled: val)),
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Original Book Formatting (EPUB CSS)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Renders original chapter headings, centered text, dividers, and styling classes embedded in the EPUB', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    value: _config.useOriginalBookStyles,
+                    activeThumbColor: EpilogueTheme.cyanAccent,
+                    onChanged: (val) => _update(_config.copyWith(useOriginalBookStyles: val)),
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Enable Epilogue Studio', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Show EPUB 3.3 Authoring & Editing Studio in bottom navigation bar', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    value: _config.enableEpubStudio,
+                    activeThumbColor: EpilogueTheme.accent,
+                    onChanged: (val) => _update(_config.copyWith(enableEpubStudio: val)),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
