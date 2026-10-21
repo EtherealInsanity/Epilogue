@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/epub_project.dart';
 import '../services/studio_project_service.dart';
 import '../theme/epilogue_theme.dart';
@@ -19,6 +20,7 @@ class StudioDashboardScreen extends StatefulWidget {
 class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
   List<EpubProject> _projects = [];
   bool _isLoading = true;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -26,9 +28,11 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
     _loadProjects();
   }
 
-  Future<void> _loadProjects() async {
-    setState(() => _isLoading = true);
-    final list = await StudioProjectService.loadProjects();
+  Future<void> _loadProjects({bool force = false}) async {
+    if (_projects.isEmpty) {
+      setState(() => _isLoading = true);
+    }
+    final list = await StudioProjectService.loadProjects(forceReload: force);
     if (mounted) {
       setState(() {
         _projects = list;
@@ -127,12 +131,12 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
                   author: authorCtrl.text.trim().isNotEmpty ? authorCtrl.text.trim() : 'Anonymous',
                 );
                 await StudioProjectService.saveProject(proj);
-                await _loadProjects();
+                await _loadProjects(force: true);
                 if (mounted) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => StudioEditorScreen(project: proj, onSave: _loadProjects),
+                      builder: (_) => StudioEditorScreen(project: proj, onSave: () => _loadProjects(force: false)),
                     ),
                   );
                 }
@@ -156,7 +160,7 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
         setState(() => _isLoading = true);
         final proj = await StudioProjectService.importFromEpub(path);
         await StudioProjectService.saveProject(proj);
-        await _loadProjects();
+        await _loadProjects(force: true);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -194,7 +198,7 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
           title: filename,
         );
         await StudioProjectService.saveProject(proj);
-        await _loadProjects();
+        await _loadProjects(force: true);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -214,6 +218,148 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
         );
       }
     }
+  }
+
+  Future<void> _duplicateProject(EpubProject project) async {
+    final copy = await StudioProjectService.duplicateProject(project);
+    await _loadProjects(force: true);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Duplicated "${project.title}" as "${copy.title}"'),
+          backgroundColor: EpilogueTheme.accent,
+        ),
+      );
+    }
+  }
+
+  Future<void> _exportTxt(EpubProject project) async {
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final exportDir = Directory('${appDir.path}/Epilogue_Exports');
+      if (!await exportDir.exists()) await exportDir.create(recursive: true);
+
+      final cleanTitle = project.title.replaceAll(RegExp(r'[^\w\s\.-]'), '').replaceAll(' ', '_');
+      final path = '${exportDir.path}/${cleanTitle}_${DateTime.now().millisecondsSinceEpoch}.txt';
+      await StudioProjectService.exportToPlainText(project, path);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Exported plain text to:\n$path'),
+            backgroundColor: EpilogueTheme.accent,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export failed: $e'), backgroundColor: EpilogueTheme.dangerAccent),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportMd(EpubProject project) async {
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final exportDir = Directory('${appDir.path}/Epilogue_Exports');
+      if (!await exportDir.exists()) await exportDir.create(recursive: true);
+
+      final cleanTitle = project.title.replaceAll(RegExp(r'[^\w\s\.-]'), '').replaceAll(' ', '_');
+      final path = '${exportDir.path}/${cleanTitle}_${DateTime.now().millisecondsSinceEpoch}.md';
+      await StudioProjectService.exportToMarkdown(project, path);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Exported Markdown manuscript to:\n$path'),
+            backgroundColor: EpilogueTheme.accent,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export failed: $e'), backgroundColor: EpilogueTheme.dangerAccent),
+        );
+      }
+    }
+  }
+
+  void _showExportOptions(EpubProject project) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: EpilogueTheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.output, color: EpilogueTheme.cyanAccent),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Export "${project.title}"',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: EpilogueTheme.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: Icon(Icons.verified, color: EpilogueTheme.cyanAccent),
+                title: const Text('EPUB 3.3 / Linter Export', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: const Text('Pre-flight validation, XHTML repair & direct .epub packaging', style: TextStyle(fontSize: 11)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => StudioLinterScreen(project: project)),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.text_snippet_outlined, color: EpilogueTheme.greenAccent),
+                title: const Text('Plain Text Manuscript (.txt)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: const Text('Clean chapter-separated text file for backups & external notes', style: TextStyle(fontSize: 11)),
+                trailing: const Icon(Icons.download, size: 18),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await _exportTxt(project);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.description_outlined, color: EpilogueTheme.starGold),
+                title: const Text('Markdown Manuscript (.md)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: const Text('Structured headings (# Chapter), scene breaks & blockquotes', style: TextStyle(fontSize: 11)),
+                trailing: const Icon(Icons.download, size: 18),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await _exportMd(project);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _showDeleteDialog(EpubProject project) {
@@ -237,7 +383,7 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
             onPressed: () async {
               Navigator.pop(ctx);
               await StudioProjectService.deleteProject(project.id);
-              await _loadProjects();
+              await _loadProjects(force: true);
             },
             child: const Text('DELETE'),
           ),
@@ -248,6 +394,14 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayedProjects = _searchQuery.isEmpty
+        ? _projects
+        : _projects
+            .where((p) =>
+                p.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                p.author.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .toList();
+
     return Scaffold(
       backgroundColor: EpilogueTheme.background,
       appBar: AppBar(
@@ -296,13 +450,35 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
           : _projects.isEmpty
               ? _buildEmptyState()
               : RefreshIndicator(
-                  onRefresh: _loadProjects,
+                  onRefresh: () => _loadProjects(force: true),
                   color: EpilogueTheme.cyanAccent,
-                  child: ListView.separated(
+                  child: ListView(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
-                    itemCount: _projects.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 14),
-                    itemBuilder: (ctx, idx) => _buildProjectCard(_projects[idx]),
+                    children: [
+                      if (_projects.length > 2) ...[
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: EpilogueTheme.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: EpilogueTheme.border),
+                          ),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Search manuscripts by title or author...',
+                              prefixIcon: Icon(Icons.search, size: 20, color: EpilogueTheme.textSecondary),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            ),
+                            onChanged: (val) => setState(() => _searchQuery = val.trim()),
+                          ),
+                        ),
+                      ],
+                      for (final proj in displayedProjects) ...[
+                        _buildProjectCard(proj),
+                        const SizedBox(height: 14),
+                      ],
+                    ],
                   ),
                 ),
     );
@@ -375,10 +551,13 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => StudioEditorScreen(project: project, onSave: _loadProjects),
+              builder: (_) => StudioEditorScreen(
+                project: project,
+                onSave: () => _loadProjects(force: false),
+              ),
             ),
           );
-          _loadProjects();
+          _loadProjects(force: false);
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -451,9 +630,46 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.delete_outline, size: 20, color: EpilogueTheme.dangerAccent),
-                    onPressed: () => _showDeleteDialog(project),
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert, size: 20, color: EpilogueTheme.textSecondary),
+                    onSelected: (val) {
+                      if (val == 'duplicate') _duplicateProject(project);
+                      if (val == 'export') _showExportOptions(project);
+                      if (val == 'delete') _showDeleteDialog(project);
+                    },
+                    itemBuilder: (_) => [
+                      const PopupMenuItem(
+                        value: 'duplicate',
+                        child: Row(
+                          children: [
+                            Icon(Icons.copy_outlined, size: 18),
+                            SizedBox(width: 8),
+                            Text('Duplicate Book'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'export',
+                        child: Row(
+                          children: [
+                            Icon(Icons.output_outlined, size: 18),
+                            SizedBox(width: 8),
+                            Text('Export Formats (TXT, MD, EPUB)'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline, size: 18, color: EpilogueTheme.dangerAccent),
+                            const SizedBox(width: 8),
+                            Text('Delete Book', style: TextStyle(color: EpilogueTheme.dangerAccent)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -467,9 +683,9 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
                     onPressed: () async {
                       await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => StudioSpineScreen(project: project, onSave: _loadProjects)),
+                        MaterialPageRoute(builder: (_) => StudioSpineScreen(project: project, onSave: () => _loadProjects(force: false))),
                       );
-                      _loadProjects();
+                      _loadProjects(force: false);
                     },
                   ),
                   TextButton.icon(
@@ -478,22 +694,16 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
                     onPressed: () async {
                       await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => StudioMetadataScreen(project: project, onSave: _loadProjects)),
+                        MaterialPageRoute(builder: (_) => StudioMetadataScreen(project: project, onSave: () => _loadProjects(force: false))),
                       );
-                      _loadProjects();
+                      _loadProjects(force: false);
                     },
                   ),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(backgroundColor: EpilogueTheme.accent, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-                    icon: const Icon(Icons.verified_outlined, size: 16),
+                    icon: const Icon(Icons.output, size: 16),
                     label: const Text('Export', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => StudioLinterScreen(project: project)),
-                      );
-                      _loadProjects();
-                    },
+                    onPressed: () => _showExportOptions(project),
                   ),
                 ],
               ),

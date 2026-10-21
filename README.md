@@ -5,21 +5,21 @@
 </p>
 
 <p align="center">
-  <strong>An immersive, high-performance EPUB & Web Novel reading companion for Android with Star Stream progression.</strong>
+  <strong>An immersive, high-performance EPUB & Web Novel reading companion and authoring studio for Android, Linux, and Windows with Star Stream progression.</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Platform-Android%20(API%2021%2B)-brightgreen.svg" alt="Platform" />
+  <img src="https://img.shields.io/badge/Platform-Android%20%7C%20Linux%20%7C%20Windows-brightgreen.svg" alt="Platform" />
   <img src="https://img.shields.io/badge/Flutter-%3E%3D3.10.0-02569B.svg?logo=flutter" alt="Flutter" />
   <img src="https://img.shields.io/badge/Dart-%3E%3D3.0.0-0175C2.svg?logo=dart" alt="Dart" />
-  <img src="https://img.shields.io/badge/Tests-19%2F19%20Passing-success.svg" alt="Tests" />
+  <img src="https://img.shields.io/badge/Tests-27%2F27%20Passing-success.svg" alt="Tests" />
   <img src="https://img.shields.io/badge/Analyzer-0%20Issues-brightgreen.svg" alt="Analyzer" />
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" />
 </p>
 
 <p align="center">
   <a href="https://etherealinsanity.github.io/Epilogue/"><strong>🌐 Official Website & Live Interactive Demo</strong></a> • 
-  <a href="https://github.com/EtherealInsanity/Epilogue/releases"><strong>📦 Download APKs</strong></a> • 
+  <a href="https://github.com/EtherealInsanity/Epilogue/releases"><strong>📦 Download Releases (Android, Linux, Windows)</strong></a> • 
   <a href="TIME_CAPSULE.md"><strong>📜 Architecture & Capsule</strong></a>
 </p>
 
@@ -187,11 +187,18 @@ flutter pub get
 flutter analyze
 flutter test
 
-# 4. Launch on connected device
+# 4. Launch on connected device or desktop
 flutter run
 
-# 5. Build release APK
+# 5. Build multi-platform release binaries
+# Android APKs (Split-per-ABI & Universal)
 flutter build apk --release --split-per-abi
+
+# Linux Desktop Bundle (GTK3 Native)
+flutter build linux --release
+
+# Windows Desktop Release (Win32 Native)
+flutter build windows --release
 ```
 
 ---

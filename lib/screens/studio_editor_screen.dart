@@ -33,7 +33,24 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
   late TextEditingController _titleCtrl;
   late TextEditingController _contentCtrl;
   Timer? _autoSaveTimer;
+  Timer? _historyDebounceTimer;
   bool _hasUnsavedChanges = false;
+
+  // Undo / Redo history
+  final List<TextEditingValue> _undoStack = [];
+  final List<TextEditingValue> _redoStack = [];
+  bool _isPerformingUndoRedo = false;
+
+  // Find & Replace
+  bool _isFindReplaceVisible = false;
+  final TextEditingController _findCtrl = TextEditingController();
+  final TextEditingController _replaceCtrl = TextEditingController();
+  bool _isCaseSensitive = false;
+  int _currentMatchIndex = -1;
+  List<int> _matchOffsets = [];
+
+  // Live Stats HUD toggle
+  bool _showStatsHud = false;
 
   @override
   void initState() {
@@ -46,6 +63,8 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
     if (_project.chapters.isEmpty) {
       _titleCtrl = TextEditingController(text: 'Chapter 1');
       _contentCtrl = TextEditingController(text: '');
+      _undoStack.clear();
+      _redoStack.clear();
       return;
     }
 
@@ -63,20 +82,70 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
         );
         break;
     }
+
+    _undoStack.clear();
+    _redoStack.clear();
+    _undoStack.add(_contentCtrl.value);
   }
 
   @override
   void dispose() {
     _autoSaveTimer?.cancel();
+    _historyDebounceTimer?.cancel();
     _titleCtrl.dispose();
     _contentCtrl.dispose();
+    _findCtrl.dispose();
+    _replaceCtrl.dispose();
     super.dispose();
+  }
+
+  void _recordHistorySnapshot() {
+    if (_isPerformingUndoRedo) return;
+    if (_undoStack.isEmpty || _undoStack.last.text != _contentCtrl.text) {
+      if (_undoStack.length >= 35) {
+        _undoStack.removeAt(0);
+      }
+      _undoStack.add(_contentCtrl.value);
+      _redoStack.clear();
+    }
+  }
+
+  void _undo() {
+    if (_undoStack.length <= 1) return;
+    _isPerformingUndoRedo = true;
+    final current = _undoStack.removeLast();
+    _redoStack.add(current);
+    final previous = _undoStack.last;
+    _contentCtrl.value = previous;
+    _isPerformingUndoRedo = false;
+    _onContentChanged(previous.text);
+    setState(() {});
+  }
+
+  void _redo() {
+    if (_redoStack.isEmpty) return;
+    _isPerformingUndoRedo = true;
+    final next = _redoStack.removeLast();
+    _undoStack.add(next);
+    _contentCtrl.value = next;
+    _isPerformingUndoRedo = false;
+    _onContentChanged(next.text);
+    setState(() {});
   }
 
   void _onContentChanged(String val) {
     _hasUnsavedChanges = true;
     _autoSaveTimer?.cancel();
     _autoSaveTimer = Timer(const Duration(milliseconds: 1500), _saveCurrentDraft);
+
+    _historyDebounceTimer?.cancel();
+    _historyDebounceTimer = Timer(const Duration(milliseconds: 600), () {
+      if (mounted) _recordHistorySnapshot();
+    });
+
+    if (_isFindReplaceVisible && _findCtrl.text.isNotEmpty) {
+      _performSearch();
+    }
   }
 
   Future<void> _saveCurrentDraft() async {
@@ -95,15 +164,17 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
         break;
       case EditorMode.markdown:
         md = _contentCtrl.text;
-        // Simple MD-to-HTML conversion
         html = _convertMarkdownToHtml(md);
         break;
     }
+
+    final wc = ProjectChapter.computeWordCount(html);
 
     final updatedCh = currentCh.copyWith(
       title: _titleCtrl.text.trim().isNotEmpty ? _titleCtrl.text.trim() : 'Chapter ${idx + 1}',
       contentHtml: html,
       contentMarkdown: md,
+      cachedWordCount: wc,
     );
 
     final updatedChapters = List<ProjectChapter>.from(_project.chapters);
@@ -140,10 +211,11 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
       } else if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
         out.add('<div class="star-stream-dialogue">$trimmed</div>');
       } else if (trimmed.isNotEmpty) {
-        // Handle bold & italic
         var formatted = trimmed
             .replaceAllMapped(RegExp(r'\*\*(.*?)\*\*'), (m) => '<b>${m[1]}</b>')
-            .replaceAllMapped(RegExp(r'\*(.*?)\*'), (m) => '<i>${m[1]}</i>');
+            .replaceAllMapped(RegExp(r'\*(.*?)\*'), (m) => '<i>${m[1]}</i>')
+            .replaceAllMapped(RegExp(r'~~(.*?)~~'), (m) => '<del>${m[1]}</del>')
+            .replaceAllMapped(RegExp(r'`(.*?)`'), (m) => '<code>${m[1]}</code>');
         out.add('<p>$formatted</p>');
       }
     }
@@ -162,6 +234,7 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
   }
 
   void _insertTag(String prefix, String suffix) {
+    _recordHistorySnapshot();
     final text = _contentCtrl.text;
     final selection = _contentCtrl.selection;
     final start = selection.start >= 0 ? selection.start : text.length;
@@ -174,6 +247,216 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
       selection: TextSelection.collapsed(offset: start + prefix.length + selectedText.length),
     );
     _onContentChanged(newText);
+    _recordHistorySnapshot();
+    setState(() {});
+  }
+
+  // Find & Replace Engine
+  void _performSearch() {
+    final query = _findCtrl.text;
+    final text = _contentCtrl.text;
+    if (query.isEmpty || text.isEmpty) {
+      setState(() {
+        _matchOffsets = [];
+        _currentMatchIndex = -1;
+      });
+      return;
+    }
+
+    final offsets = <int>[];
+    final pattern = _isCaseSensitive ? query : query.toLowerCase();
+    final source = _isCaseSensitive ? text : text.toLowerCase();
+
+    int start = 0;
+    while (true) {
+      final idx = source.indexOf(pattern, start);
+      if (idx == -1) break;
+      offsets.add(idx);
+      start = idx + query.length;
+    }
+
+    setState(() {
+      _matchOffsets = offsets;
+      if (offsets.isEmpty) {
+        _currentMatchIndex = -1;
+      } else if (_currentMatchIndex < 0 || _currentMatchIndex >= offsets.length) {
+        _currentMatchIndex = 0;
+        _highlightMatch(0);
+      }
+    });
+  }
+
+  void _nextMatch() {
+    if (_matchOffsets.isEmpty) return;
+    setState(() {
+      _currentMatchIndex = (_currentMatchIndex + 1) % _matchOffsets.length;
+    });
+    _highlightMatch(_currentMatchIndex);
+  }
+
+  void _prevMatch() {
+    if (_matchOffsets.isEmpty) return;
+    setState(() {
+      _currentMatchIndex = (_currentMatchIndex - 1 + _matchOffsets.length) % _matchOffsets.length;
+    });
+    _highlightMatch(_currentMatchIndex);
+  }
+
+  void _highlightMatch(int matchIdx) {
+    if (matchIdx < 0 || matchIdx >= _matchOffsets.length) return;
+    final start = _matchOffsets[matchIdx];
+    final length = _findCtrl.text.length;
+    _contentCtrl.selection = TextSelection(
+      baseOffset: start,
+      extentOffset: start + length,
+    );
+  }
+
+  void _replaceCurrent() {
+    if (_matchOffsets.isEmpty || _currentMatchIndex < 0 || _currentMatchIndex >= _matchOffsets.length) return;
+    final start = _matchOffsets[_currentMatchIndex];
+    final length = _findCtrl.text.length;
+    final replacement = _replaceCtrl.text;
+
+    _recordHistorySnapshot();
+    final text = _contentCtrl.text;
+    final updated = text.replaceRange(start, start + length, replacement);
+    _contentCtrl.value = TextEditingValue(
+      text: updated,
+      selection: TextSelection.collapsed(offset: start + replacement.length),
+    );
+    _onContentChanged(updated);
+    _performSearch();
+  }
+
+  void _replaceAll() {
+    if (_matchOffsets.isEmpty) return;
+    final query = _findCtrl.text;
+    final replacement = _replaceCtrl.text;
+    final text = _contentCtrl.text;
+    final count = _matchOffsets.length;
+
+    _recordHistorySnapshot();
+    String updated;
+    if (_isCaseSensitive) {
+      updated = text.replaceAll(query, replacement);
+    } else {
+      updated = text.replaceAll(RegExp(RegExp.escape(query), caseSensitive: false), replacement);
+    }
+
+    _contentCtrl.text = updated;
+    _onContentChanged(updated);
+    _performSearch();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Replaced $count occurrences!'),
+        backgroundColor: EpilogueTheme.accent,
+      ),
+    );
+  }
+
+  void _openCustomCssEditor() {
+    final cssCtrl = TextEditingController(text: _project.customCss);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: EpilogueTheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.palette_outlined, color: EpilogueTheme.cyanAccent),
+                const SizedBox(width: 8),
+                Text(
+                  'Book Stylesheet (CSS)',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: EpilogueTheme.textPrimary,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Custom CSS applied during EPUB rendering and reader export.',
+              style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              height: 220,
+              decoration: BoxDecoration(
+                color: EpilogueTheme.background,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: EpilogueTheme.border),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: TextField(
+                controller: cssCtrl,
+                maxLines: null,
+                expands: true,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+                decoration: const InputDecoration(
+                  hintText: '/* Add custom CSS rules here */\n.chapter-title { font-family: serif; }',
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('CANCEL'),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  style: FilledButton.styleFrom(backgroundColor: EpilogueTheme.accent),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final updated = _project.copyWith(customCss: cssCtrl.text);
+                    await StudioProjectService.saveProject(updated);
+                    setState(() => _project = updated);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Custom CSS saved!'),
+                          backgroundColor: EpilogueTheme.greenAccent,
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('SAVE CSS'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showLivePreview() {
@@ -252,12 +535,28 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
     );
   }
 
+  // Live Stats calculations
+  int get _wordCount {
+    final clean = _contentCtrl.text.replaceAll(RegExp(r'<[^>]*>'), ' ').trim();
+    if (clean.isEmpty) return 0;
+    return clean.split(RegExp(r'\s+')).length;
+  }
+
+  int get _charCount => _contentCtrl.text.length;
+
+  int get _paragraphCount {
+    final text = _contentCtrl.text.trim();
+    if (text.isEmpty) return 0;
+    return text.split(RegExp(r'\n\s*\n')).where((p) => p.trim().isNotEmpty).length;
+  }
+
+  int get _readingMinutes {
+    final words = _wordCount;
+    return (words / 220).ceil().clamp(1, 9999);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ch = _project.chapters.isNotEmpty
-        ? _project.chapters[_activeChapterIndex.clamp(0, _project.chapters.length - 1)]
-        : null;
-
     return Scaffold(
       backgroundColor: EpilogueTheme.background,
       appBar: AppBar(
@@ -295,13 +594,44 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: 'Undo',
+            icon: const Icon(Icons.undo, size: 20),
+            onPressed: _undoStack.length > 1 ? _undo : null,
+          ),
+          IconButton(
+            tooltip: 'Redo',
+            icon: const Icon(Icons.redo, size: 20),
+            onPressed: _redoStack.isNotEmpty ? _redo : null,
+          ),
+          IconButton(
+            tooltip: 'Find & Replace',
+            icon: Icon(
+              Icons.search,
+              color: _isFindReplaceVisible ? EpilogueTheme.cyanAccent : null,
+              size: 20,
+            ),
+            onPressed: () {
+              setState(() {
+                _isFindReplaceVisible = !_isFindReplaceVisible;
+                if (_isFindReplaceVisible) {
+                  _performSearch();
+                }
+              });
+            },
+          ),
+          IconButton(
+            tooltip: 'Custom CSS',
+            icon: const Icon(Icons.palette_outlined, size: 20),
+            onPressed: _openCustomCssEditor,
+          ),
+          IconButton(
             tooltip: 'Live Reader Preview',
-            icon: Icon(Icons.visibility_outlined, color: EpilogueTheme.cyanAccent),
+            icon: Icon(Icons.visibility_outlined, color: EpilogueTheme.cyanAccent, size: 20),
             onPressed: _showLivePreview,
           ),
           IconButton(
             tooltip: 'Spine & TOC',
-            icon: const Icon(Icons.format_list_bulleted),
+            icon: const Icon(Icons.format_list_bulleted, size: 20),
             onPressed: () async {
               _saveCurrentDraft();
               await Navigator.push(
@@ -332,6 +662,7 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
             icon: Icon(
               _hasUnsavedChanges ? Icons.save : Icons.check_circle_outline,
               color: _hasUnsavedChanges ? EpilogueTheme.cyanAccent : EpilogueTheme.greenAccent,
+              size: 20,
             ),
             onPressed: _saveCurrentDraft,
           ),
@@ -339,7 +670,7 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
       ),
       body: Column(
         children: [
-          // Mode Selector Ribbon
+          // Mode Selector Ribbon & Stats Toggle
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             color: EpilogueTheme.surfaceElevated,
@@ -351,18 +682,153 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
                 const SizedBox(width: 8),
                 _buildModePill(EditorMode.sourceHtml, 'Source (XHTML)', Icons.code),
                 const Spacer(),
-                if (ch != null)
-                  Text(
-                    '${ch.wordCount} words',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.textMuted),
+                InkWell(
+                  onTap: () => setState(() => _showStatsHud = !_showStatsHud),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: _showStatsHud ? EpilogueTheme.cyanAccent.withValues(alpha: 0.15) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.analytics_outlined, size: 14, color: EpilogueTheme.cyanAccent),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$_wordCount words',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent),
+                        ),
+                      ],
+                    ),
                   ),
+                ),
               ],
             ),
           ),
 
+          // Collapsible Stats HUD
+          if (_showStatsHud) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: EpilogueTheme.surface,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStatItem('Words', '$_wordCount'),
+                  _buildStatItem('Characters', '$_charCount'),
+                  _buildStatItem('Paragraphs', '$_paragraphCount'),
+                  _buildStatItem('Est. Read Time', '~$_readingMinutes min'),
+                ],
+              ),
+            ),
+            Divider(color: EpilogueTheme.border, height: 1),
+          ],
+
+          // Toggleable Find & Replace Ribbon
+          if (_isFindReplaceVisible) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              color: EpilogueTheme.surface,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 36,
+                          child: TextField(
+                            controller: _findCtrl,
+                            style: const TextStyle(fontSize: 12),
+                            decoration: InputDecoration(
+                              hintText: 'Find in chapter...',
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            onChanged: (_) => _performSearch(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _matchOffsets.isEmpty
+                            ? '0/0'
+                            : '${_currentMatchIndex + 1}/${_matchOffsets.length}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_upward, size: 16),
+                        onPressed: _prevMatch,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_downward, size: 16),
+                        onPressed: _nextMatch,
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.text_format,
+                          size: 16,
+                          color: _isCaseSensitive ? EpilogueTheme.cyanAccent : EpilogueTheme.textMuted,
+                        ),
+                        tooltip: 'Match Case',
+                        onPressed: () {
+                          setState(() => _isCaseSensitive = !_isCaseSensitive);
+                          _performSearch();
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 36,
+                          child: TextField(
+                            controller: _replaceCtrl,
+                            style: const TextStyle(fontSize: 12),
+                            decoration: InputDecoration(
+                              hintText: 'Replace with...',
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          minimumSize: const Size(60, 34),
+                        ),
+                        onPressed: _replaceCurrent,
+                        child: const Text('Replace', style: TextStyle(fontSize: 11)),
+                      ),
+                      const SizedBox(width: 6),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: EpilogueTheme.accent,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          minimumSize: const Size(70, 34),
+                        ),
+                        onPressed: _replaceAll,
+                        child: const Text('All', style: TextStyle(fontSize: 11)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: EpilogueTheme.border, height: 1),
+          ],
+
           // Chapter Title Input
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
             child: TextField(
               controller: _titleCtrl,
               style: TextStyle(
@@ -410,6 +876,17 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
           _buildFormattingToolbar(),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+        const SizedBox(height: 1),
+        Text(label, style: TextStyle(fontSize: 10, color: EpilogueTheme.textSecondary)),
+      ],
     );
   }
 
@@ -468,6 +945,13 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
               _insertTag('<h2>', '</h2>');
             }
           }),
+          _toolbarAction('H3', () {
+            if (_editorMode == EditorMode.markdown) {
+              _insertTag('### ', '\n');
+            } else {
+              _insertTag('<h3>', '</h3>');
+            }
+          }),
           _toolbarAction('B', () {
             if (_editorMode == EditorMode.markdown) {
               _insertTag('**', '**');
@@ -481,6 +965,26 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
             } else {
               _insertTag('<i>', '</i>');
             }
+          }),
+          _toolbarAction('U', () {
+            _insertTag('<u>', '</u>');
+          }),
+          _toolbarAction('S', () {
+            if (_editorMode == EditorMode.markdown) {
+              _insertTag('~~', '~~');
+            } else {
+              _insertTag('<del>', '</del>');
+            }
+          }),
+          _toolbarAction('Code', () {
+            if (_editorMode == EditorMode.markdown) {
+              _insertTag('`', '`');
+            } else {
+              _insertTag('<code>', '</code>');
+            }
+          }),
+          _toolbarAction('Highlight', () {
+            _insertTag('<mark>', '</mark>');
           }),
           _toolbarAction('Drop Cap', () {
             _insertTag('<span class="drop-cap">', '</span>');
@@ -499,11 +1003,20 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
               _insertTag('<blockquote>', '</blockquote>');
             }
           }),
+          _toolbarAction('Center', () {
+            _insertTag('<p style="text-align: center;">', '</p>');
+          }),
           _toolbarAction('[Lore]', () {
             _insertTag('<div class="star-stream-dialogue">[', ']</div>');
           }),
           _toolbarAction('Footnote', () {
             _insertTag('<aside epub:type="footnote">', '</aside>');
+          }),
+          _toolbarAction('Sub', () {
+            _insertTag('<sub>', '</sub>');
+          }),
+          _toolbarAction('Super', () {
+            _insertTag('<sup>', '</sup>');
           }),
         ],
       ),

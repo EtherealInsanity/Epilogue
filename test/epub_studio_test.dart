@@ -178,4 +178,47 @@ void main() {
       expect(navXhtml.contains('epub:type="toc"'), true);
     });
   });
+
+  group('Studio Optimizations & Enhancements', () {
+    test('Project duplication clones all metadata and chapters with new identifiers', () async {
+      final orig = await StudioProjectService.createFromTemplate(
+        template: StudioTemplate.novel,
+        title: 'Original Epic',
+        author: 'Han Sooyoung',
+      );
+
+      final dup = orig.duplicate();
+      expect(dup.title, 'Original Epic (Copy)');
+      expect(dup.author, 'Han Sooyoung');
+      expect(dup.id != orig.id, true);
+      expect(dup.identifier != orig.identifier, true);
+      expect(dup.chapters.length, orig.chapters.length);
+      expect(dup.chapters.first.id != orig.chapters.first.id, true);
+    });
+
+    test('Cached word counts eliminate repeated HTML regex parsing overhead', () {
+      const chWithCache = ProjectChapter(
+        id: 'ch_cached',
+        title: 'Cached Chapter',
+        contentHtml: '<p>One two three four five six seven eight nine ten</p>',
+        cachedWordCount: 10,
+        order: 0,
+      );
+
+      expect(chWithCache.wordCount, 10);
+
+      const proj = EpubProject(
+        id: 'p_opt',
+        title: 'Optimized Project',
+        author: 'Dokja',
+        identifier: 'urn:uuid:123',
+        createdTimestamp: 100,
+        modifiedTimestamp: 100,
+        cachedTotalWords: 10,
+        chapters: [chWithCache],
+      );
+
+      expect(proj.totalWords, 10);
+    });
+  });
 }

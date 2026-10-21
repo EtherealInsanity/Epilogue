@@ -162,6 +162,7 @@ class _StudioSpineScreenState extends State<StudioSpineScreen> {
       contentHtml: original.contentHtml,
       contentMarkdown: original.contentMarkdown,
       order: index + 1,
+      cachedWordCount: original.cachedWordCount ?? original.wordCount,
     );
 
     setState(() {

@@ -178,13 +178,20 @@ async function initDynamicReleases() {
   const universalLink = document.getElementById('dl-universal');
   const armeabiLink = document.getElementById('dl-armeabi');
   const x86_64Link = document.getElementById('dl-x86_64');
+  const windowsLink = document.getElementById('dl-windows');
+  const linuxLink = document.getElementById('dl-linux');
 
   const sizeArm64 = document.getElementById('size-arm64');
   const sizeUniversal = document.getElementById('size-universal');
   const sizeArmeabi = document.getElementById('size-armeabi');
   const sizeX86_64 = document.getElementById('size-x86_64');
+  const sizeWindows = document.getElementById('size-windows');
+  const sizeLinux = document.getElementById('size-linux');
 
-  const isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || window.opera);
+  const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
+  const isAndroid = /android/i.test(ua);
+  const isWindows = /windows/i.test(ua);
+  const isLinux = /linux/i.test(ua) && !isAndroid;
 
   try {
     const res = await fetch(API_URL);
@@ -199,9 +206,15 @@ async function initDynamicReleases() {
     }
 
     if (heroDownloadLabel) {
-      heroDownloadLabel.innerText = isAndroid 
-        ? `Download APK (${cleanVersion} • ARM64)` 
-        : `Download APK (${cleanVersion})`;
+      if (isAndroid) {
+        heroDownloadLabel.innerText = `Download APK (${cleanVersion} • ARM64)`;
+      } else if (isWindows) {
+        heroDownloadLabel.innerText = `Download for Windows (${cleanVersion})`;
+      } else if (isLinux) {
+        heroDownloadLabel.innerText = `Download for Linux (${cleanVersion})`;
+      } else {
+        heroDownloadLabel.innerText = `Download Epilogue (${cleanVersion})`;
+      }
     }
 
     // Match release assets
@@ -218,13 +231,21 @@ async function initDynamicReleases() {
         } else if (name.includes('universal.apk')) {
           if (universalLink) universalLink.href = url;
           if (sizeUniversal) sizeUniversal.innerText = `~${sizeMb} MB • Standalone`;
-          if (heroDownloadBtn && !isAndroid) heroDownloadBtn.href = url;
+          if (heroDownloadBtn && !isAndroid && !isWindows && !isLinux) heroDownloadBtn.href = url;
         } else if (name.includes('armeabi-v7a.apk')) {
           if (armeabiLink) armeabiLink.href = url;
           if (sizeArmeabi) sizeArmeabi.innerText = `~${sizeMb} MB • Split APK`;
         } else if (name.includes('x86_64.apk')) {
           if (x86_64Link) x86_64Link.href = url;
           if (sizeX86_64) sizeX86_64.innerText = `~${sizeMb} MB • Split APK`;
+        } else if (name.includes('windows') && name.endsWith('.zip')) {
+          if (windowsLink) windowsLink.href = url;
+          if (sizeWindows) sizeWindows.innerText = `~${sizeMb} MB • Portable Zip`;
+          if (heroDownloadBtn && isWindows) heroDownloadBtn.href = url;
+        } else if (name.includes('linux') && (name.endsWith('.tar.gz') || name.endsWith('.zip'))) {
+          if (linuxLink) linuxLink.href = url;
+          if (sizeLinux) sizeLinux.innerText = `~${sizeMb} MB • Portable Archive`;
+          if (heroDownloadBtn && isLinux) heroDownloadBtn.href = url;
         }
       });
     }

@@ -8,17 +8,45 @@ class FileExplorerService {
 
   FileExplorerService(this.storageService);
 
-  static const String rootStoragePath = '/storage/emulated/0';
+  static String get rootStoragePath {
+    if (Platform.isAndroid) {
+      return '/storage/emulated/0';
+    } else if (Platform.isWindows) {
+      return Platform.environment['USERPROFILE'] ?? 'C:\\';
+    } else {
+      return Platform.environment['HOME'] ?? '/';
+    }
+  }
 
   static Map<String, String> getQuickDirectories() {
-    return {
-      'Manga': '$rootStoragePath/Documents/Manga',
-      'Archives': '$rootStoragePath/Documents/archives',
-      'Documents': '$rootStoragePath/Documents',
-      'Downloads': '$rootStoragePath/Download',
-      'Books': '$rootStoragePath/Books',
-      'Root': rootStoragePath,
-    };
+    final root = rootStoragePath;
+    if (Platform.isAndroid) {
+      return {
+        'Manga': '$root/Documents/Manga',
+        'Archives': '$root/Documents/archives',
+        'Documents': '$root/Documents',
+        'Downloads': '$root/Download',
+        'Books': '$root/Books',
+        'Root': root,
+      };
+    } else if (Platform.isWindows) {
+      return {
+        'Documents': '$root\\Documents',
+        'Downloads': '$root\\Downloads',
+        'Books': '$root\\Documents\\Books',
+        'Desktop': '$root\\Desktop',
+        'Home': root,
+      };
+    } else {
+      return {
+        'Documents': '$root/Documents',
+        'Downloads': '$root/Downloads',
+        'Books': '$root/Documents/Books',
+        'Desktop': '$root/Desktop',
+        'Home': root,
+        'Root': '/',
+      };
+    }
   }
 
   /// Lists entries in [directoryPath] sorted with directories first, then EPUBs, then others

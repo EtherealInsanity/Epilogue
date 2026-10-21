@@ -85,10 +85,10 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
   }
 
   void _goUp() {
-    if (_currentPath == FileExplorerService.rootStoragePath || _currentPath == '/') {
+    final parent = Directory(_currentPath).parent.path;
+    if (parent == _currentPath) {
       return;
     }
-    final parent = Directory(_currentPath).parent.path;
     _navigateTo(parent);
   }
 

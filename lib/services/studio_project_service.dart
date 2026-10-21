@@ -12,6 +12,11 @@ enum StudioTemplate {
 
 class StudioProjectService {
   static const String _projectsDirName = 'studio_projects';
+  static List<EpubProject>? _cachedProjects;
+
+  static void invalidateCache() {
+    _cachedProjects = null;
+  }
 
   static Future<Directory> _getProjectsDir() async {
     final appDir = await getApplicationDocumentsDirectory();
@@ -22,8 +27,12 @@ class StudioProjectService {
     return dir;
   }
 
-  /// Loads all saved authoring projects.
-  static Future<List<EpubProject>> loadProjects() async {
+  /// Loads all saved authoring projects with memory caching for sub-millisecond retrieval.
+  static Future<List<EpubProject>> loadProjects({bool forceReload = false}) async {
+    if (!forceReload && _cachedProjects != null) {
+      return List<EpubProject>.from(_cachedProjects!);
+    }
+
     final dir = await _getProjectsDir();
     final files = dir.listSync().whereType<File>().where((f) => f.path.endsWith('.json'));
 
@@ -36,26 +45,57 @@ class StudioProjectService {
     }
 
     projects.sort((a, b) => b.modifiedTimestamp.compareTo(a.modifiedTimestamp));
-    return projects;
+    _cachedProjects = projects;
+    return List<EpubProject>.from(projects);
   }
 
-  /// Saves or updates a project to persistent storage.
+  /// Saves or updates a project to persistent storage and updates the in-memory cache.
   static Future<void> saveProject(EpubProject project) async {
     final dir = await _getProjectsDir();
     final file = File('${dir.path}/${project.id}.json');
+
+    // Ensure pre-calculated word counts are stored to avoid runtime regex lag
+    final updatedChapters = project.chapters.map((ch) {
+      final wc = ch.cachedWordCount ?? ch.wordCount;
+      return ch.copyWith(cachedWordCount: wc);
+    }).toList();
+
+    final totalWc = updatedChapters.fold(0, (sum, ch) => sum + (ch.cachedWordCount ?? 0));
     final updated = project.copyWith(
+      chapters: updatedChapters,
+      cachedTotalWords: totalWc,
       modifiedTimestamp: DateTime.now().millisecondsSinceEpoch,
     );
+
     await file.writeAsString(updated.toJson());
+
+    // Update in-memory cache instantly
+    if (_cachedProjects != null) {
+      final idx = _cachedProjects!.indexWhere((p) => p.id == updated.id);
+      if (idx >= 0) {
+        _cachedProjects![idx] = updated;
+      } else {
+        _cachedProjects!.insert(0, updated);
+      }
+      _cachedProjects!.sort((a, b) => b.modifiedTimestamp.compareTo(a.modifiedTimestamp));
+    }
   }
 
-  /// Deletes a project by ID.
+  /// Deletes a project by ID and clears it from cache.
   static Future<void> deleteProject(String id) async {
     final dir = await _getProjectsDir();
     final file = File('${dir.path}/$id.json');
     if (await file.exists()) {
       await file.delete();
     }
+    _cachedProjects?.removeWhere((p) => p.id == id);
+  }
+
+  /// Clones a project with a new ID and persists it.
+  static Future<EpubProject> duplicateProject(EpubProject project) async {
+    final copy = project.duplicate();
+    await saveProject(copy);
+    return copy;
   }
 
   /// Creates a new project from a professional genre template.
@@ -176,6 +216,7 @@ class StudioProjectService {
         contentMarkdown: ch.plainTextContent,
         order: i,
         href: index.chapterMetas[i].href,
+        cachedWordCount: ProjectChapter.computeWordCount(ch.htmlContent),
       ));
     }
 
@@ -203,18 +244,19 @@ class StudioProjectService {
     final now = DateTime.now().millisecondsSinceEpoch;
     final id = 'proj_$now';
 
-    // Split by Markdown heading (# Chapter ...) or standard Chapter patterns
     final chapterSplitRegex = RegExp(r'(?:^|\n)(?=#+\s+Chapter|\bChapter\s+\d+|\bCHAPTER\s+[IVXLCDM0-9]+)', caseSensitive: false);
     final rawParts = text.split(chapterSplitRegex).map((p) => p.trim()).where((p) => p.isNotEmpty).toList();
 
     final chapters = <ProjectChapter>[];
     if (rawParts.isEmpty) {
+      final html = '<p>${text.trim()}</p>';
       chapters.add(ProjectChapter(
         id: 'ch_1',
         title: 'Chapter 1',
-        contentHtml: '<p>${text.trim()}</p>',
+        contentHtml: html,
         contentMarkdown: text.trim(),
         order: 0,
+        cachedWordCount: ProjectChapter.computeWordCount(html),
       ));
     } else {
       for (int i = 0; i < rawParts.length; i++) {
@@ -232,6 +274,7 @@ class StudioProjectService {
           contentHtml: html,
           contentMarkdown: part,
           order: i,
+          cachedWordCount: ProjectChapter.computeWordCount(html),
         ));
       }
     }
@@ -250,5 +293,50 @@ class StudioProjectService {
   /// Exports project to an EPUB file at targetFilePath.
   static Future<File> exportProject(EpubProject project, String targetFilePath) async {
     return await EpubBuilderService.saveEpubToFile(project, targetFilePath);
+  }
+
+  /// Exports project to a clean Plain Text manuscript (.txt).
+  static Future<File> exportToPlainText(EpubProject project, String targetFilePath) async {
+    final sb = StringBuffer();
+    sb.writeln(project.title);
+    sb.writeln('Author: ${project.author}');
+    sb.writeln('=' * 40);
+    sb.writeln();
+
+    for (final ch in project.chapters) {
+      sb.writeln(ch.title);
+      sb.writeln('-' * ch.title.length);
+      final plain = ch.contentMarkdown.isNotEmpty
+          ? ch.contentMarkdown.replaceAll(RegExp(r'^#+\s*', multiLine: true), '')
+          : ch.contentHtml.replaceAll(RegExp(r'<[^>]*>'), '\n').trim();
+      sb.writeln(plain);
+      sb.writeln('\n');
+    }
+
+    final file = File(targetFilePath);
+    await file.writeAsString(sb.toString());
+    return file;
+  }
+
+  /// Exports project to a standard Markdown manuscript (.md).
+  static Future<File> exportToMarkdown(EpubProject project, String targetFilePath) async {
+    final sb = StringBuffer();
+    sb.writeln('# ${project.title}');
+    sb.writeln('**Author:** ${project.author}\n');
+    if (project.description.isNotEmpty) {
+      sb.writeln('> ${project.description}\n');
+    }
+
+    for (final ch in project.chapters) {
+      sb.writeln('## ${ch.title}\n');
+      sb.writeln(ch.contentMarkdown.isNotEmpty
+          ? ch.contentMarkdown
+          : ch.contentHtml.replaceAll(RegExp(r'<[^>]*>'), '\n').trim());
+      sb.writeln('\n---\n');
+    }
+
+    final file = File(targetFilePath);
+    await file.writeAsString(sb.toString());
+    return file;
   }
 }

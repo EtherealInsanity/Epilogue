@@ -7,6 +7,7 @@ class ProjectChapter {
   final String contentMarkdown;
   final int order;
   final String? href;
+  final int? cachedWordCount;
 
   const ProjectChapter({
     required this.id,
@@ -15,12 +16,18 @@ class ProjectChapter {
     this.contentMarkdown = '',
     required this.order,
     this.href,
+    this.cachedWordCount,
   });
 
-  int get wordCount {
-    final clean = contentHtml.replaceAll(RegExp(r'<[^>]*>'), ' ').trim();
+  static int computeWordCount(String html) {
+    final clean = html.replaceAll(RegExp(r'<[^>]*>'), ' ').trim();
     if (clean.isEmpty) return 0;
     return clean.split(RegExp(r'\s+')).length;
+  }
+
+  int get wordCount {
+    if (cachedWordCount != null) return cachedWordCount!;
+    return computeWordCount(contentHtml);
   }
 
   ProjectChapter copyWith({
@@ -30,6 +37,7 @@ class ProjectChapter {
     String? contentMarkdown,
     int? order,
     String? href,
+    int? cachedWordCount,
   }) {
     return ProjectChapter(
       id: id ?? this.id,
@@ -38,6 +46,7 @@ class ProjectChapter {
       contentMarkdown: contentMarkdown ?? this.contentMarkdown,
       order: order ?? this.order,
       href: href ?? this.href,
+      cachedWordCount: cachedWordCount ?? this.cachedWordCount,
     );
   }
 
@@ -48,6 +57,7 @@ class ProjectChapter {
         'contentMarkdown': contentMarkdown,
         'order': order,
         'href': href,
+        'cachedWordCount': cachedWordCount ?? wordCount,
       };
 
   factory ProjectChapter.fromMap(Map<String, dynamic> map) => ProjectChapter(
@@ -57,6 +67,7 @@ class ProjectChapter {
         contentMarkdown: map['contentMarkdown'] as String? ?? '',
         order: (map['order'] as num?)?.toInt() ?? 0,
         href: map['href'] as String?,
+        cachedWordCount: (map['cachedWordCount'] as num?)?.toInt(),
       );
 }
 
@@ -74,6 +85,7 @@ class EpubProject {
   final List<ProjectChapter> chapters;
   final int createdTimestamp;
   final int modifiedTimestamp;
+  final int? cachedTotalWords;
 
   const EpubProject({
     required this.id,
@@ -89,9 +101,28 @@ class EpubProject {
     this.chapters = const [],
     required this.createdTimestamp,
     required this.modifiedTimestamp,
+    this.cachedTotalWords,
   });
 
-  int get totalWords => chapters.fold(0, (sum, ch) => sum + ch.wordCount);
+  int get totalWords {
+    if (cachedTotalWords != null) return cachedTotalWords!;
+    return chapters.fold(0, (sum, ch) => sum + ch.wordCount);
+  }
+
+  EpubProject duplicate() {
+    final nowMicro = DateTime.now().microsecondsSinceEpoch;
+    final nowMilli = DateTime.now().millisecondsSinceEpoch;
+    return copyWith(
+      id: 'proj_${nowMicro}_copy',
+      title: '$title (Copy)',
+      identifier: 'urn:uuid:$nowMicro',
+      createdTimestamp: nowMilli,
+      modifiedTimestamp: nowMilli,
+      chapters: chapters
+          .map((c) => c.copyWith(id: 'ch_${nowMicro}_${c.order}'))
+          .toList(),
+    );
+  }
 
   EpubProject copyWith({
     String? id,
@@ -107,6 +138,7 @@ class EpubProject {
     List<ProjectChapter>? chapters,
     int? createdTimestamp,
     int? modifiedTimestamp,
+    int? cachedTotalWords,
   }) {
     return EpubProject(
       id: id ?? this.id,
@@ -122,6 +154,7 @@ class EpubProject {
       chapters: chapters ?? this.chapters,
       createdTimestamp: createdTimestamp ?? this.createdTimestamp,
       modifiedTimestamp: modifiedTimestamp ?? this.modifiedTimestamp,
+      cachedTotalWords: cachedTotalWords ?? this.cachedTotalWords,
     );
   }
 
@@ -139,6 +172,7 @@ class EpubProject {
         'chapters': chapters.map((c) => c.toMap()).toList(),
         'createdTimestamp': createdTimestamp,
         'modifiedTimestamp': modifiedTimestamp,
+        'cachedTotalWords': cachedTotalWords ?? totalWords,
       };
 
   factory EpubProject.fromMap(Map<String, dynamic> map) => EpubProject(
@@ -158,6 +192,7 @@ class EpubProject {
             [],
         createdTimestamp: (map['createdTimestamp'] as num?)?.toInt() ?? DateTime.now().millisecondsSinceEpoch,
         modifiedTimestamp: (map['modifiedTimestamp'] as num?)?.toInt() ?? DateTime.now().millisecondsSinceEpoch,
+        cachedTotalWords: (map['cachedTotalWords'] as num?)?.toInt(),
       );
 
   String toJson() => jsonEncode(toMap());

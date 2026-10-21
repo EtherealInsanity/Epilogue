@@ -279,6 +279,49 @@ button {
   background: var(--bg-surface-elevated);
 }
 
+.btn-discord {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(88, 101, 242, 0.12);
+  border: 1px solid rgba(88, 101, 242, 0.35);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #7289DA;
+  transition: all 0.2s ease;
+}
+
+.btn-discord:hover {
+  background: rgba(88, 101, 242, 0.25);
+  border-color: #5865F2;
+  color: #FFFFFF;
+  box-shadow: 0 0 12px rgba(88, 101, 242, 0.4);
+}
+
+.btn-discord-hero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border-radius: var(--radius-md);
+  background: #5865F2;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(88, 101, 242, 0.35);
+}
+
+.btn-discord-hero:hover {
+  background: #4752C4;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(88, 101, 242, 0.5);
+}
+
 /* Mobile Hamburger Button */
 .mobile-menu-btn {
   display: none;
@@ -1478,11 +1521,13 @@ button {
     margin-top: 8px;
   }
 
-  .github-text {
+  .github-text,
+  .discord-text {
     display: none;
   }
 
-  .btn-github {
+  .btn-github,
+  .btn-discord {
     padding: 8px 10px;
   }
 

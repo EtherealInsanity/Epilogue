@@ -105,9 +105,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
         config: _config,
         onSettingsChanged: () => setState(() => _config = widget.storageService.loadConfig()),
       ),
-      const StudioDashboardScreen(),
       ScenarioScreen(storageService: widget.storageService),
       AttributeWindowScreen(storageService: widget.storageService),
+      const StudioDashboardScreen(),
       SettingsScreen(
         initialConfig: _config,
         storageService: widget.storageService,
@@ -143,11 +143,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
               label: 'Archive',
             ),
             NavigationDestination(
-              icon: const Icon(Icons.edit_note_outlined, size: 24),
-              selectedIcon: Icon(Icons.edit_note, size: 24, color: EpilogueTheme.accent),
-              label: 'Studio',
-            ),
-            NavigationDestination(
               icon: _buildRuneIcon(false),
               selectedIcon: _buildRuneIcon(true),
               label: 'Scenarios',
@@ -156,6 +151,11 @@ class _MainShellScreenState extends State<MainShellScreen> {
               icon: _buildAvatarIcon(orvState, false),
               selectedIcon: _buildAvatarIcon(orvState, true),
               label: 'Attributes',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.edit_note_outlined, size: 24),
+              selectedIcon: Icon(Icons.edit_note, size: 24, color: EpilogueTheme.accent),
+              label: 'Studio',
             ),
             NavigationDestination(
               icon: const Icon(Icons.settings_suggest_outlined, size: 24),
