@@ -63,8 +63,8 @@ class _DialogCreateHighlightState extends State<DialogCreateHighlight> {
     if (mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Quote highlighted & added to Scenarios Archives.'),
+        SnackBar(
+          content: const Text('Quote highlighted & added to Scenarios Archives.'),
           backgroundColor: EpilogueTheme.cyanAccent,
         ),
       );
@@ -77,13 +77,13 @@ class _DialogCreateHighlightState extends State<DialogCreateHighlight> {
       backgroundColor: EpilogueTheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: EpilogueTheme.border),
+        side: BorderSide(color: EpilogueTheme.border),
       ),
-      title: const Row(
+      title: Row(
         children: [
           Icon(Icons.format_quote, color: EpilogueTheme.cyanAccent, size: 24),
-          SizedBox(width: 8),
-          Text(
+          const SizedBox(width: 8),
+          const Text(
             'Highlight & Annotate',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
@@ -104,7 +104,7 @@ class _DialogCreateHighlightState extends State<DialogCreateHighlight> {
               ),
               child: Text(
                 '“${widget.selectedText}”',
-                style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: EpilogueTheme.textPrimary),
+                style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: EpilogueTheme.textPrimary),
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -112,7 +112,7 @@ class _DialogCreateHighlightState extends State<DialogCreateHighlight> {
             const SizedBox(height: 14),
 
             // Color Palette Selector
-            const Text(
+            Text(
               'HIGHLIGHT COLOR',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: EpilogueTheme.textSecondary, letterSpacing: 0.5),
             ),
@@ -153,7 +153,7 @@ class _DialogCreateHighlightState extends State<DialogCreateHighlight> {
             const SizedBox(height: 14),
 
             // Note Input
-            const Text(
+            Text(
               'ADD A NOTE / REACTION',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: EpilogueTheme.textSecondary, letterSpacing: 0.5),
             ),
@@ -161,16 +161,16 @@ class _DialogCreateHighlightState extends State<DialogCreateHighlight> {
             TextField(
               controller: _noteController,
               maxLines: 3,
-              style: const TextStyle(color: EpilogueTheme.textPrimary, fontSize: 13),
+              style: TextStyle(color: EpilogueTheme.textPrimary, fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'Write your thoughts, constellation reaction, or theory...',
-                hintStyle: const TextStyle(color: EpilogueTheme.textMuted, fontSize: 12),
+                hintStyle: TextStyle(color: EpilogueTheme.textMuted, fontSize: 12),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
                 contentPadding: const EdgeInsets.all(12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: EpilogueTheme.border),
+                  borderSide: BorderSide(color: EpilogueTheme.border),
                 ),
               ),
             ),
@@ -180,7 +180,7 @@ class _DialogCreateHighlightState extends State<DialogCreateHighlight> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+          child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
         ),
         FilledButton(
           onPressed: _save,

@@ -5,8 +5,11 @@ import '../config/reader_config.dart';
 import '../services/data_sync_service.dart';
 import '../services/storage_service.dart';
 import '../theme/epilogue_theme.dart';
+import 'changelog_screen.dart';
+import 'feature_manual_screen.dart';
 import 'opds_browser_screen.dart';
 import 'retrocognition_screen.dart';
+import '../services/update_checker_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ReaderConfig initialConfig;
@@ -39,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _config = next;
     });
+    EpilogueTheme.applyConfig(next);
     widget.storageService.saveConfig(next);
     widget.onConfigChanged(next);
   }
@@ -84,15 +88,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             final reloaded = widget.storageService.loadConfig();
             _updateConfig(reloaded);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Backup restored and merged successfully!'),
+              SnackBar(
+                content: const Text('Backup restored and merged successfully!'),
                 backgroundColor: EpilogueTheme.accent,
               ),
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Invalid backup file format.'),
+              SnackBar(
+                content: const Text('Invalid backup file format.'),
                 backgroundColor: EpilogueTheme.dangerAccent,
               ),
             );
@@ -124,13 +128,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           backgroundColor: EpilogueTheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: EpilogueTheme.border),
+            side: BorderSide(color: EpilogueTheme.border),
           ),
-          title: const Row(
+          title: Row(
             children: [
               Icon(Icons.cloud_sync, color: EpilogueTheme.cyanAccent),
-              SizedBox(width: 10),
-              Text('WebDAV Cloud Sync'),
+              const SizedBox(width: 10),
+              const Text('WebDAV Cloud Sync'),
             ],
           ),
           content: SingleChildScrollView(
@@ -138,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Sync your library, progress, bookmarks, and telemetry to Nextcloud, ownCloud, or any WebDAV server with Smart Auto-Merge.',
                   style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                 ),
@@ -160,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 if (isSyncing) ...[
                   const SizedBox(height: 16),
-                  const Center(child: CircularProgressIndicator(color: EpilogueTheme.accent)),
+                  Center(child: CircularProgressIndicator(color: EpilogueTheme.accent)),
                 ],
               ],
             ),
@@ -168,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+              child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
             ),
             OutlinedButton(
               onPressed: isSyncing
@@ -243,7 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: EpilogueTheme.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: EpilogueTheme.border),
+              side: BorderSide(color: EpilogueTheme.border),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -252,7 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.history_edu, color: EpilogueTheme.starGold),
+                    leading: Icon(Icons.history_edu, color: EpilogueTheme.starGold),
                     title: const Text('Retrocognition (과거 읽기 회상)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     subtitle: const Text('Migrate past chapters from other readers & compute historical telemetry', style: TextStyle(fontSize: 11)),
                     trailing: const Icon(Icons.chevron_right),
@@ -265,10 +269,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
-                  const Divider(color: EpilogueTheme.border, height: 16),
+                  Divider(color: EpilogueTheme.border, height: 16),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.wifi, color: EpilogueTheme.cyanAccent),
+                    leading: Icon(Icons.wifi, color: EpilogueTheme.cyanAccent),
                     title: const Text('Online Catalogs & Downloader', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     subtitle: const Text('Connect to Calibre/Kavita OPDS servers or download direct web EPUBs', style: TextStyle(fontSize: 11)),
                     trailing: const Icon(Icons.chevron_right),
@@ -281,7 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
-                  const Divider(color: EpilogueTheme.border, height: 16),
+                  Divider(color: EpilogueTheme.border, height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -323,7 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: EpilogueTheme.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: EpilogueTheme.border),
+              side: BorderSide(color: EpilogueTheme.border),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -333,11 +337,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Global UI Scale', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: EpilogueTheme.textPrimary)),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text('Scale entire app buttons & typography', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                         ],
                       ),
@@ -349,7 +353,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         child: Text(
                           '${(_config.uiScale * 100).toStringAsFixed(0)}%',
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent, fontSize: 12),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent, fontSize: 12),
                         ),
                       ),
                     ],
@@ -362,9 +366,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     activeColor: EpilogueTheme.accent,
                     onChanged: (val) => _updateConfig(_config.copyWith(uiScale: val)),
                   ),
-                  const Divider(color: EpilogueTheme.border, height: 20),
+                  Divider(color: EpilogueTheme.border, height: 20),
 
-                  const Text('Reading Theme Preset', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                  Text('Reading Theme Preset', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -377,12 +381,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _themePresetTile(ReaderThemePreset.oledDark, 'OLED Ink', Colors.black, const Color(0xFFE5E7EB)),
                     ],
                   ),
-                  const Divider(color: EpilogueTheme.border, height: 20),
+                  Divider(color: EpilogueTheme.border, height: 20),
 
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Keep Screen Awake', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: const Text('Prevents display dimming while reading', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    title: Text('Keep Screen Awake', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Prevents display dimming while reading', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                     value: _config.keepScreenAwake,
                     activeThumbColor: EpilogueTheme.accent,
                     onChanged: (val) => _updateConfig(_config.copyWith(keepScreenAwake: val)),
@@ -390,8 +394,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Show Reading Header & Footer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: const Text('Displays subtle book title and chapter progress in canvas', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    title: Text('Show Reading Header & Footer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Displays subtle book title and chapter progress in canvas', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                     value: _config.showReadingHeaderFooter,
                     activeThumbColor: EpilogueTheme.accent,
                     onChanged: (val) => _updateConfig(_config.copyWith(showReadingHeaderFooter: val)),
@@ -408,7 +412,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: EpilogueTheme.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: EpilogueTheme.border),
+              side: BorderSide(color: EpilogueTheme.border),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -417,17 +421,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Volume Keys Page Turn', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: const Text('Use hardware volume up/down buttons to turn pages', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    title: Text('Volume Keys Page Turn', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Use hardware volume up/down buttons to turn pages', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                     value: _config.volumeKeysPaging,
                     activeThumbColor: EpilogueTheme.accent,
                     onChanged: (val) => _updateConfig(_config.copyWith(volumeKeysPaging: val)),
                   ),
-                  const Divider(color: EpilogueTheme.border, height: 16),
+                  Divider(color: EpilogueTheme.border, height: 16),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Haptic Tap Feedback', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: const Text('Light vibration feedback when turning pages', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    title: Text('Haptic Tap Feedback', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Light vibration feedback when turning pages', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                     value: _config.hapticFeedback,
                     activeThumbColor: EpilogueTheme.accent,
                     onChanged: (val) => _updateConfig(_config.copyWith(hapticFeedback: val)),
@@ -444,7 +448,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: EpilogueTheme.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: EpilogueTheme.border),
+              side: BorderSide(color: EpilogueTheme.border),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -453,49 +457,172 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Star Stream Constellation CSS', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: const Text('Renders constellation notifications [...] with distinctive glowing cyan border and monospace font', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    title: Text('Star Stream Constellation CSS', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Renders constellation notifications [...] with distinctive glowing cyan border and monospace font', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                     value: _config.customCssEnabled,
                     activeThumbColor: EpilogueTheme.cyanAccent,
                     onChanged: (val) => _updateConfig(_config.copyWith(customCssEnabled: val)),
                   ),
-                  const Divider(color: EpilogueTheme.border, height: 16),
+                  Divider(color: EpilogueTheme.border, height: 16),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Original Book Formatting (EPUB CSS)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: const Text('Renders original chapter headings, centered text, dividers, and styling classes embedded in the EPUB', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    title: Text('Original Book Formatting (EPUB CSS)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Renders original chapter headings, centered text, dividers, and styling classes embedded in the EPUB', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                     value: _config.useOriginalBookStyles,
                     activeThumbColor: EpilogueTheme.cyanAccent,
                     onChanged: (val) => _updateConfig(_config.copyWith(useOriginalBookStyles: val)),
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF06B6D4).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF06B6D4).withValues(alpha: 0.4)),
+                      color: _config.fourthWallActive
+                          ? const Color(0xFF0A192F).withValues(alpha: 0.9)
+                          : const Color(0xFF06B6D4).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _config.fourthWallActive
+                            ? const Color(0xFF64FFDA)
+                            : const Color(0xFF06B6D4).withValues(alpha: 0.4),
+                        width: _config.fourthWallActive ? 1.5 : 1.0,
+                      ),
                     ),
-                    child: const Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.shield, color: EpilogueTheme.cyanAccent, size: 18),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            '[Exclusive Skill: "The 4th Wall" can be activated from the in-reader HUD.]',
-                            style: TextStyle(fontFamily: 'monospace', fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0891B2)),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Row(
+                            children: [
+                              Icon(
+                                _config.fourthWallActive ? Icons.shield : Icons.shield_outlined,
+                                color: _config.fourthWallActive ? const Color(0xFF64FFDA) : EpilogueTheme.cyanAccent,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'The 4th Wall Consciousness Shield',
+                                style: TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Color(0xFF64FFDA),
+                                ),
+                              ),
+                            ],
                           ),
+                          subtitle: Text(
+                            'Shifts entire UI into Midnight Blue or custom hex, shielding reading consciousness.',
+                            style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary),
+                          ),
+                          value: _config.fourthWallActive,
+                          activeThumbColor: const Color(0xFF64FFDA),
+                          onChanged: _toggleFourthWall,
                         ),
+                        if (_config.fourthWallActive) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            'Shield Hex Color Palette:',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: [
+                              _fourthWallColorChip('Midnight Blue', '#0A192F'),
+                              _fourthWallColorChip('Abyssal Navy', '#0D1B2A'),
+                              _fourthWallColorChip('Cyber Teal', '#022B3A'),
+                              _fourthWallColorChip('Void Indigo', '#10002B'),
+                              ActionChip(
+                                avatar: const Icon(Icons.colorize, size: 14, color: Color(0xFF64FFDA)),
+                                label: Text(
+                                  'Custom: ${_config.fourthWallHexColor}',
+                                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                                ),
+                                onPressed: _showCustomHexDialog,
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  const Divider(color: EpilogueTheme.border, height: 20),
+                  Divider(color: EpilogueTheme.border, height: 20),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.restart_alt, color: EpilogueTheme.dangerAccent),
-                    title: const Text('Reset Progression to Blank Slate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.dangerAccent)),
-                    subtitle: const Text('Wipes coins, locks all modifiers, attributes, & fables. Preserves library books.', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    leading: Icon(Icons.restart_alt, color: EpilogueTheme.dangerAccent),
+                    title: Text('Reset Progression to Blank Slate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.dangerAccent)),
+                    subtitle: Text('Wipes coins, locks all modifiers, attributes, & fables. Preserves library books.', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                     onTap: _showResetProgressionDialog,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          // 5. About & Updates
+          _buildCategoryHeader('ABOUT & UPDATES', Icons.info_outline),
+          Card(
+            color: EpilogueTheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: EpilogueTheme.border),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: EpilogueTheme.cyanAccent.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(Icons.system_update_alt, color: EpilogueTheme.cyanAccent, size: 20),
+                    ),
+                    title: Text('Check for Updates', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Epilogue v1.0.0 (Build 1)', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    trailing: Icon(Icons.chevron_right, size: 20, color: EpilogueTheme.textMuted),
+                    onTap: _handleCheckForUpdates,
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 1),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: EpilogueTheme.greenAccent.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(Icons.history_toggle_off, color: EpilogueTheme.greenAccent, size: 20),
+                    ),
+                    title: Text('Update Changelog', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('What\'s new, improvements, and bug fixes', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    trailing: Icon(Icons.chevron_right, size: 20, color: EpilogueTheme.textMuted),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ChangelogScreen()),
+                    ),
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 1),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: EpilogueTheme.starGold.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(Icons.menu_book, color: EpilogueTheme.starGold, size: 20),
+                    ),
+                    title: Text('Epilogue Grimoire & Feature Manual', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                    subtitle: Text('Complete guide to all reading, lore, and studio features', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    trailing: Icon(Icons.chevron_right, size: 20, color: EpilogueTheme.textMuted),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const FeatureManualScreen()),
+                    ),
                   ),
                 ],
               ),
@@ -514,16 +641,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: EpilogueTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: EpilogueTheme.border),
+          side: BorderSide(color: EpilogueTheme.border),
         ),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: EpilogueTheme.dangerAccent),
-            SizedBox(width: 10),
-            Text('Reset to Blank Slate?'),
+            const SizedBox(width: 10),
+            const Text('Reset to Blank Slate?'),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to reset your Star Stream progression? All coins, unlocked modifiers, attributes, and fables will be reset to a true blank slate. Your book library and reader settings are kept safe.',
           style: TextStyle(fontSize: 13, color: EpilogueTheme.textPrimary),
         ),
@@ -539,8 +666,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (ctx.mounted) Navigator.pop(ctx);
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Star Stream progression reset to blank slate.'),
+                  SnackBar(
+                    content: const Text('Star Stream progression reset to blank slate.'),
                     backgroundColor: EpilogueTheme.dangerAccent,
                   ),
                 );
@@ -562,7 +689,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.8,
@@ -605,6 +732,220 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _fourthWallColorChip(String label, String hex) {
+    final isSelected = _config.fourthWallHexColor.toUpperCase() == hex.toUpperCase();
+    return FilterChip(
+      selected: isSelected,
+      label: Text(label),
+      labelStyle: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.bold,
+        color: isSelected ? const Color(0xFF0A192F) : EpilogueTheme.textPrimary,
+      ),
+      selectedColor: const Color(0xFF64FFDA),
+      backgroundColor: EpilogueTheme.surfaceElevated,
+      side: BorderSide(
+        color: isSelected ? const Color(0xFF64FFDA) : EpilogueTheme.border,
+      ),
+      onSelected: (_) => _updateConfig(_config.copyWith(fourthWallHexColor: hex)),
+    );
+  }
+
+  void _showCustomHexDialog() {
+    final hexCtrl = TextEditingController(text: _config.fourthWallHexColor);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: EpilogueTheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: EpilogueTheme.border),
+        ),
+        title: const Text('Custom 4th Wall Hex Color'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enter a 6-digit hex color code (e.g., #0B192C, #0F172A, #10002B):',
+              style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: hexCtrl,
+              style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold),
+              decoration: const InputDecoration(
+                labelText: 'Hex Color Code',
+                hintText: '#0A192F',
+                prefixIcon: Icon(Icons.palette),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF64FFDA)),
+            onPressed: () {
+              var hex = hexCtrl.text.trim();
+              if (!hex.startsWith('#')) hex = '#$hex';
+              if (RegExp(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$').hasMatch(hex)) {
+                _updateConfig(_config.copyWith(fourthWallHexColor: hex));
+                Navigator.pop(ctx);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Invalid hex color format. Use #RRGGBB.'),
+                    backgroundColor: EpilogueTheme.dangerAccent,
+                  ),
+                );
+              }
+            },
+            child: const Text('APPLY HEX', style: TextStyle(color: Color(0xFF0A192F))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _toggleFourthWall(bool enable) {
+    final next = _config.copyWith(fourthWallActive: enable);
+    _updateConfig(next);
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            enable
+                ? '[The exclusive skill, \'The 4th Wall\' has been activated.]'
+                : '[The exclusive skill, \'The 4th Wall\' has been deactivated.]',
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              letterSpacing: 0.3,
+              color: Color(0xFFE6F1FF),
+            ),
+          ),
+          backgroundColor: enable ? const Color(0xFF0A192F) : EpilogueTheme.accent,
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: enable ? const Color(0xFF64FFDA) : EpilogueTheme.border,
+              width: 1.5,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleCheckForUpdates() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: EpilogueTheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: EpilogueTheme.border),
+        ),
+        content: Row(
+          children: [
+            CircularProgressIndicator(color: EpilogueTheme.cyanAccent),
+            const SizedBox(width: 16),
+            const Expanded(child: Text('Checking release server...', style: TextStyle(fontSize: 13))),
+          ],
+        ),
+      ),
+    );
+
+    final res = await UpdateCheckerService.checkForUpdates();
+    if (!mounted) return;
+    Navigator.pop(context); // Dismiss loading dialog
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: EpilogueTheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: EpilogueTheme.border),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              res.status == UpdateStatus.updateAvailable
+                  ? Icons.system_update
+                  : (res.status == UpdateStatus.upToDate ? Icons.check_circle : Icons.error_outline),
+              color: res.status == UpdateStatus.updateAvailable
+                  ? EpilogueTheme.cyanAccent
+                  : (res.status == UpdateStatus.upToDate ? EpilogueTheme.greenAccent : EpilogueTheme.dangerAccent),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              res.status == UpdateStatus.updateAvailable
+                  ? 'Update Available!'
+                  : (res.status == UpdateStatus.upToDate ? 'Up to Date' : 'Check Failed'),
+              style: TextStyle(
+                color: EpilogueTheme.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Current Installed Version: ${res.currentVersion}',
+              style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+            ),
+            const SizedBox(height: 8),
+            if (res.status == UpdateStatus.updateAvailable) ...[
+              Text(
+                'Latest Available: v${res.latestVersion}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: EpilogueTheme.cyanAccent,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                res.releaseNotes,
+                style: TextStyle(fontSize: 12, color: EpilogueTheme.textPrimary),
+              ),
+            ] else if (res.status == UpdateStatus.upToDate) ...[
+              Text(
+                res.releaseNotes,
+                style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+              ),
+            ] else ...[
+              Text(
+                res.errorMessage ?? 'Unable to connect to release server.',
+                style: TextStyle(fontSize: 12, color: EpilogueTheme.dangerAccent),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('CLOSE'),
+          ),
+        ],
       ),
     );
   }

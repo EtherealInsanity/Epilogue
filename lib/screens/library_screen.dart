@@ -145,7 +145,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
     List<Chapter> chapters;
 
     try {
-      chapters = await EpubParserService.extractChapters(book.filePath);
+      chapters = await EpubParserService.loadInitialChapterWindow(
+        book.filePath,
+        initialChapterIndex: book.lastReadChapterIndex,
+      );
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
@@ -216,14 +219,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
         backgroundColor: EpilogueTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: EpilogueTheme.border),
+          side: BorderSide(color: EpilogueTheme.border),
         ),
         title: const Text('Remove from Library', style: TextStyle(fontWeight: FontWeight.bold)),
         content: Text('Remove "${book.title}" from your library catalog?\n\n(The EPUB file on your device storage will NOT be deleted).'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+            child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
           ),
           FilledButton(
             onPressed: () async {
@@ -263,7 +266,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               backgroundColor: EpilogueTheme.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: const BorderSide(color: EpilogueTheme.border),
+                side: BorderSide(color: EpilogueTheme.border),
               ),
               title: const Text('Assign to Shelves'),
               content: SingleChildScrollView(
@@ -310,7 +313,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         backgroundColor: EpilogueTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: EpilogueTheme.border),
+          side: BorderSide(color: EpilogueTheme.border),
         ),
         title: const Text('Create New Shelf'),
         content: TextField(
@@ -322,7 +325,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+            child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
           ),
           FilledButton(
             onPressed: () async {
@@ -354,9 +357,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: EpilogueTheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
           child: Column(
@@ -383,14 +386,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         children: [
                           Text(
                             book.title,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: EpilogueTheme.textPrimary),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: EpilogueTheme.textPrimary),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
                           Text(
                             book.author,
-                            style: const TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+                            style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -400,9 +403,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ],
                 ),
               ),
-              const Divider(color: EpilogueTheme.border),
+              Divider(color: EpilogueTheme.border),
               ListTile(
-                leading: const Icon(Icons.play_circle_outline, color: EpilogueTheme.accent),
+                leading: Icon(Icons.play_circle_outline, color: EpilogueTheme.accent),
                 title: const Text('Read Novel', style: TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -410,7 +413,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.check_circle_outline, color: EpilogueTheme.starGold),
+                leading: Icon(Icons.check_circle_outline, color: EpilogueTheme.starGold),
                 title: const Text('Mark as Fully Read (100%)', style: TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -418,7 +421,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.collections_bookmark_outlined, color: EpilogueTheme.cyanAccent),
+                leading: Icon(Icons.collections_bookmark_outlined, color: EpilogueTheme.cyanAccent),
                 title: const Text('Assign to Shelves', style: TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -426,7 +429,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.info_outline, color: EpilogueTheme.textPrimary),
+                leading: Icon(Icons.info_outline, color: EpilogueTheme.textPrimary),
                 title: const Text('View Details & Telemetry', style: TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -434,7 +437,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.edit_outlined, color: EpilogueTheme.cyanAccent),
+                leading: Icon(Icons.edit_outlined, color: EpilogueTheme.cyanAccent),
                 title: const Text('Edit Metadata & Cover', style: TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -442,8 +445,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: EpilogueTheme.dangerAccent),
-                title: const Text('Remove from Library', style: TextStyle(color: EpilogueTheme.dangerAccent, fontWeight: FontWeight.w600)),
+                leading: Icon(Icons.delete_outline, color: EpilogueTheme.dangerAccent),
+                title: Text('Remove from Library', style: TextStyle(color: EpilogueTheme.dangerAccent, fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _confirmRemoveBook(book);
@@ -508,11 +511,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 width: width,
                 height: height,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const Center(
+                errorBuilder: (_, __, ___) => Center(
                   child: Icon(Icons.book, color: EpilogueTheme.accent, size: 24),
                 ),
               )
-            : const Center(
+            : Center(
                 child: Icon(Icons.book, color: EpilogueTheme.accent, size: 24),
               ),
       ),
@@ -582,7 +585,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return Scaffold(
       backgroundColor: EpilogueTheme.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Epilogue',
           style: TextStyle(
             fontWeight: FontWeight.w900,
@@ -594,12 +597,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
         actions: [
           IconButton(
             tooltip: 'Retrocognition (Sync Past Progress)',
-            icon: const Icon(Icons.history_edu, color: EpilogueTheme.starGold),
+            icon: Icon(Icons.history_edu, color: EpilogueTheme.starGold),
             onPressed: _openRetrocognition,
           ),
           IconButton(
             tooltip: 'Online Catalogs & Downloader',
-            icon: const Icon(Icons.wifi, color: EpilogueTheme.cyanAccent),
+            icon: Icon(Icons.wifi, color: EpilogueTheme.cyanAccent),
             onPressed: _openOpdsBrowser,
           ),
           IconButton(
@@ -615,14 +618,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
           ),
           IconButton(
             tooltip: 'Browse Files',
-            icon: const Icon(Icons.add_circle_outline, size: 26, color: EpilogueTheme.textPrimary),
+            icon: Icon(Icons.add_circle_outline, size: 26, color: EpilogueTheme.textPrimary),
             onPressed: _openFileExplorer,
           ),
           const SizedBox(width: 8),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: EpilogueTheme.accent))
+          ? Center(child: CircularProgressIndicator(color: EpilogueTheme.accent))
           : RefreshIndicator(
               onRefresh: () => _syncLibrary(showSnackBar: true),
               color: EpilogueTheme.accent,
@@ -634,21 +637,21 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   TextField(
                     controller: _searchController,
                     onChanged: (val) => setState(() => _searchQuery = val.trim()),
-                    style: const TextStyle(color: EpilogueTheme.textPrimary),
+                    style: TextStyle(color: EpilogueTheme.textPrimary),
                     decoration: InputDecoration(
                       hintText: 'Search archive...',
-                      hintStyle: const TextStyle(color: EpilogueTheme.textMuted),
-                      prefixIcon: const Icon(Icons.search, color: EpilogueTheme.textSecondary),
+                      hintStyle: TextStyle(color: EpilogueTheme.textMuted),
+                      prefixIcon: Icon(Icons.search, color: EpilogueTheme.textSecondary),
                       filled: true,
                       fillColor: EpilogueTheme.surface,
                       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: EpilogueTheme.border),
+                        borderSide: BorderSide(color: EpilogueTheme.border),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: EpilogueTheme.accent, width: 1.5),
+                        borderSide: BorderSide(color: EpilogueTheme.accent, width: 1.5),
                       ),
                     ),
                   ),
@@ -665,10 +668,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           const SizedBox(width: 8),
                         ],
                         ActionChip(
-                          avatar: const Icon(Icons.add, size: 16, color: EpilogueTheme.accent),
+                          avatar: Icon(Icons.add, size: 16, color: EpilogueTheme.accent),
                           label: const Text('Add Shelf', style: TextStyle(fontSize: 12)),
                           backgroundColor: EpilogueTheme.surface,
-                          side: const BorderSide(color: EpilogueTheme.border),
+                          side: BorderSide(color: EpilogueTheme.border),
                           onPressed: _showAddNewShelfDialog,
                         ),
                       ],
@@ -682,12 +685,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     children: [
                       Text(
                         '${filtered.length} novel${filtered.length == 1 ? '' : 's'}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
                       ),
                       DropdownButtonHideUnderline(
                         child: DropdownButton<BookSortOrder>(
                           value: _sortOrder,
-                          icon: const Icon(Icons.sort, size: 18, color: EpilogueTheme.textSecondary),
+                          icon: Icon(Icons.sort, size: 18, color: EpilogueTheme.textSecondary),
                           items: const [
                             DropdownMenuItem(value: BookSortOrder.lastRead, child: Text('Sort: Last Read', style: TextStyle(fontSize: 12))),
                             DropdownMenuItem(value: BookSortOrder.progress, child: Text('Sort: Progress %', style: TextStyle(fontSize: 12))),
@@ -710,7 +713,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       color: EpilogueTheme.surface,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
-                        side: const BorderSide(color: EpilogueTheme.border),
+                        side: BorderSide(color: EpilogueTheme.border),
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
@@ -732,7 +735,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                         color: const Color(0xFFE0F2FE),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
-                                      child: const Text(
+                                      child: Text(
                                         'RESUME READING',
                                         style: TextStyle(
                                           fontSize: 10,
@@ -744,7 +747,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                     const SizedBox(height: 6),
                                     Text(
                                       lastRead.title,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
                                         color: EpilogueTheme.textPrimary,
@@ -755,12 +758,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       'Chapter ${lastRead.lastReadChapterIndex + 1} (${lastRead.lastReadProgressPercent.toStringAsFixed(0)}% Read)',
-                                      style: const TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+                                      style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                                     ),
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.play_circle_fill, color: EpilogueTheme.accent, size: 32),
+                              Icon(Icons.play_circle_fill, color: EpilogueTheme.accent, size: 32),
                             ],
                           ),
                         ),
@@ -779,16 +782,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             Container(
                               width: 80,
                               height: 80,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: EpilogueTheme.surfaceElevated,
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Icon(Icons.auto_stories, size: 38, color: EpilogueTheme.textSecondary),
                               ),
                             ),
                             const SizedBox(height: 20),
-                            const Text(
+                            Text(
                               'No Novels Found',
                               style: TextStyle(
                                 color: EpilogueTheme.textPrimary,
@@ -797,7 +800,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               ),
                             ),
                             const SizedBox(height: 6),
-                            const Text(
+                            Text(
                               'Pull down to refresh or tap + to browse files',
                               style: TextStyle(
                                 color: EpilogueTheme.textSecondary,
@@ -894,12 +897,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Container(
                               color: EpilogueTheme.surfaceElevated,
-                              child: const Icon(Icons.book, size: 44, color: EpilogueTheme.accent),
+                              child: Icon(Icons.book, size: 44, color: EpilogueTheme.accent),
                             ),
                           )
                         : Container(
                             color: EpilogueTheme.surfaceElevated,
-                            child: const Icon(Icons.book, size: 44, color: EpilogueTheme.accent),
+                            child: Icon(Icons.book, size: 44, color: EpilogueTheme.accent),
                           ),
                     Positioned(
                       top: 6,
@@ -941,14 +944,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
           const SizedBox(height: 8),
           Text(
             book.title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
           Text(
             book.author,
-            style: const TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary),
+            style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -958,14 +961,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
             child: LinearProgressIndicator(
               value: (book.lastReadProgressPercent / 100).clamp(0.0, 1.0),
               backgroundColor: EpilogueTheme.border,
-              valueColor: const AlwaysStoppedAnimation<Color>(EpilogueTheme.accent),
+              valueColor: AlwaysStoppedAnimation<Color>(EpilogueTheme.accent),
               minHeight: 3,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             '${book.lastReadProgressPercent.toStringAsFixed(0)}% Read',
-            style: const TextStyle(fontSize: 10, color: EpilogueTheme.textMuted),
+            style: TextStyle(fontSize: 10, color: EpilogueTheme.textMuted),
           ),
         ],
       ),
@@ -978,7 +981,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       color: EpilogueTheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: EpilogueTheme.border),
+        side: BorderSide(color: EpilogueTheme.border),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -996,14 +999,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   children: [
                     Text(
                       book.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: EpilogueTheme.textPrimary),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: EpilogueTheme.textPrimary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       book.author,
-                      style: const TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+                      style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1016,7 +1019,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             child: LinearProgressIndicator(
                               value: (book.lastReadProgressPercent / 100).clamp(0.0, 1.0),
                               backgroundColor: EpilogueTheme.border,
-                              valueColor: const AlwaysStoppedAnimation<Color>(EpilogueTheme.accent),
+                              valueColor: AlwaysStoppedAnimation<Color>(EpilogueTheme.accent),
                               minHeight: 4,
                             ),
                           ),
@@ -1024,7 +1027,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         const SizedBox(width: 10),
                         Text(
                           '${book.lastReadProgressPercent.toStringAsFixed(0)}%',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.accent),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.accent),
                         ),
                       ],
                     ),
@@ -1032,7 +1035,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.more_vert, color: EpilogueTheme.textSecondary),
+                icon: Icon(Icons.more_vert, color: EpilogueTheme.textSecondary),
                 onPressed: () => _showQuickActions(book),
               ),
             ],

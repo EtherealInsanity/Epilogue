@@ -89,7 +89,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
                 ),
                 child: Text(
                   '🪙 ${state.coins}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                     color: EpilogueTheme.starGold,
@@ -201,7 +201,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
                     const SizedBox(height: 6),
                     Text(
                       'Fable Reward: ${s.fableReward}',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: EpilogueTheme.cyanAccent),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: EpilogueTheme.cyanAccent),
                     ),
                   ],
                   if (isLockedPrereq) ...[
@@ -215,7 +215,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
                       ),
                       child: Text(
                         '🔒 Prerequisite: Clear ${s.requiredPrerequisiteScenarioId}',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: EpilogueTheme.textMuted),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: EpilogueTheme.textMuted),
                       ),
                     ),
                   ],
@@ -225,7 +225,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
                     children: [
                       Text(
                         '+${s.coinReward} Coins',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                           color: EpilogueTheme.starGold,
@@ -238,7 +238,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
                             color: const Color(0xFFDCFCE7),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text(
+                          child: Text(
                             'COMPLETED',
                             style: TextStyle(
                               fontSize: 11,
@@ -260,7 +260,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
                           ),
                         )
                       else
-                        const Text(
+                        Text(
                           'IN PROGRESS',
                           style: TextStyle(
                             fontSize: 11,
@@ -295,7 +295,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
             ],
           ),
         ),
-        const Divider(color: EpilogueTheme.border),
+        Divider(color: EpilogueTheme.border),
 
         // List
         Expanded(
@@ -311,12 +311,12 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
                     children: [
                       Icon(Icons.bookmark_border, size: 54, color: EpilogueTheme.textMuted.withValues(alpha: 0.5)),
                       const SizedBox(height: 12),
-                      const Text(
+                      Text(
                         'No Archives or Highlights Yet',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
                       ),
                       const SizedBox(height: 6),
-                      const Text(
+                      Text(
                         'Select text while reading to color-code and take notes,\nor tap the bookmark button in the reader.',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
@@ -373,7 +373,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
       color: EpilogueTheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: EpilogueTheme.border),
+        side: BorderSide(color: EpilogueTheme.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -386,13 +386,13 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
                 Expanded(
                   child: Text(
                     '${hl.bookTitle} • ${hl.chapterTitle}',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18, color: EpilogueTheme.textMuted),
+                  icon: Icon(Icons.delete_outline, size: 18, color: EpilogueTheme.textMuted),
                   onPressed: () async {
                     await widget.storageService.deleteHighlight(hl.id);
                     setState(() {});
@@ -411,7 +411,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
               ),
               child: Text(
                 '"${hl.selectedText}"',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
                   color: EpilogueTheme.textPrimary,
@@ -425,12 +425,12 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.edit_note, size: 16, color: EpilogueTheme.accent),
+                  Icon(Icons.edit_note, size: 16, color: EpilogueTheme.accent),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       hl.note,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: EpilogueTheme.textPrimary),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: EpilogueTheme.textPrimary),
                     ),
                   ),
                 ],
@@ -448,7 +448,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
       color: EpilogueTheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: EpilogueTheme.border),
+        side: BorderSide(color: EpilogueTheme.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -460,16 +460,16 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.bookmark, size: 16, color: EpilogueTheme.accent),
+                    Icon(Icons.bookmark, size: 16, color: EpilogueTheme.accent),
                     const SizedBox(width: 6),
                     Text(
                       bm.chapterTitle.isNotEmpty ? bm.chapterTitle : 'Chapter ${bm.chapterIndex + 1}',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
                     ),
                   ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18, color: EpilogueTheme.textMuted),
+                  icon: Icon(Icons.delete_outline, size: 18, color: EpilogueTheme.textMuted),
                   onPressed: () async {
                     await widget.storageService.deleteBookmark(bm.bookId, bm.id);
                     setState(() {});
@@ -480,7 +480,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> with SingleTickerProvid
             const SizedBox(height: 6),
             Text(
               bm.snippet,
-              style: const TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary, height: 1.3),
+              style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary, height: 1.3),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

@@ -104,8 +104,8 @@ class _DialogEditMetadataState extends State<DialogEditMetadata> {
       widget.onUpdated();
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Book metadata updated successfully.'),
+        SnackBar(
+          content: const Text('Book metadata updated successfully.'),
           backgroundColor: EpilogueTheme.accent,
         ),
       );
@@ -120,12 +120,12 @@ class _DialogEditMetadataState extends State<DialogEditMetadata> {
       backgroundColor: EpilogueTheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: EpilogueTheme.border),
+        side: BorderSide(color: EpilogueTheme.border),
       ),
-      title: const Row(
+      title: Row(
         children: [
           Icon(Icons.edit_note, color: EpilogueTheme.accent, size: 24),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             'Edit Metadata',
             style: TextStyle(
@@ -161,7 +161,7 @@ class _DialogEditMetadataState extends State<DialogEditMetadata> {
                     ),
                     child: hasValidCover
                         ? null
-                        : const Center(
+                        : Center(
                             child: Icon(Icons.auto_stories, size: 36, color: EpilogueTheme.textMuted),
                           ),
                   ),
@@ -179,16 +179,16 @@ class _DialogEditMetadataState extends State<DialogEditMetadata> {
             // Title Field
             TextField(
               controller: _titleController,
-              style: const TextStyle(color: EpilogueTheme.textPrimary, fontSize: 14),
+              style: TextStyle(color: EpilogueTheme.textPrimary, fontSize: 14),
               decoration: InputDecoration(
                 labelText: 'Novel Title',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary, fontSize: 13),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary, fontSize: 13),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: EpilogueTheme.border),
+                  borderSide: BorderSide(color: EpilogueTheme.border),
                 ),
               ),
             ),
@@ -197,16 +197,16 @@ class _DialogEditMetadataState extends State<DialogEditMetadata> {
             // Author Field
             TextField(
               controller: _authorController,
-              style: const TextStyle(color: EpilogueTheme.textPrimary, fontSize: 14),
+              style: TextStyle(color: EpilogueTheme.textPrimary, fontSize: 14),
               decoration: InputDecoration(
                 labelText: 'Author Name',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary, fontSize: 13),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary, fontSize: 13),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: EpilogueTheme.border),
+                  borderSide: BorderSide(color: EpilogueTheme.border),
                 ),
               ),
             ),
@@ -216,16 +216,16 @@ class _DialogEditMetadataState extends State<DialogEditMetadata> {
             TextField(
               controller: _chaptersController,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: EpilogueTheme.textPrimary, fontSize: 14),
+              style: TextStyle(color: EpilogueTheme.textPrimary, fontSize: 14),
               decoration: InputDecoration(
                 labelText: 'Total Chapters',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary, fontSize: 13),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary, fontSize: 13),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: EpilogueTheme.border),
+                  borderSide: BorderSide(color: EpilogueTheme.border),
                 ),
               ),
             ),
@@ -235,7 +235,7 @@ class _DialogEditMetadataState extends State<DialogEditMetadata> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+          child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
         ),
         FilledButton(
           onPressed: _isSaving ? null : _save,

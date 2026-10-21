@@ -62,7 +62,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   Size? _lastMeasuredSize;
 
   // Book images cache map: normalized name/src -> absolute file path on disk
-  Map<String, String> _bookImageFiles = {};
+  final Map<String, String> _bookImageFiles = {};
   String _bookCss = '';
   String _selectedTextContent = '';
 
@@ -71,6 +71,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
     super.initState();
     _config = widget.config;
     _currentChapterIndex = widget.initialChapterIndex.clamp(0, widget.chapters.length - 1);
+    _fourthWallActive = widget.config.fourthWallActive;
     _pageController = PageController();
 
     _loadBookImages();
@@ -104,11 +105,9 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
 
   Future<void> _loadBookImages() async {
     try {
-      final map = await EpubParserService.extractAllBookImages(widget.book.filePath);
       final css = await EpubParserService.extractAllBookCss(widget.book.filePath);
       if (mounted) {
         setState(() {
-          _bookImageFiles = map;
           _bookCss = css;
         });
       }
@@ -281,10 +280,20 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
     _pageChunks = pages.isNotEmpty ? pages : [text];
   }
 
-  void _goToChapter(int newIndex) {
+  Future<void> _goToChapter(int newIndex) async {
     if (newIndex < 0 || newIndex >= widget.chapters.length) return;
     _commitSession();
     final prevIndex = _currentChapterIndex;
+
+    // JIT Lazy loading if chapter content is placeholder
+    if (!widget.chapters[newIndex].isLoaded) {
+      try {
+        final loaded = await EpubParserService.loadChapterLazy(widget.book.filePath, newIndex);
+        widget.chapters[newIndex] = loaded;
+      } catch (_) {}
+    }
+
+    if (!mounted) return;
 
     setState(() {
       _currentChapterIndex = newIndex;
@@ -293,6 +302,18 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
         _prepareChapter(_lastMeasuredSize!);
       }
     });
+
+    // Background prefetch adjacent chapters
+    if (newIndex + 1 < widget.chapters.length && !widget.chapters[newIndex + 1].isLoaded) {
+      EpubParserService.loadChapterLazy(widget.book.filePath, newIndex + 1).then((ch) {
+        if (mounted) widget.chapters[newIndex + 1] = ch;
+      });
+    }
+    if (newIndex - 1 >= 0 && !widget.chapters[newIndex - 1].isLoaded) {
+      EpubParserService.loadChapterLazy(widget.book.filePath, newIndex - 1).then((ch) {
+        if (mounted) widget.chapters[newIndex - 1] = ch;
+      });
+    }
 
     if (newIndex > prevIndex) {
       if (Random().nextDouble() < 0.35) {
@@ -396,7 +417,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   }
 
   Color _getBackgroundColor() {
-    if (_fourthWallActive) return const Color(0xFF021E20);
+    if (_fourthWallActive) return EpilogueTheme.background;
     switch (_config.themePreset) {
       case ReaderThemePreset.paperLight:
         return const Color(0xFFFFFFFF);
@@ -410,7 +431,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   }
 
   Color _getForegroundColor() {
-    if (_fourthWallActive) return const Color(0xFFE6FFFA);
+    if (_fourthWallActive) return EpilogueTheme.textPrimary;
     switch (_config.themePreset) {
       case ReaderThemePreset.paperLight:
         return const Color(0xFF111827);
@@ -669,7 +690,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                               const SizedBox(height: 6),
                               Text(
                                 "+${_activeConstellationEvent!.coinsSponsored} Coins Sponsored!",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: EpilogueTheme.starGold,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 11,
@@ -691,19 +712,19 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: EpilogueTheme.surface.withValues(alpha: 0.97),
-                        border: const Border(bottom: BorderSide(color: EpilogueTheme.border)),
+                        border: Border(bottom: BorderSide(color: EpilogueTheme.border)),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back, color: EpilogueTheme.textPrimary),
+                            icon: Icon(Icons.arrow_back, color: EpilogueTheme.textPrimary),
                             onPressed: () => Navigator.pop(context),
                           ),
                           Expanded(
                             child: Text(
                               _currentChapter.title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: EpilogueTheme.textPrimary,
@@ -721,16 +742,46 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                             onPressed: () {
                               _recordInteraction();
                               setState(() => _fourthWallActive = !_fourthWallActive);
+                              final updated = _config.copyWith(fourthWallActive: _fourthWallActive);
+                              EpilogueTheme.applyConfig(updated);
+                              widget.storageService.saveConfig(updated);
+
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    _fourthWallActive
+                                        ? '[The exclusive skill, \'The 4th Wall\' has been activated.]'
+                                        : '[The exclusive skill, \'The 4th Wall\' has been deactivated.]',
+                                    style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      letterSpacing: 0.3,
+                                      color: Color(0xFFE6F1FF),
+                                    ),
+                                  ),
+                                  backgroundColor: _fourthWallActive ? const Color(0xFF0A192F) : EpilogueTheme.accent,
+                                  duration: const Duration(seconds: 3),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide(
+                                      color: _fourthWallActive ? const Color(0xFF64FFDA) : EpilogueTheme.border,
+                                    ),
+                                  ),
+                                ),
+                              );
                             },
                           ),
                           IconButton(
                             tooltip: 'Add Bookmark',
-                            icon: const Icon(Icons.bookmark_border, color: EpilogueTheme.textPrimary),
+                            icon: Icon(Icons.bookmark_border, color: EpilogueTheme.textPrimary),
                             onPressed: _toggleBookmark,
                           ),
                           IconButton(
                             tooltip: 'Reader Settings',
-                            icon: const Icon(Icons.tune, color: EpilogueTheme.textPrimary),
+                            icon: Icon(Icons.tune, color: EpilogueTheme.textPrimary),
                             onPressed: _openSettings,
                           ),
                         ],
@@ -747,7 +798,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: EpilogueTheme.surface.withValues(alpha: 0.97),
-                        border: const Border(top: BorderSide(color: EpilogueTheme.border)),
+                        border: Border(top: BorderSide(color: EpilogueTheme.border)),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Column(
@@ -756,7 +807,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.skip_previous, color: EpilogueTheme.textPrimary),
+                                icon: Icon(Icons.skip_previous, color: EpilogueTheme.textPrimary),
                                 onPressed: _currentChapterIndex > 0 ? () => _goToChapter(_currentChapterIndex - 1) : null,
                               ),
                               Expanded(
@@ -773,7 +824,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.skip_next, color: EpilogueTheme.textPrimary),
+                                icon: Icon(Icons.skip_next, color: EpilogueTheme.textPrimary),
                                 onPressed: _currentChapterIndex < widget.chapters.length - 1
                                     ? () => _goToChapter(_currentChapterIndex + 1)
                                     : null,
@@ -785,12 +836,12 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                             children: [
                               TextButton.icon(
                                 onPressed: _openToc,
-                                icon: const Icon(Icons.list_alt, size: 18, color: EpilogueTheme.accent),
-                                label: const Text('Table of Contents', style: TextStyle(color: EpilogueTheme.accent, fontSize: 13)),
+                                icon: Icon(Icons.list_alt, size: 18, color: EpilogueTheme.accent),
+                                label: Text('Table of Contents', style: TextStyle(color: EpilogueTheme.accent, fontSize: 13)),
                               ),
                               Text(
                                 '${_currentChapterIndex + 1} / ${widget.chapters.length}',
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
                               ),
                             ],
                           ),
@@ -808,7 +859,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
 
   Widget _buildPagedView(Color fg) {
     if (_pageChunks.isEmpty) {
-      return const Center(child: CircularProgressIndicator(color: EpilogueTheme.accent));
+      return Center(child: CircularProgressIndicator(color: EpilogueTheme.accent));
     }
 
     return PageView.builder(
@@ -992,11 +1043,11 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
           margin: Margins.symmetric(horizontal: 16, vertical: 8),
           padding: HtmlPaddings.all(8),
           color: fg.withValues(alpha: 0.85),
-          border: const Border(left: BorderSide(color: EpilogueTheme.accent, width: 3)),
+          border: Border(left: BorderSide(color: EpilogueTheme.accent, width: 3)),
         ),
         'hr': Style(
           margin: Margins.symmetric(vertical: 12),
-          border: const Border(bottom: BorderSide(color: EpilogueTheme.border, width: 1)),
+          border: Border(bottom: BorderSide(color: EpilogueTheme.border, width: 1)),
         ),
       },
     );

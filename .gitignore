@@ -60,16 +60,75 @@ dist/
 app.*.symbols
 app.*.map.json
 
-# AI assistants, prompt instructions, plan files & session capsules
+# AI assistants, agent instructions, prompt instructions, plan files & knowledge graphs
+# Antigravity / Gemini
 DEAR_FUTURE_ANTIGRAVITY.md
 TIME_CAPSULE.md
+GEMINI.md
+AGENTS.md
 .gemini/
 .antigravity/
+.agents/
+.agent/
+_agents/
+_agent/
+
+# Graphify Knowledge Graph
+graphify-out/
+.graphify*
+
+# Claude / Anthropic
+CLAUDE.md
+.claude/
+.claude.json
+
+# Cursor
 .cursor/
 .cursorrules
-.cline/
-.windsurf/
+.cursorignore
+.cursorindexingignore
+
+# GitHub Copilot
 .copilot/
+.github/copilot-instructions.md
+
+# Windsurf / Codeium
+.windsurf/
+.windsurfrules
+
+# Cline & Roo Code
+.cline/
+.clinerules
+.clinelog/
+.roo/
+.roorules
+.roomodes
+
+# Aider & CodeBuddy
+.aider*
+CODEBUDDY.md
+
+# Continue & Cody
+.continue/
+.cody/
+
+# OpenAI / ChatGPT
+.openai/
+chatgpt.md
+
+# Other AI Assistants & Agents
 .aide/
+.factory/
+.trae/
+.opencode/
+.kilo/
+.kiro/
+.hermes/
+.pi/
+.devin/
+
+# Planning, scratchpads & capsules
 *.plan
 *plan*.md
+*.prompt.md
+

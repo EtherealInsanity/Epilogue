@@ -137,7 +137,7 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
         actions: [
           IconButton(
             tooltip: 'Import all EPUBs in this directory',
-            icon: const Icon(Icons.download_for_offline, color: EpilogueTheme.accent),
+            icon: Icon(Icons.download_for_offline, color: EpilogueTheme.accent),
             onPressed: _importAllInCurrent,
           ),
         ],
@@ -156,7 +156,7 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.folder_special, color: EpilogueTheme.dangerAccent),
+                  Icon(Icons.folder_special, color: EpilogueTheme.dangerAccent),
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
@@ -187,11 +187,11 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
             child: Row(
               children: [
                 ActionChip(
-                  avatar: const Icon(Icons.arrow_upward, size: 16, color: EpilogueTheme.textPrimary),
+                  avatar: Icon(Icons.arrow_upward, size: 16, color: EpilogueTheme.textPrimary),
                   label: const Text('Up'),
                   onPressed: _goUp,
                   backgroundColor: EpilogueTheme.surface,
-                  side: const BorderSide(color: EpilogueTheme.border),
+                  side: BorderSide(color: EpilogueTheme.border),
                 ),
                 const SizedBox(width: 8),
                 for (final entry in quickDirs.entries) ...[
@@ -231,7 +231,7 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
             color: EpilogueTheme.surfaceElevated,
             child: Text(
               _currentPath,
-              style: const TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary, fontFamily: 'monospace'),
+              style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary, fontFamily: 'monospace'),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -242,22 +242,22 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 _statusMsg,
-                style: const TextStyle(color: EpilogueTheme.greenAccent, fontSize: 13, fontWeight: FontWeight.w600),
+                style: TextStyle(color: EpilogueTheme.greenAccent, fontSize: 13, fontWeight: FontWeight.w600),
               ),
             ),
 
           // File List
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: EpilogueTheme.accent))
+                ? Center(child: CircularProgressIndicator(color: EpilogueTheme.accent))
                 : _entries.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.folder_open, size: 48, color: EpilogueTheme.textMuted),
+                            Icon(Icons.folder_open, size: 48, color: EpilogueTheme.textMuted),
                             const SizedBox(height: 12),
-                            const Text(
+                            Text(
                               'No folders or EPUB files found here',
                               style: TextStyle(color: EpilogueTheme.textMuted, fontSize: 14),
                             ),
@@ -274,7 +274,7 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
                       )
                     : ListView.separated(
                         itemCount: _entries.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1, color: EpilogueTheme.border),
+                        separatorBuilder: (_, __) => Divider(height: 1, color: EpilogueTheme.border),
                         itemBuilder: (context, index) {
                           final entity = _entries[index];
                           final isDir = entity is Directory;
@@ -313,7 +313,7 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
                                       borderRadius: BorderRadius.circular(6),
                                       border: Border.all(color: EpilogueTheme.cyanAccent.withValues(alpha: 0.4)),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'IMPORT',
                                       style: TextStyle(
                                         fontSize: 11,
@@ -322,7 +322,7 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
                                       ),
                                     ),
                                   )
-                                : (isDir ? const Icon(Icons.chevron_right, size: 18, color: EpilogueTheme.textMuted) : null),
+                                : (isDir ? Icon(Icons.chevron_right, size: 18, color: EpilogueTheme.textMuted) : null),
                             onTap: () {
                               if (isDir) {
                                 _navigateTo(entity.path);

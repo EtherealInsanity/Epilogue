@@ -57,20 +57,20 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
         backgroundColor: EpilogueTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: EpilogueTheme.border),
+          side: BorderSide(color: EpilogueTheme.border),
         ),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.badge, color: EpilogueTheme.cyanAccent),
-            SizedBox(width: 10),
-            Text('Set Incarnation Name'),
+            const SizedBox(width: 10),
+            const Text('Set Incarnation Name'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Enter your official name registered in the Star Stream.',
               style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
             ),
@@ -167,7 +167,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Avatar & Incarnation Emblem',
                 style: TextStyle(
                   fontSize: 18,
@@ -176,7 +176,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Upload a custom image or select a preset avatar.',
                 style: TextStyle(fontSize: 13, color: EpilogueTheme.textSecondary),
               ),
@@ -190,9 +190,9 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                     color: const Color(0xFFE0F2FE),
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  child: const Icon(Icons.upload_file, color: EpilogueTheme.cyanAccent),
+                  child: Icon(Icons.upload_file, color: EpilogueTheme.cyanAccent),
                 ),
-                title: const Text(
+                title: Text(
                   'Upload from Device Storage',
                   style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
                 ),
@@ -202,9 +202,9 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                   _pickCustomAvatar();
                 },
               ),
-              const Divider(color: EpilogueTheme.border),
+              Divider(color: EpilogueTheme.border),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Preset Incarnations',
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
               ),
@@ -341,7 +341,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Constellation Modifiers',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -357,7 +357,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                 ),
                                 child: Text(
                                   '🪙 ${liveState.coins} COINS',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
                                     color: EpilogueTheme.starGold,
@@ -367,19 +367,19 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          const Text(
+                          Text(
                             'General, Narrative, and Myth titles cost coins. Transcendent ■■ titles must be earned through legendary Scenarios.',
                             style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                           ),
                         ],
                       ),
                     ),
-                    const Divider(height: 1, color: EpilogueTheme.border),
+                    Divider(height: 1, color: EpilogueTheme.border),
                     Expanded(
                       child: ListView.separated(
                         controller: scrollController,
                         itemCount: OrvService.allModifiersWithTiers.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1, color: EpilogueTheme.border),
+                        separatorBuilder: (_, __) => Divider(height: 1, color: EpilogueTheme.border),
                         itemBuilder: (context, index) {
                           final item = OrvService.allModifiersWithTiers[index];
                           final isEquipped = liveState.constellationModifier == item.name;
@@ -430,7 +430,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                       color: const Color(0xFFDCFCE7),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'EQUIPPED',
                                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.greenAccent),
                                     ),
@@ -444,9 +444,9 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                         },
                                         style: OutlinedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                          side: const BorderSide(color: EpilogueTheme.accent),
+                                          side: BorderSide(color: EpilogueTheme.accent),
                                         ),
-                                        child: const Text('EQUIP', style: TextStyle(color: EpilogueTheme.accent, fontSize: 11)),
+                                        child: Text('EQUIP', style: TextStyle(color: EpilogueTheme.accent, fontSize: 11)),
                                       )
                                     : !item.isPurchasable
                                         ? Container(
@@ -455,7 +455,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                               color: const Color(0xFFFEE2E2),
                                               borderRadius: BorderRadius.circular(6),
                                             ),
-                                            child: const Text('LOCKED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: EpilogueTheme.dangerAccent)),
+                                            child: Text('LOCKED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: EpilogueTheme.dangerAccent)),
                                           )
                                         : TextButton.icon(
                                             onPressed: liveState.coins >= item.coinCost
@@ -523,7 +523,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Fables & Giant Stories',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
                               ),
@@ -535,25 +535,25 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                 ),
                                 child: Text(
                                   '🪙 ${liveState.coins} COINS',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: EpilogueTheme.starGold),
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: EpilogueTheme.starGold),
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          const Text(
+                          Text(
                             'Equip your active Fable or unlock legendary stories from the Star Stream.',
                             style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                           ),
                         ],
                       ),
                     ),
-                    const Divider(height: 1, color: EpilogueTheme.border),
+                    Divider(height: 1, color: EpilogueTheme.border),
                     Expanded(
                       child: ListView.separated(
                         controller: scrollController,
                         itemCount: OrvService.allFablesWithTiers.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1, color: EpilogueTheme.border),
+                        separatorBuilder: (_, __) => Divider(height: 1, color: EpilogueTheme.border),
                         itemBuilder: (context, index) {
                           final item = OrvService.allFablesWithTiers[index];
                           final isEquipped = liveState.equippedFable == item.name;
@@ -602,7 +602,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                       color: const Color(0xFFDCFCE7),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: const Text('ACTIVE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.greenAccent)),
+                                    child: Text('ACTIVE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.greenAccent)),
                                   )
                                 : isAcquired
                                     ? OutlinedButton(
@@ -613,9 +613,9 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                         },
                                         style: OutlinedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                          side: const BorderSide(color: EpilogueTheme.accent),
+                                          side: BorderSide(color: EpilogueTheme.accent),
                                         ),
-                                        child: const Text('EQUIP', style: TextStyle(color: EpilogueTheme.accent, fontSize: 11)),
+                                        child: Text('EQUIP', style: TextStyle(color: EpilogueTheme.accent, fontSize: 11)),
                                       )
                                     : !item.isPurchasable
                                         ? Container(
@@ -624,7 +624,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                               color: const Color(0xFFFEE2E2),
                                               borderRadius: BorderRadius.circular(6),
                                             ),
-                                            child: const Text('LOCKED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: EpilogueTheme.dangerAccent)),
+                                            child: Text('LOCKED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: EpilogueTheme.dangerAccent)),
                                           )
                                         : TextButton.icon(
                                             onPressed: liveState.coins >= item.coinCost
@@ -692,7 +692,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Incarnation Attributes',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
                               ),
@@ -704,25 +704,25 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                 ),
                                 child: Text(
                                   '🪙 ${liveState.coins} COINS',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: EpilogueTheme.starGold),
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: EpilogueTheme.starGold),
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          const Text(
+                          Text(
                             'Equip your primary Incarnation Attribute or unlock canon attributes with coins.',
                             style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                           ),
                         ],
                       ),
                     ),
-                    const Divider(height: 1, color: EpilogueTheme.border),
+                    Divider(height: 1, color: EpilogueTheme.border),
                     Expanded(
                       child: ListView.separated(
                         controller: scrollController,
                         itemCount: OrvService.allAttributesWithTiers.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1, color: EpilogueTheme.border),
+                        separatorBuilder: (_, __) => Divider(height: 1, color: EpilogueTheme.border),
                         itemBuilder: (context, index) {
                           final item = OrvService.allAttributesWithTiers[index];
                           final isEquipped = liveState.equippedAttribute == item.name;
@@ -771,7 +771,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                       color: const Color(0xFFDCFCE7),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: const Text('EQUIPPED', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.greenAccent)),
+                                    child: Text('EQUIPPED', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.greenAccent)),
                                   )
                                 : isUnlocked
                                     ? OutlinedButton(
@@ -782,9 +782,9 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                         },
                                         style: OutlinedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                          side: const BorderSide(color: EpilogueTheme.accent),
+                                          side: BorderSide(color: EpilogueTheme.accent),
                                         ),
-                                        child: const Text('EQUIP', style: TextStyle(color: EpilogueTheme.accent, fontSize: 11)),
+                                        child: Text('EQUIP', style: TextStyle(color: EpilogueTheme.accent, fontSize: 11)),
                                       )
                                     : !item.isPurchasable
                                         ? Container(
@@ -793,7 +793,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                                               color: const Color(0xFFFEE2E2),
                                               borderRadius: BorderRadius.circular(6),
                                             ),
-                                            child: const Text('LOCKED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: EpilogueTheme.dangerAccent)),
+                                            child: Text('LOCKED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: EpilogueTheme.dangerAccent)),
                                           )
                                         : TextButton.icon(
                                             onPressed: liveState.coins >= item.coinCost
@@ -882,12 +882,12 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
         actions: [
           IconButton(
             tooltip: 'Retrocognition (Sync Past Progress)',
-            icon: const Icon(Icons.history_edu, color: EpilogueTheme.starGold),
+            icon: Icon(Icons.history_edu, color: EpilogueTheme.starGold),
             onPressed: _openRetrocognition,
           ),
           IconButton(
             tooltip: 'Import past reading telemetry',
-            icon: const Icon(Icons.add_chart, color: EpilogueTheme.textPrimary),
+            icon: Icon(Icons.add_chart, color: EpilogueTheme.textPrimary),
             onPressed: _openManualImportDialog,
           ),
           const SizedBox(width: 8),
@@ -901,7 +901,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
             color: EpilogueTheme.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: EpilogueTheme.border),
+              side: BorderSide(color: EpilogueTheme.border),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -918,7 +918,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                           right: 0,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: EpilogueTheme.accent,
                               shape: BoxShape.circle,
                             ),
@@ -944,7 +944,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                               ),
                               child: Text(
                                 '🪙 ${state.coins} COINS',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 11,
                                   color: EpilogueTheme.starGold,
@@ -968,7 +968,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                             Expanded(
                               child: Text(
                                 state.incarnationName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w800,
                                   color: EpilogueTheme.textPrimary,
@@ -978,7 +978,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.edit, size: 15, color: EpilogueTheme.accent),
+                              icon: Icon(Icons.edit, size: 15, color: EpilogueTheme.accent),
                               tooltip: 'Edit Incarnation Name',
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
@@ -1042,9 +1042,9 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.history_edu, color: EpilogueTheme.starGold),
+                Icon(Icons.history_edu, color: EpilogueTheme.starGold),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1113,7 +1113,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
             color: EpilogueTheme.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: EpilogueTheme.border),
+              side: BorderSide(color: EpilogueTheme.border),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -1123,7 +1123,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'READING TELEMETRY & STREAKS',
                         style: TextStyle(
                           fontSize: 11,
@@ -1141,19 +1141,19 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                   ),
                   const SizedBox(height: 10),
                   _statRow('Current Reading Streak', '$currentStreak Days 🔥'),
-                  const Divider(color: EpilogueTheme.border, height: 18),
+                  Divider(color: EpilogueTheme.border, height: 18),
                   _statRow('Longest Streak Record', '$longestStreak Days'),
-                  const Divider(color: EpilogueTheme.border, height: 18),
+                  Divider(color: EpilogueTheme.border, height: 18),
                   _statRow('Read Today', '${todayStats.totalWords} Words (${(todayStats.totalSeconds / 60).toStringAsFixed(0)} mins)'),
-                  const Divider(color: EpilogueTheme.border, height: 18),
+                  Divider(color: EpilogueTheme.border, height: 18),
                   _statRow('Total Reading Time', '$hours Hours'),
-                  const Divider(color: EpilogueTheme.border, height: 18),
+                  Divider(color: EpilogueTheme.border, height: 18),
                   _statRow('Total Words Consumed', '$wordsFormatted Words'),
-                  const Divider(color: EpilogueTheme.border, height: 18),
+                  Divider(color: EpilogueTheme.border, height: 18),
                   _statRow('Total Pages Read', '$totalPages Pages'),
-                  const Divider(color: EpilogueTheme.border, height: 18),
+                  Divider(color: EpilogueTheme.border, height: 18),
                   _statRow('Average Reading Velocity', '$wpm WPM'),
-                  const Divider(color: EpilogueTheme.border, height: 18),
+                  Divider(color: EpilogueTheme.border, height: 18),
                   _statRow('Completed Volumes', '$completedBooks Completed'),
                 ],
               ),
@@ -1212,7 +1212,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
       color: EpilogueTheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: EpilogueTheme.border),
+        side: BorderSide(color: EpilogueTheme.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1229,7 +1229,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                     children: [
                       Text(
                         '$title ($count)',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                           color: EpilogueTheme.textSecondary,
@@ -1266,7 +1266,7 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
               if (items.isEmpty)
                 Text(
                   emptyMessage,
-                  style: const TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+                  style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                 )
               else ...[
                 // Search Bar
@@ -1278,8 +1278,8 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                     style: const TextStyle(fontSize: 12),
                     decoration: InputDecoration(
                       hintText: searchHint,
-                      hintStyle: const TextStyle(fontSize: 12, color: EpilogueTheme.textMuted),
-                      prefixIcon: const Icon(Icons.search, size: 16, color: EpilogueTheme.textSecondary),
+                      hintStyle: TextStyle(fontSize: 12, color: EpilogueTheme.textMuted),
+                      prefixIcon: Icon(Icons.search, size: 16, color: EpilogueTheme.textSecondary),
                       suffixIcon: searchQuery.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear, size: 14),
@@ -1295,23 +1295,23 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
                       fillColor: EpilogueTheme.surfaceElevated,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: EpilogueTheme.border),
+                        borderSide: BorderSide(color: EpilogueTheme.border),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: EpilogueTheme.border),
+                        borderSide: BorderSide(color: EpilogueTheme.border),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: EpilogueTheme.accent),
+                        borderSide: BorderSide(color: EpilogueTheme.accent),
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 if (filtered.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
                       'No matching items found.',
                       style: TextStyle(fontSize: 12, color: EpilogueTheme.textMuted, fontStyle: FontStyle.italic),
@@ -1362,10 +1362,10 @@ class _AttributeWindowScreenState extends State<AttributeWindowScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 13, color: EpilogueTheme.textSecondary)),
+        Text(label, style: TextStyle(fontSize: 13, color: EpilogueTheme.textSecondary)),
         Text(
           value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
         ),
       ],
     );

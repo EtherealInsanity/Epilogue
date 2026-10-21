@@ -34,4 +34,20 @@ class Chapter {
       imageSrcs: imageSrcs,
     );
   }
+
+  bool get isLoaded => htmlContent.isNotEmpty || plainTextContent.isNotEmpty;
+
+  factory Chapter.placeholder({
+    required int index,
+    required String title,
+  }) {
+    return Chapter(
+      index: index,
+      title: title,
+      plainTextContent: '',
+      htmlContent: '',
+      wordCount: 0,
+      imageSrcs: const [],
+    );
+  }
 }

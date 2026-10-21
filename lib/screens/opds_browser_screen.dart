@@ -128,8 +128,8 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
     final url = _urlController.text.trim();
     if (url.isEmpty || !url.startsWith('http')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid HTTP/HTTPS URL'),
+        SnackBar(
+          content: const Text('Please enter a valid HTTP/HTTPS URL'),
           backgroundColor: EpilogueTheme.dangerAccent,
         ),
       );
@@ -170,8 +170,8 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
       );
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to download EPUB file. Check URL or connection.'),
+        SnackBar(
+          content: const Text('Failed to download EPUB file. Check URL or connection.'),
           backgroundColor: EpilogueTheme.dangerAccent,
         ),
       );
@@ -190,7 +190,7 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
         backgroundColor: EpilogueTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: EpilogueTheme.border),
+          side: BorderSide(color: EpilogueTheme.border),
         ),
         title: const Text('Add OPDS / Calibre Server'),
         content: SingleChildScrollView(
@@ -223,7 +223,7 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+            child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
           ),
           FilledButton(
             onPressed: () {
@@ -312,7 +312,7 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
               ),
               IconButton(
                 tooltip: 'Add Calibre or OPDS Server',
-                icon: const Icon(Icons.add_circle, color: EpilogueTheme.accent),
+                icon: Icon(Icons.add_circle, color: EpilogueTheme.accent),
                 onPressed: _showAddServerDialog,
               ),
             ],
@@ -330,29 +330,29 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
                   onPressed: _navigateBack,
                 ),
                 const SizedBox(width: 8),
-                const Text('Back to parent catalog', style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary)),
+                Text('Back to parent catalog', style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary)),
               ],
             ),
           ),
-        const Divider(height: 1, color: EpilogueTheme.border),
+        Divider(height: 1, color: EpilogueTheme.border),
 
         // Entries List
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: EpilogueTheme.accent))
+              ? Center(child: CircularProgressIndicator(color: EpilogueTheme.accent))
               : _currentEntries.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text('No books or catalogs found at this address.', style: TextStyle(color: EpilogueTheme.textSecondary)),
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.all(12),
                       itemCount: _currentEntries.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1, color: EpilogueTheme.border),
+                      separatorBuilder: (_, __) => Divider(height: 1, color: EpilogueTheme.border),
                       itemBuilder: (context, index) {
                         final entry = _currentEntries[index];
                         if (entry.isDirectory && entry.catalogUrl != null) {
                           return ListTile(
-                            leading: const Icon(Icons.folder, color: EpilogueTheme.accent),
+                            leading: Icon(Icons.folder, color: EpilogueTheme.accent),
                             title: Text(entry.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: () => _navigateToSubCatalog(entry.catalogUrl!),
@@ -367,15 +367,15 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
                                     width: 40,
                                     height: 55,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => const Icon(Icons.book, color: EpilogueTheme.accent),
+                                    errorBuilder: (_, __, ___) => Icon(Icons.book, color: EpilogueTheme.accent),
                                   ),
                                 )
-                              : const Icon(Icons.book, color: EpilogueTheme.accent),
+                              : Icon(Icons.book, color: EpilogueTheme.accent),
                           title: Text(entry.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                          subtitle: Text(entry.author, style: const TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary)),
+                          subtitle: Text(entry.author, style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary)),
                           trailing: IconButton(
                             tooltip: 'Download to Library',
-                            icon: const Icon(Icons.download_for_offline, color: EpilogueTheme.cyanAccent),
+                            icon: Icon(Icons.download_for_offline, color: EpilogueTheme.cyanAccent),
                             onPressed: () => _downloadOpdsBook(entry),
                           ),
                         );
@@ -390,12 +390,12 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        const Text(
+        Text(
           'Download EPUB from Direct Web Link',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: EpilogueTheme.textPrimary),
         ),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           'Paste any direct URL to a webnovel or light novel EPUB. It will be downloaded directly into your library folder and indexed automatically.',
           style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
         ),
@@ -407,7 +407,7 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
             hintText: 'https://example.com/novel.epub',
             filled: true,
             fillColor: EpilogueTheme.surface,
-            prefixIcon: const Icon(Icons.link, color: EpilogueTheme.accent),
+            prefixIcon: Icon(Icons.link, color: EpilogueTheme.accent),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
@@ -419,7 +419,7 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
             hintText: 'My_Novel.epub',
             filled: true,
             fillColor: EpilogueTheme.surface,
-            prefixIcon: const Icon(Icons.edit_note, color: EpilogueTheme.textSecondary),
+            prefixIcon: Icon(Icons.edit_note, color: EpilogueTheme.textSecondary),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
@@ -428,9 +428,9 @@ class _OpdsBrowserScreenState extends State<OpdsBrowserScreen> with SingleTicker
           Center(
             child: Column(
               children: [
-                const CircularProgressIndicator(color: EpilogueTheme.accent),
+                CircularProgressIndicator(color: EpilogueTheme.accent),
                 const SizedBox(height: 12),
-                Text(_downloadStatus, style: const TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary)),
+                Text(_downloadStatus, style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary)),
               ],
             ),
           )

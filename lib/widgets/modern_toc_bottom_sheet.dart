@@ -39,9 +39,9 @@ class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: EpilogueTheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -54,10 +54,10 @@ class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
             ),
           ),
           const SizedBox(height: 16),
-          const Row(
+          Row(
             children: [
               Icon(Icons.list_alt, color: EpilogueTheme.accent, size: 20),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'Table of Contents',
                 style: TextStyle(
@@ -72,17 +72,17 @@ class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
           TextField(
             controller: _searchController,
             onChanged: (val) => setState(() => _query = val.trim()),
-            style: const TextStyle(color: EpilogueTheme.textPrimary),
+            style: TextStyle(color: EpilogueTheme.textPrimary),
             decoration: InputDecoration(
               hintText: 'Filter chapters...',
-              hintStyle: const TextStyle(color: EpilogueTheme.textSecondary),
-              prefixIcon: const Icon(Icons.search, size: 18, color: EpilogueTheme.textSecondary),
+              hintStyle: TextStyle(color: EpilogueTheme.textSecondary),
+              prefixIcon: Icon(Icons.search, size: 18, color: EpilogueTheme.textSecondary),
               filled: true,
               fillColor: EpilogueTheme.surfaceElevated,
               contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: EpilogueTheme.border),
+                borderSide: BorderSide(color: EpilogueTheme.border),
               ),
             ),
           ),
@@ -90,7 +90,7 @@ class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
           Expanded(
             child: ListView.separated(
               itemCount: filtered.length,
-              separatorBuilder: (_, __) => const Divider(height: 1, color: EpilogueTheme.border),
+              separatorBuilder: (_, __) => Divider(height: 1, color: EpilogueTheme.border),
               itemBuilder: (context, index) {
                 final ch = filtered[index];
                 final isCurrent = ch.index == widget.currentChapterIndex;
@@ -115,7 +115,7 @@ class _ModernTocBottomSheetState extends State<ModernTocBottomSheet> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  trailing: isCurrent ? const Icon(Icons.bookmark, color: EpilogueTheme.cyanAccent, size: 18) : null,
+                  trailing: isCurrent ? Icon(Icons.bookmark, color: EpilogueTheme.cyanAccent, size: 18) : null,
                   onTap: () {
                     Navigator.pop(context);
                     widget.onChapterSelected(ch.index);

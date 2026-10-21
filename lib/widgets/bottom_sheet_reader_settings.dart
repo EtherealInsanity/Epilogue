@@ -45,9 +45,9 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: EpilogueTheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
         child: SingleChildScrollView(
@@ -73,7 +73,7 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Reader Functions & Typography',
                     style: TextStyle(
                       fontSize: 16,
@@ -82,16 +82,16 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 20, color: EpilogueTheme.textSecondary),
+                    icon: Icon(Icons.close, size: 20, color: EpilogueTheme.textSecondary),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
-              const Divider(color: EpilogueTheme.border),
+              Divider(color: EpilogueTheme.border),
 
               // 1. Reading Mode: Continuous Scroll vs Page Flip
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'READING MODE',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: EpilogueTheme.textSecondary, letterSpacing: 0.5),
               ),
@@ -150,13 +150,13 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'CHAPTER SCRUBBER',
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: EpilogueTheme.textSecondary, letterSpacing: 0.5),
                     ),
                     Text(
                       'Ch. ${(_scrubberValue.round() + 1)} / ${widget.totalChapters}',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent),
                     ),
                   ],
                 ),
@@ -180,7 +180,7 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Font Size', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                  Text('Font Size', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
                   Row(
                     children: [
                       IconButton(
@@ -189,7 +189,7 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
                             ? () => _update(_currentConfig.copyWith(fontSize: _currentConfig.fontSize - 1))
                             : null,
                       ),
-                      Text('${_currentConfig.fontSize.toStringAsFixed(0)} pt', style: const TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent)),
+                      Text('${_currentConfig.fontSize.toStringAsFixed(0)} pt', style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent)),
                       IconButton(
                         icon: const Icon(Icons.add_circle_outline, size: 20),
                         onPressed: _currentConfig.fontSize < 34
@@ -213,8 +213,8 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Line Spacing', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                  Text('${_currentConfig.lineSpacing.toStringAsFixed(1)}x', style: const TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent)),
+                  Text('Line Spacing', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                  Text('${_currentConfig.lineSpacing.toStringAsFixed(1)}x', style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent)),
                 ],
               ),
               Slider(
@@ -231,7 +231,7 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Margins', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                  Text('Margins', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
                   Row(
                     children: [
                       _marginOption(12.0, 'Compact'),
@@ -246,7 +246,7 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
               const SizedBox(height: 14),
 
               // 6. Font Styles
-              const Text('Font Style', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+              Text('Font Style', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -260,7 +260,7 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
               const SizedBox(height: 14),
 
               // 7. Background Theme Presets
-              const Text('Color Theme', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+              Text('Color Theme', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
               const SizedBox(height: 8),
               Row(
                 children: [

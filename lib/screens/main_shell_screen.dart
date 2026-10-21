@@ -8,6 +8,7 @@ import 'attribute_window_screen.dart';
 import 'library_screen.dart';
 import 'scenario_screen.dart';
 import 'settings_screen.dart';
+import 'studio_dashboard_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
   final StorageService storageService;
@@ -104,6 +105,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
         config: _config,
         onSettingsChanged: () => setState(() => _config = widget.storageService.loadConfig()),
       ),
+      const StudioDashboardScreen(),
       ScenarioScreen(storageService: widget.storageService),
       AttributeWindowScreen(storageService: widget.storageService),
       SettingsScreen(
@@ -113,12 +115,14 @@ class _MainShellScreenState extends State<MainShellScreen> {
       ),
     ];
 
+    EpilogueTheme.applyConfig(_config);
+
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
         textScaler: TextScaler.linear(_config.uiScale),
       ),
       child: Theme(
-        data: EpilogueTheme.lightTheme(),
+        data: EpilogueTheme.buildThemeData(_config),
         child: Scaffold(
           backgroundColor: EpilogueTheme.background,
           body: IndexedStack(
@@ -131,12 +135,17 @@ class _MainShellScreenState extends State<MainShellScreen> {
           backgroundColor: EpilogueTheme.surface,
           elevation: 2,
           surfaceTintColor: Colors.transparent,
-          indicatorColor: const Color(0xFFE2E8F0),
+          indicatorColor: EpilogueTheme.surfaceElevated,
           destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.auto_awesome_outlined, size: 24),
+            NavigationDestination(
+              icon: const Icon(Icons.auto_awesome_outlined, size: 24),
               selectedIcon: Icon(Icons.auto_awesome, size: 24, color: EpilogueTheme.accent),
               label: 'Archive',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.edit_note_outlined, size: 24),
+              selectedIcon: Icon(Icons.edit_note, size: 24, color: EpilogueTheme.accent),
+              label: 'Studio',
             ),
             NavigationDestination(
               icon: _buildRuneIcon(false),
@@ -148,8 +157,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
               selectedIcon: _buildAvatarIcon(orvState, true),
               label: 'Attributes',
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.settings_suggest_outlined, size: 24),
+            NavigationDestination(
+              icon: const Icon(Icons.settings_suggest_outlined, size: 24),
               selectedIcon: Icon(Icons.settings_suggest, size: 24, color: EpilogueTheme.accent),
               label: 'Settings',
             ),

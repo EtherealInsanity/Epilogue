@@ -9,7 +9,7 @@ void main() async {
 
   // Crisp Paper/Frost Light System Bar Overlay
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
+    SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: EpilogueTheme.background,

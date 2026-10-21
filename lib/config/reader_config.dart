@@ -39,6 +39,8 @@ class ReaderConfig {
   final bool showReadingHeaderFooter;
   final bool customCssEnabled;
   final bool useOriginalBookStyles;
+  final bool fourthWallActive;
+  final String fourthWallHexColor;
 
   const ReaderConfig({
     this.themePreset = ReaderThemePreset.paperLight,
@@ -59,6 +61,8 @@ class ReaderConfig {
     this.showReadingHeaderFooter = true,
     this.customCssEnabled = true,
     this.useOriginalBookStyles = false,
+    this.fourthWallActive = false,
+    this.fourthWallHexColor = '#0A192F',
   });
 
   ReaderConfig copyWith({
@@ -80,6 +84,8 @@ class ReaderConfig {
     bool? showReadingHeaderFooter,
     bool? customCssEnabled,
     bool? useOriginalBookStyles,
+    bool? fourthWallActive,
+    String? fourthWallHexColor,
   }) {
     return ReaderConfig(
       themePreset: themePreset ?? this.themePreset,
@@ -100,6 +106,8 @@ class ReaderConfig {
       showReadingHeaderFooter: showReadingHeaderFooter ?? this.showReadingHeaderFooter,
       customCssEnabled: customCssEnabled ?? this.customCssEnabled,
       useOriginalBookStyles: useOriginalBookStyles ?? this.useOriginalBookStyles,
+      fourthWallActive: fourthWallActive ?? this.fourthWallActive,
+      fourthWallHexColor: fourthWallHexColor ?? this.fourthWallHexColor,
     );
   }
 
@@ -123,6 +131,8 @@ class ReaderConfig {
       'showReadingHeaderFooter': showReadingHeaderFooter,
       'customCssEnabled': customCssEnabled,
       'useOriginalBookStyles': useOriginalBookStyles,
+      'fourthWallActive': fourthWallActive,
+      'fourthWallHexColor': fourthWallHexColor,
     };
   }
 
@@ -155,6 +165,8 @@ class ReaderConfig {
       showReadingHeaderFooter: map['showReadingHeaderFooter'] as bool? ?? true,
       customCssEnabled: map['customCssEnabled'] as bool? ?? true,
       useOriginalBookStyles: map['useOriginalBookStyles'] as bool? ?? false,
+      fourthWallActive: map['fourthWallActive'] as bool? ?? false,
+      fourthWallHexColor: map['fourthWallHexColor'] as String? ?? '#0A192F',
     );
   }
 

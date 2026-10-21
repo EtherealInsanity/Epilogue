@@ -55,8 +55,8 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
     if (mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Reading history successfully synchronized.'),
+        SnackBar(
+          content: const Text('Reading history successfully synchronized.'),
           backgroundColor: EpilogueTheme.accent,
         ),
       );
@@ -69,12 +69,12 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
       backgroundColor: EpilogueTheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: EpilogueTheme.border),
+        side: BorderSide(color: EpilogueTheme.border),
       ),
-      title: const Row(
+      title: Row(
         children: [
           Icon(Icons.history_edu, color: EpilogueTheme.accent, size: 22),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             'Import Past Reads',
             style: TextStyle(
@@ -90,7 +90,7 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Log reading hours and word count accumulated in past apps (Kindle, Moon+, Mihon, etc.) to merge into your telemetry.',
               style: TextStyle(fontSize: 13, color: EpilogueTheme.textSecondary),
             ),
@@ -98,52 +98,52 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
             TextField(
               controller: _hoursController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: const TextStyle(color: EpilogueTheme.textPrimary),
+              style: TextStyle(color: EpilogueTheme.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Total Past Reading Hours (e.g. 45.5)',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: EpilogueTheme.border)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: EpilogueTheme.border)),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _wordsController,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: EpilogueTheme.textPrimary),
+              style: TextStyle(color: EpilogueTheme.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Total Past Words Read (e.g. 500000)',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: EpilogueTheme.border)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: EpilogueTheme.border)),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _pagesController,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: EpilogueTheme.textPrimary),
+              style: TextStyle(color: EpilogueTheme.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Total Past Pages Read (e.g. 1250)',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: EpilogueTheme.border)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: EpilogueTheme.border)),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _volumesController,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: EpilogueTheme.textPrimary),
+              style: TextStyle(color: EpilogueTheme.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Past Books/Volumes Completed',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: EpilogueTheme.border)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: EpilogueTheme.border)),
               ),
             ),
           ],
@@ -152,7 +152,7 @@ class _DialogManualReadingImportState extends State<DialogManualReadingImport> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+          child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
         ),
         FilledButton(
           onPressed: _submit,

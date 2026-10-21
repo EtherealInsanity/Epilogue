@@ -1,7 +1,7 @@
 name: epilogue
 description: "Epilogue - Immersive EPUB & Web Novel Reader for Android with Star Stream Progression"
 publish_to: 'none'
-version: 1.0.0+1
+version: 2.0.3+203
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   # Fast EPUB unpacking & chapter extraction
   epubx: ^4.0.0
+  # Direct byte-exact EPUB packaging
+  archive: ^3.6.1
   # Local persistence for bookmarks, reading progress & preferences
   shared_preferences: ^2.5.3
   # File path utilities & documents directory

@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/book_info.dart';
+import '../screens/studio_editor_screen.dart';
 import '../services/storage_service.dart';
+import '../services/studio_project_service.dart';
 import '../theme/epilogue_theme.dart';
 import 'dialog_edit_metadata.dart';
 
@@ -18,6 +20,31 @@ class BottomSheetBookDetail extends StatelessWidget {
     required this.onOpenBook,
     required this.onUpdated,
   });
+
+  Future<void> _editInStudio(BuildContext context) async {
+    Navigator.pop(context);
+    try {
+      final proj = await StudioProjectService.importFromEpub(book.filePath);
+      await StudioProjectService.saveProject(proj);
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StudioEditorScreen(project: proj, onSave: onUpdated),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load into Studio: $e'),
+            backgroundColor: EpilogueTheme.dangerAccent,
+          ),
+        );
+      }
+    }
+  }
 
   void _showEditMetadataDialog(BuildContext context) {
     showDialog(
@@ -40,14 +67,14 @@ class BottomSheetBookDetail extends StatelessWidget {
         backgroundColor: EpilogueTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: EpilogueTheme.border),
+          side: BorderSide(color: EpilogueTheme.border),
         ),
         title: const Text('Remove from Library', style: TextStyle(fontWeight: FontWeight.bold)),
         content: Text('Are you sure you want to remove "${book.title}" from your library? (The EPUB file on your device will remain safe).'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+            child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
           ),
           FilledButton(
             onPressed: () async {
@@ -78,9 +105,9 @@ class BottomSheetBookDetail extends StatelessWidget {
         backgroundColor: EpilogueTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: EpilogueTheme.border),
+          side: BorderSide(color: EpilogueTheme.border),
         ),
-        title: const Text(
+        title: Text(
           'Mark Past Chapters as Read',
           style: TextStyle(
             fontSize: 16,
@@ -92,7 +119,7 @@ class BottomSheetBookDetail extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Set how many chapters you have already read elsewhere. Words and reading time will be credited to your reading status.',
               style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
             ),
@@ -100,15 +127,15 @@ class BottomSheetBookDetail extends StatelessWidget {
             TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: EpilogueTheme.textPrimary),
+              style: TextStyle(color: EpilogueTheme.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Up to Chapter #',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: EpilogueTheme.border),
+                  borderSide: BorderSide(color: EpilogueTheme.border),
                 ),
               ),
             ),
@@ -116,15 +143,15 @@ class BottomSheetBookDetail extends StatelessWidget {
             TextField(
               controller: wordsPerChController,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: EpilogueTheme.textPrimary),
+              style: TextStyle(color: EpilogueTheme.textPrimary),
               decoration: InputDecoration(
                 labelText: 'Average Words per Chapter',
-                labelStyle: const TextStyle(color: EpilogueTheme.textSecondary),
+                labelStyle: TextStyle(color: EpilogueTheme.textSecondary),
                 filled: true,
                 fillColor: EpilogueTheme.surfaceElevated,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: EpilogueTheme.border),
+                  borderSide: BorderSide(color: EpilogueTheme.border),
                 ),
               ),
             ),
@@ -133,7 +160,7 @@ class BottomSheetBookDetail extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
+            child: Text('CANCEL', style: TextStyle(color: EpilogueTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -179,9 +206,9 @@ class BottomSheetBookDetail extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: EpilogueTheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -217,7 +244,7 @@ class BottomSheetBookDetail extends StatelessWidget {
                 ),
                 child: hasValidCover
                     ? null
-                    : const Center(
+                    : Center(
                         child: Icon(Icons.auto_stories, color: EpilogueTheme.accent, size: 30),
                       ),
               ),
@@ -228,7 +255,7 @@ class BottomSheetBookDetail extends StatelessWidget {
                   children: [
                     Text(
                       book.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: EpilogueTheme.textPrimary,
@@ -239,7 +266,7 @@ class BottomSheetBookDetail extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       book.author,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: EpilogueTheme.textSecondary,
                       ),
@@ -257,7 +284,7 @@ class BottomSheetBookDetail extends StatelessWidget {
                           ),
                           child: Text(
                             'Ch. ${book.lastReadChapterIndex + 1}/${book.totalChapters > 0 ? book.totalChapters : "?"}',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent),
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent),
                           ),
                         ),
                         Container(
@@ -268,7 +295,7 @@ class BottomSheetBookDetail extends StatelessWidget {
                           ),
                           child: Text(
                             '${progress.toStringAsFixed(0)}% Read',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.textSecondary),
                           ),
                         ),
                       ],
@@ -300,6 +327,22 @@ class BottomSheetBookDetail extends StatelessWidget {
           ),
           const SizedBox(height: 10),
 
+          // Edit in Studio Action
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _editInStudio(context),
+              icon: Icon(Icons.edit_note, size: 18, color: EpilogueTheme.cyanAccent),
+              label: Text('EDIT IN STUDIO', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: EpilogueTheme.cyanAccent)),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: EpilogueTheme.cyanAccent),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+
           // Secondary Action Buttons Row
           Row(
             children: [
@@ -310,7 +353,7 @@ class BottomSheetBookDetail extends StatelessWidget {
                   label: const Text('EDIT METADATA', style: TextStyle(fontSize: 11)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: EpilogueTheme.textPrimary,
-                    side: const BorderSide(color: EpilogueTheme.borderStrong),
+                    side: BorderSide(color: EpilogueTheme.borderStrong),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -324,7 +367,7 @@ class BottomSheetBookDetail extends StatelessWidget {
                   label: const Text('MARK CHAPTERS', style: TextStyle(fontSize: 11)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: EpilogueTheme.accent,
-                    side: const BorderSide(color: EpilogueTheme.borderStrong),
+                    side: BorderSide(color: EpilogueTheme.borderStrong),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -339,8 +382,8 @@ class BottomSheetBookDetail extends StatelessWidget {
             width: double.infinity,
             child: TextButton.icon(
               onPressed: () => _confirmRemoveBook(context),
-              icon: const Icon(Icons.delete_outline, size: 16, color: EpilogueTheme.dangerAccent),
-              label: const Text('REMOVE FROM LIBRARY', style: TextStyle(color: EpilogueTheme.dangerAccent, fontSize: 12)),
+              icon: Icon(Icons.delete_outline, size: 16, color: EpilogueTheme.dangerAccent),
+              label: Text('REMOVE FROM LIBRARY', style: TextStyle(color: EpilogueTheme.dangerAccent, fontSize: 12)),
             ),
           ),
         ],

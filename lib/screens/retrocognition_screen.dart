@@ -160,13 +160,13 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
           backgroundColor: EpilogueTheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: EpilogueTheme.border),
+            side: BorderSide(color: EpilogueTheme.border),
           ),
-          title: const Row(
+          title: Row(
             children: [
               Icon(Icons.auto_stories, color: EpilogueTheme.starGold),
-              SizedBox(width: 10),
-              Text('Retrocognition Synchronized!'),
+              const SizedBox(width: 10),
+              const Text('Retrocognition Synchronized!'),
             ],
           ),
           content: Column(
@@ -192,7 +192,7 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.stars, color: EpilogueTheme.starGold, size: 20),
+                      Icon(Icons.stars, color: EpilogueTheme.starGold, size: 20),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -234,7 +234,7 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
         actions: [
           IconButton(
             tooltip: 'Add EPUBs from device',
-            icon: const Icon(Icons.add_circle_outline, color: EpilogueTheme.accent),
+            icon: Icon(Icons.add_circle_outline, color: EpilogueTheme.accent),
             onPressed: _isProcessing ? null : _pickAdditionalEpubs,
           ),
         ],
@@ -246,12 +246,12 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircularProgressIndicator(color: EpilogueTheme.accent),
+                    CircularProgressIndicator(color: EpilogueTheme.accent),
                     const SizedBox(height: 20),
                     Text(
                       _statusMessage,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
                     ),
                   ],
                 ),
@@ -268,10 +268,10 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: EpilogueTheme.cyanAccent.withValues(alpha: 0.3)),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(Icons.hourglass_top, color: EpilogueTheme.cyanAccent),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Transitioning from another reader? Input your past chapter or percentage in each book. The EPUB engine will analyze word counts and seamlessly migrate your lifetime telemetry and Star Stream scenarios.',
@@ -289,9 +289,9 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 40),
                       child: Column(
                         children: [
-                          const Icon(Icons.library_books_outlined, size: 48, color: EpilogueTheme.textMuted),
+                          Icon(Icons.library_books_outlined, size: 48, color: EpilogueTheme.textMuted),
                           const SizedBox(height: 12),
-                          const Text('No books selected yet', style: TextStyle(color: EpilogueTheme.textSecondary)),
+                          Text('No books selected yet', style: TextStyle(color: EpilogueTheme.textSecondary)),
                           const SizedBox(height: 12),
                           FilledButton.icon(
                             onPressed: _pickAdditionalEpubs,
@@ -334,7 +334,7 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
       color: EpilogueTheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: EpilogueTheme.border),
+        side: BorderSide(color: EpilogueTheme.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -351,7 +351,7 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
                     color: EpilogueTheme.surfaceElevated,
                     child: hasCover
                         ? Image.file(File(book.coverImagePath!), fit: BoxFit.cover)
-                        : const Icon(Icons.book, color: EpilogueTheme.accent),
+                        : Icon(Icons.book, color: EpilogueTheme.accent),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -361,27 +361,27 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
                     children: [
                       Text(
                         book.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: EpilogueTheme.textPrimary),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: EpilogueTheme.textPrimary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'Total Chapters: $totalChapters',
-                        style: const TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
+                        style: TextStyle(fontSize: 12, color: EpilogueTheme.textSecondary),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, size: 20, color: EpilogueTheme.textMuted),
+                  icon: Icon(Icons.close, size: 20, color: EpilogueTheme.textMuted),
                   onPressed: () {
                     setState(() => _pendingBooks.removeAt(index));
                   },
                 ),
               ],
             ),
-            const Divider(color: EpilogueTheme.border, height: 24),
+            Divider(color: EpilogueTheme.border, height: 24),
 
             // Dual Input: Exact Chapter & Progress Slider
             Row(
@@ -389,7 +389,7 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
               children: [
                 Text(
                   'Chapter ${item.currentChapter} of $totalChapters',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -399,7 +399,7 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
                   ),
                   child: Text(
                     '${item.progressPercent.toStringAsFixed(0)}% Read',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent, fontSize: 11),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: EpilogueTheme.cyanAccent, fontSize: 11),
                   ),
                 ),
               ],
@@ -424,11 +424,11 @@ class _RetrocognitionScreenState extends State<RetrocognitionScreen> {
               children: [
                 Text(
                   'Estimated Reading Speed: ${item.estimatedWpm} WPM',
-                  style: const TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary),
+                  style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary),
                 ),
                 Text(
                   '~${(((item.currentChapter * 3500) / item.estimatedWpm) / 60).toStringAsFixed(1)} hrs',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: EpilogueTheme.textPrimary),
                 ),
               ],
             ),
