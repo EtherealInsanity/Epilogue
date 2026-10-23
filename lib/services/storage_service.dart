@@ -275,12 +275,10 @@ class StorageService {
     final sessions = loadRecentSessions(limit: 200);
     sessions.insert(0, session);
     await _prefs.setString(_keySessions, jsonEncode(sessions.map((s) => s.toMap()).toList()));
+  }
 
-    await recordDailyReading(
-      seconds: session.durationSeconds,
-      words: session.wordsRead,
-      completedChapters: 0,
-    );
+  Future<void> saveSessions(List<ReadingSession> sessions) async {
+    await _prefs.setString(_keySessions, jsonEncode(sessions.map((s) => s.toMap()).toList()));
   }
 
   // --- Daily Reading Records & Streaks ---
@@ -318,6 +316,11 @@ class StorageService {
     );
     records[todayKey] = updated;
 
+    final map = records.map((key, val) => MapEntry(key, val.toMap()));
+    await _prefs.setString(_keyDailyRecords, jsonEncode(map));
+  }
+
+  Future<void> saveDailyRecords(Map<String, DailyReadingRecord> records) async {
     final map = records.map((key, val) => MapEntry(key, val.toMap()));
     await _prefs.setString(_keyDailyRecords, jsonEncode(map));
   }
@@ -383,7 +386,7 @@ class StorageService {
   /// Checks if yesterday was missed, breaking the consecutive streak.
   bool isStreakBroken() {
     final records = loadDailyRecords();
-    if (records.isEmpty) return true;
+    if (records.isEmpty) return false;
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
     final yesterdayKey = "${yesterday.year.toString().padLeft(4, '0')}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}";
     final rec = records[yesterdayKey];
@@ -495,8 +498,13 @@ class StorageService {
     if (index >= 0) {
       final book = books[index];
       final chaptersCount = targetChapterIndex + 1;
-      final addedWords = chaptersCount * estimatedWordsPerChapter;
-      final addedSeconds = ((addedWords / 220.0) * 60).round();
+      final targetWords = chaptersCount * estimatedWordsPerChapter;
+      final targetSeconds = ((targetWords / 220.0) * 60).round();
+
+      final newTotalWords = targetWords > book.totalWordsRead ? targetWords : book.totalWordsRead;
+      final newTotalSeconds = targetSeconds > book.totalSecondsSpentReading ? targetSeconds : book.totalSecondsSpentReading;
+      final deltaWords = newTotalWords - book.totalWordsRead;
+      final deltaSeconds = newTotalSeconds - book.totalSecondsSpentReading;
 
       final totalChapters = book.totalChapters > 0 ? book.totalChapters : chaptersCount;
       final progressPercent = ((chaptersCount / totalChapters) * 100).clamp(0.0, 100.0);
@@ -504,17 +512,19 @@ class StorageService {
       books[index] = book.copyWith(
         lastReadChapterIndex: targetChapterIndex,
         lastReadProgressPercent: progressPercent,
-        totalWordsRead: book.totalWordsRead + addedWords,
-        totalSecondsSpentReading: book.totalSecondsSpentReading + addedSeconds,
+        totalWordsRead: newTotalWords,
+        totalSecondsSpentReading: newTotalSeconds,
         lastReadTimestamp: DateTime.now().millisecondsSinceEpoch,
       );
       await saveBooks(books);
 
-      await recordDailyReading(
-        seconds: addedSeconds,
-        words: addedWords,
-        completedChapters: chaptersCount,
-      );
+      if (deltaSeconds > 0 || deltaWords > 0) {
+        await recordDailyReading(
+          seconds: deltaSeconds,
+          words: deltaWords,
+          completedChapters: chaptersCount,
+        );
+      }
     }
   }
 

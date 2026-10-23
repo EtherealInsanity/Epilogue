@@ -233,11 +233,23 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
     }
   }
 
+  Future<Directory> _getExportDir() async {
+    if (Platform.isAndroid) {
+      try {
+        final dl = Directory('/storage/emulated/0/Download/Epilogue_Exports');
+        if (!await dl.exists()) await dl.create(recursive: true);
+        return dl;
+      } catch (_) {}
+    }
+    final appDir = await getApplicationDocumentsDirectory();
+    final exportDir = Directory('${appDir.path}/Epilogue_Exports');
+    if (!await exportDir.exists()) await exportDir.create(recursive: true);
+    return exportDir;
+  }
+
   Future<void> _exportTxt(EpubProject project) async {
     try {
-      final appDir = await getApplicationDocumentsDirectory();
-      final exportDir = Directory('${appDir.path}/Epilogue_Exports');
-      if (!await exportDir.exists()) await exportDir.create(recursive: true);
+      final exportDir = await _getExportDir();
 
       final cleanTitle = project.title.replaceAll(RegExp(r'[^\w\s\.-]'), '').replaceAll(' ', '_');
       final path = '${exportDir.path}/${cleanTitle}_${DateTime.now().millisecondsSinceEpoch}.txt';
@@ -263,9 +275,7 @@ class _StudioDashboardScreenState extends State<StudioDashboardScreen> {
 
   Future<void> _exportMd(EpubProject project) async {
     try {
-      final appDir = await getApplicationDocumentsDirectory();
-      final exportDir = Directory('${appDir.path}/Epilogue_Exports');
-      if (!await exportDir.exists()) await exportDir.create(recursive: true);
+      final exportDir = await _getExportDir();
 
       final cleanTitle = project.title.replaceAll(RegExp(r'[^\w\s\.-]'), '').replaceAll(' ', '_');
       final path = '${exportDir.path}/${cleanTitle}_${DateTime.now().millisecondsSinceEpoch}.md';

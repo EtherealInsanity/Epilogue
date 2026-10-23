@@ -30,17 +30,6 @@ void main() {
       expect(output, equals("Tom & Jerry \"said\" 'hello' — 5 > 3 < 8 …"));
     });
 
-    test('wrapToColumns wraps text to specified width without breaking words', () {
-      const text = 'The Crimson Moon shone brightly over the silent city of Backlund.';
-      final wrapped = EpubParserService.wrapToColumns(text, 25);
-      final lines = wrapped.split('\n');
-
-      for (final line in lines) {
-        expect(line.length, lessThanOrEqualTo(25));
-      }
-      expect(lines.length, greaterThan(1));
-    });
-
     test('grepChapter finds keywords correctly with line numbers', () {
       const content = '''
 Chapter 452

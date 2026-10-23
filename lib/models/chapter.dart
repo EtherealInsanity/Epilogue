@@ -5,6 +5,7 @@ class Chapter {
   final String htmlContent;
   final int wordCount;
   final List<String> imageSrcs;
+  final bool isLoaded;
 
   const Chapter({
     required this.index,
@@ -13,6 +14,7 @@ class Chapter {
     required this.htmlContent,
     required this.wordCount,
     this.imageSrcs = const [],
+    this.isLoaded = true,
   });
 
   factory Chapter.fromHtml({
@@ -21,6 +23,7 @@ class Chapter {
     required String htmlContent,
     required String plainTextContent,
     List<String> imageSrcs = const [],
+    bool isLoaded = true,
   }) {
     final words = plainTextContent.trim().isEmpty
         ? 0
@@ -32,10 +35,9 @@ class Chapter {
       htmlContent: htmlContent,
       wordCount: words,
       imageSrcs: imageSrcs,
+      isLoaded: isLoaded,
     );
   }
-
-  bool get isLoaded => htmlContent.isNotEmpty || plainTextContent.isNotEmpty;
 
   factory Chapter.placeholder({
     required int index,
@@ -48,6 +50,7 @@ class Chapter {
       htmlContent: '',
       wordCount: 0,
       imageSrcs: const [],
+      isLoaded: false,
     );
   }
 }

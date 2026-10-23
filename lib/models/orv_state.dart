@@ -97,7 +97,7 @@ class OrvState {
   factory OrvState.fromMap(Map<String, dynamic> map) {
     return OrvState(
       incarnationName: map['incarnationName'] as String? ?? 'Unnamed Incarnation',
-      coins: map['coins'] as int? ?? 0,
+      coins: (map['coins'] as num?)?.toInt() ?? 0,
       constellationModifier: map['constellationModifier'] as String? ?? '',
       unlockedModifiers: List<String>.from(map['unlockedModifiers'] ?? []),
       completedScenarioIds: List<String>.from(map['completedScenarioIds'] ?? []),
@@ -107,10 +107,10 @@ class OrvState {
       unlockedAttributes: List<String>.from(map['unlockedAttributes'] ?? []),
       customAvatarPath: map['customAvatarPath'] as String?,
       presetAvatarId: map['presetAvatarId'] as String? ?? 'dokja',
-      manualPastSeconds: map['manualPastSeconds'] as int? ?? 0,
-      manualPastWords: map['manualPastWords'] as int? ?? 0,
-      manualPastVolumes: map['manualPastVolumes'] as int? ?? 0,
-      manualPastPages: map['manualPastPages'] as int? ?? 0,
+      manualPastSeconds: (map['manualPastSeconds'] as num?)?.toInt() ?? 0,
+      manualPastWords: (map['manualPastWords'] as num?)?.toInt() ?? 0,
+      manualPastVolumes: (map['manualPastVolumes'] as num?)?.toInt() ?? 0,
+      manualPastPages: (map['manualPastPages'] as num?)?.toInt() ?? 0,
     );
   }
 

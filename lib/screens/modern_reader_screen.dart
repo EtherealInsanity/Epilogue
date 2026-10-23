@@ -73,6 +73,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
     _currentChapterIndex = widget.initialChapterIndex.clamp(0, widget.chapters.length - 1);
     _fourthWallActive = widget.config.fourthWallActive;
     _pageController = PageController();
+    _scrollController.addListener(_onContinuousScroll);
 
     _loadBookImages();
 
@@ -103,12 +104,26 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
     }
   }
 
+  double _lastScrollOffset = 0.0;
+  void _onContinuousScroll() {
+    _recordInteraction();
+    if (!_scrollController.hasClients) return;
+    final currentOffset = _scrollController.offset;
+    final delta = (currentOffset - _lastScrollOffset).abs();
+    if (delta > 200) {
+      _lastScrollOffset = currentOffset;
+      _activeWords += 50;
+    }
+  }
+
   Future<void> _loadBookImages() async {
     try {
       final css = await EpubParserService.extractAllBookCss(widget.book.filePath);
+      final images = await EpubParserService.extractAllBookImages(widget.book.filePath);
       if (mounted) {
         setState(() {
           _bookCss = css;
+          _bookImageFiles.addAll(images);
         });
       }
     } catch (_) {}
@@ -119,6 +134,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
     _activityTicker?.cancel();
     _constellationDismissTimer?.cancel();
     _commitSession();
+    _scrollController.removeListener(_onContinuousScroll);
     _pageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -323,15 +339,15 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
 
     _updateProgress();
     if (_config.pageAnimation != PageAnimationType.continuousScroll) {
-      _pageController.jumpToPage(0);
+      if (_pageController.hasClients) _pageController.jumpToPage(0);
     } else {
-      _scrollController.jumpTo(0);
+      if (_scrollController.hasClients) _scrollController.jumpTo(0);
     }
   }
 
   void _updateProgress() {
     final total = widget.chapters.length;
-    final progress = total > 0 ? ((_currentChapterIndex / total) * 100).clamp(0.0, 100.0) : 0.0;
+    final progress = total > 0 ? (((_currentChapterIndex + 1) / total) * 100).clamp(0.0, 100.0) : 0.0;
     widget.storageService.updateBookProgress(
       bookId: widget.book.id,
       chapterIndex: _currentChapterIndex,
@@ -571,7 +587,6 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                         }
                       } else if (dx > width * 0.75) {
                         _recordInteraction();
-                        _activeWords += 150;
                         if (_config.pageAnimation != PageAnimationType.continuousScroll) {
                           if (_currentPageIndex < _pageChunks.length - 1) {
                             _pageController.nextPage(

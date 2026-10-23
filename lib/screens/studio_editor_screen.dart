@@ -32,6 +32,7 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
 
   late TextEditingController _titleCtrl;
   late TextEditingController _contentCtrl;
+  bool _controllersInitialized = false;
   Timer? _autoSaveTimer;
   Timer? _historyDebounceTimer;
   bool _hasUnsavedChanges = false;
@@ -60,6 +61,12 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
   }
 
   void _initActiveChapterControllers() {
+    if (_controllersInitialized) {
+      _titleCtrl.dispose();
+      _contentCtrl.dispose();
+    }
+    _controllersInitialized = true;
+
     if (_project.chapters.isEmpty) {
       _titleCtrl = TextEditingController(text: 'Chapter 1');
       _contentCtrl = TextEditingController(text: '');
@@ -211,12 +218,16 @@ class _StudioEditorScreenState extends State<StudioEditorScreen> {
       } else if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
         out.add('<div class="star-stream-dialogue">$trimmed</div>');
       } else if (trimmed.isNotEmpty) {
-        var formatted = trimmed
-            .replaceAllMapped(RegExp(r'\*\*(.*?)\*\*'), (m) => '<b>${m[1]}</b>')
-            .replaceAllMapped(RegExp(r'\*(.*?)\*'), (m) => '<i>${m[1]}</i>')
-            .replaceAllMapped(RegExp(r'~~(.*?)~~'), (m) => '<del>${m[1]}</del>')
-            .replaceAllMapped(RegExp(r'`(.*?)`'), (m) => '<code>${m[1]}</code>');
-        out.add('<p>$formatted</p>');
+        if (trimmed.startsWith('<p') || trimmed.startsWith('<div') || trimmed.startsWith('<h') || trimmed.startsWith('<blockquote') || trimmed.startsWith('<hr')) {
+          out.add(trimmed);
+        } else {
+          var formatted = trimmed
+              .replaceAllMapped(RegExp(r'\*\*(.*?)\*\*'), (m) => '<b>${m[1]}</b>')
+              .replaceAllMapped(RegExp(r'\*(.*?)\*'), (m) => '<i>${m[1]}</i>')
+              .replaceAllMapped(RegExp(r'~~(.*?)~~'), (m) => '<del>${m[1]}</del>')
+              .replaceAllMapped(RegExp(r'`(.*?)`'), (m) => '<code>${m[1]}</code>');
+          out.add('<p>$formatted</p>');
+        }
       }
     }
 

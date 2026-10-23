@@ -6,6 +6,7 @@ import 'package:epilogue/models/bookmark.dart';
 import 'package:epilogue/models/book_highlight.dart';
 import 'package:epilogue/services/storage_service.dart';
 import 'package:epilogue/services/orv_service.dart';
+import 'package:epilogue/services/data_sync_service.dart';
 import 'package:epilogue/models/scenario.dart';
 
 void main() {
@@ -425,6 +426,62 @@ void main() {
       expect(list[1].id, equals('a'));
       expect(list[2].id, equals('d'));
       expect(list[3].id, equals('c'));
+    });
+
+    test('isStreakBroken returns false when no records exist', () async {
+      final storage = await StorageService.initialize();
+      expect(storage.isStreakBroken(), isFalse);
+    });
+
+    test('batchMarkChaptersRead computes delta and avoids double-counting words on rerun', () async {
+      final storage = await StorageService.initialize();
+      const book = BookInfo(
+        id: 'book_delta_test',
+        title: 'Delta Book',
+        author: 'Author',
+        filePath: '/path/test.epub',
+        totalChapters: 20,
+      );
+      await storage.saveBooks([book]);
+
+      // Mark first 5 chapters (indices 0..4 = 5 chapters @ 1000 words = 5000 words)
+      await storage.batchMarkChaptersRead(
+        bookId: 'book_delta_test',
+        targetChapterIndex: 4,
+        estimatedWordsPerChapter: 1000,
+      );
+      expect(storage.loadBooks().first.totalWordsRead, equals(5000));
+
+      // Re-running same chapter count should not add another 5000 words
+      await storage.batchMarkChaptersRead(
+        bookId: 'book_delta_test',
+        targetChapterIndex: 4,
+        estimatedWordsPerChapter: 1000,
+      );
+      expect(storage.loadBooks().first.totalWordsRead, equals(5000));
+    });
+
+    test('DataSyncService restores historical daily records without lumping into today', () async {
+      final storage = await StorageService.initialize();
+      final syncService = DataSyncService(storage);
+
+      const backupJson = '''
+      {
+        "daily_records": {
+          "2025-01-01": {"dateKey": "2025-01-01", "totalSeconds": 1800, "totalWords": 1500, "chaptersCompleted": 2},
+          "2025-01-02": {"dateKey": "2025-01-02", "totalSeconds": 2400, "totalWords": 2000, "chaptersCompleted": 3}
+        }
+      }
+      ''';
+
+      final success = await syncService.importBackupFromJson(backupJson, smartMerge: true);
+      expect(success, isTrue);
+
+      final records = storage.loadDailyRecords();
+      expect(records.containsKey('2025-01-01'), isTrue);
+      expect(records.containsKey('2025-01-02'), isTrue);
+      expect(records['2025-01-01']!.totalWords, equals(1500));
+      expect(records['2025-01-02']!.totalWords, equals(2000));
     });
   });
 }

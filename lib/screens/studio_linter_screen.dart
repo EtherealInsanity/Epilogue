@@ -65,11 +65,19 @@ class _StudioLinterScreenState extends State<StudioLinterScreen> {
       final ext = isKepub ? '.kepub.epub' : '.epub';
       final fileName = '${sanitizedTitle}_${DateTime.now().millisecondsSinceEpoch}$ext';
 
-      // Export to Documents/Epilogue_Exports/
-      final appDir = await getApplicationDocumentsDirectory();
-      final exportDir = Directory('${appDir.path}/Epilogue_Exports');
-      if (!await exportDir.exists()) {
-        await exportDir.create(recursive: true);
+      // Export to Download/Epilogue_Exports (Android) or Documents/Epilogue_Exports
+      Directory? exportDir;
+      if (Platform.isAndroid) {
+        try {
+          final dl = Directory('/storage/emulated/0/Download/Epilogue_Exports');
+          if (!await dl.exists()) await dl.create(recursive: true);
+          exportDir = dl;
+        } catch (_) {}
+      }
+      if (exportDir == null) {
+        final appDir = await getApplicationDocumentsDirectory();
+        exportDir = Directory('${appDir.path}/Epilogue_Exports');
+        if (!await exportDir.exists()) await exportDir.create(recursive: true);
       }
 
       final targetFile = File('${exportDir.path}/$fileName');

@@ -143,8 +143,22 @@ class EpubParserService {
   static final Map<String, Map<int, Chapter>> _cachedChapterWindow = {};
   static final Map<String, Map<String, String>> _cachedImagesMap = {};
   static final Map<String, String> _cachedCss = {};
-  static final Map<String, List<Chapter>> _cachedChapters = {};
   static final Map<String, epubx.EpubBookRef> _openBookRefCache = {};
+
+  static void _cacheBookRef(String filePath, epubx.EpubBookRef bookRef) {
+    if (_openBookRefCache.length >= 3) {
+      _openBookRefCache.remove(_openBookRefCache.keys.first);
+    }
+    _openBookRefCache[filePath] = bookRef;
+  }
+
+  static void clearCache() {
+    _cachedBookIndexes.clear();
+    _cachedChapterWindow.clear();
+    _cachedImagesMap.clear();
+    _cachedCss.clear();
+    _openBookRefCache.clear();
+  }
 
   /// Fast-indexes an EPUB using disk caching. Reopening is near-instant (< 50ms).
   static Future<BookIndexInfo> parseAndCacheBookIndex(String filePath) async {
@@ -182,7 +196,7 @@ class EpubParserService {
     // 2. Parse EPUB metadata and chapters structure lazily
     final bytes = await file.readAsBytes();
     final bookRef = await epubx.EpubReader.openBook(bytes);
-    _openBookRefCache[filePath] = bookRef;
+    _cacheBookRef(filePath, bookRef);
 
     final title = (bookRef.Title != null && bookRef.Title!.trim().isNotEmpty)
         ? bookRef.Title!.trim()
@@ -276,7 +290,7 @@ class EpubParserService {
       final file = File(filePath);
       final bytes = await file.readAsBytes();
       bookRef = await epubx.EpubReader.openBook(bytes);
-      _openBookRefCache[filePath] = bookRef;
+      _cacheBookRef(filePath, bookRef);
     }
 
     final rawChapters = await bookRef.getChapters();
@@ -428,7 +442,7 @@ class EpubParserService {
         final file = File(filePath);
         final bytes = await file.readAsBytes();
         bookRef = await epubx.EpubReader.openBook(bytes);
-        _openBookRefCache[filePath] = bookRef;
+        _cacheBookRef(filePath, bookRef);
       }
 
       final images = bookRef.Content?.Images;
@@ -573,62 +587,6 @@ class EpubParserService {
     return map;
   }
 
-  /// Extracts all linear chapters into structured [Chapter] models.
-  static Future<List<Chapter>> extractChapters(String filePath) async {
-    if (_cachedChapters.containsKey(filePath)) {
-      return _cachedChapters[filePath]!;
-    }
-
-    final file = File(filePath);
-    if (!await file.exists()) {
-      throw FileSystemException('EPUB file not found', filePath);
-    }
-
-    final bytes = await file.readAsBytes();
-    final chapters = await extractChaptersFromBytes(bytes);
-    _cachedChapters[filePath] = chapters;
-    return chapters;
-  }
-
-  /// Extracts chapters directly from byte buffer.
-  static Future<List<Chapter>> extractChaptersFromBytes(Uint8List bytes) async {
-    final bookRef = await epubx.EpubReader.openBook(bytes);
-    final rawChapters = await bookRef.getChapters();
-    final flattened = <epubx.EpubChapterRef>[];
-    _flattenChapterRefs(rawChapters, flattened);
-
-    final results = <Chapter>[];
-    int index = 0;
-    for (final raw in flattened) {
-      String html = '';
-      try {
-        html = await raw.readHtmlContent();
-      } catch (_) {}
-
-      final plain = htmlToPlainText(html);
-      final imageSrcs = _imgRegex.allMatches(html).map((m) => m.group(1)!).toList();
-
-      if (plain.trim().isEmpty && imageSrcs.isEmpty && (raw.SubChapters == null || raw.SubChapters!.isEmpty)) {
-        continue;
-      }
-
-      String title = (raw.Title != null && raw.Title!.trim().isNotEmpty)
-          ? raw.Title!.trim()
-          : 'Chapter ${index + 1}';
-
-      results.add(Chapter.fromHtml(
-        index: index,
-        title: title,
-        htmlContent: html,
-        plainTextContent: plain,
-        imageSrcs: imageSrcs,
-      ));
-      index++;
-    }
-
-    return results;
-  }
-
   static void _flattenChapterRefs(
     List<epubx.EpubChapterRef> source,
     List<epubx.EpubChapterRef> target,
@@ -673,29 +631,6 @@ class EpubParserService {
     });
 
     return out;
-  }
-
-  /// Word-wraps text into columns with maximum width.
-  static String wrapToColumns(String text, int columnWidth) {
-    if (text.isEmpty || columnWidth <= 0) return text;
-    final words = text.split(' ');
-    final buffer = StringBuffer();
-    int currentLineLength = 0;
-
-    for (int i = 0; i < words.length; i++) {
-      final word = words[i];
-      if (currentLineLength == 0) {
-        buffer.write(word);
-        currentLineLength = word.length;
-      } else if (currentLineLength + 1 + word.length <= columnWidth) {
-        buffer.write(' $word');
-        currentLineLength += 1 + word.length;
-      } else {
-        buffer.write('\n$word');
-        currentLineLength = word.length;
-      }
-    }
-    return buffer.toString();
   }
 
   /// Grep search across a specific chapter's plain text content.

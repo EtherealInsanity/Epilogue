@@ -7,6 +7,7 @@ import '../models/book_shelf.dart';
 import '../models/bookmark.dart';
 import '../models/daily_reading_record.dart';
 import '../models/orv_state.dart';
+import '../models/reading_session.dart';
 import 'storage_service.dart';
 
 class DataSyncService {
@@ -182,17 +183,44 @@ class DataSyncService {
         await storageService.saveShelves(shelfMap.values.toList());
       }
 
-      // 6. Daily Records Union
+      // 6. Reading Sessions Union
+      if (data.containsKey('reading_sessions') && data['reading_sessions'] is List) {
+        final importedSessions = (data['reading_sessions'] as List)
+            .map((e) => ReadingSession.fromMap(e as Map<String, dynamic>))
+            .toList();
+        final currentSessions = storageService.loadRecentSessions(limit: 500);
+        final existingIds = {for (final s in currentSessions) s.id};
+        final merged = List<ReadingSession>.from(currentSessions);
+        for (final s in importedSessions) {
+          if (!existingIds.contains(s.id)) {
+            merged.add(s);
+          }
+        }
+        merged.sort((a, b) => b.startTimeMillis.compareTo(a.startTimeMillis));
+        await storageService.saveSessions(merged.take(500).toList());
+      }
+
+      // 7. Daily Records Union
       if (data.containsKey('daily_records') && data['daily_records'] is Map) {
-        final map = (data['daily_records'] as Map).map(
+        final imported = (data['daily_records'] as Map).map(
           (k, v) => MapEntry(k as String, DailyReadingRecord.fromMap(v as Map<String, dynamic>)),
         );
-        for (final entry in map.entries) {
-          await storageService.recordDailyReading(
-            seconds: entry.value.totalSeconds,
-            words: entry.value.totalWords,
-            completedChapters: entry.value.chaptersCompleted,
-          );
+        if (smartMerge) {
+          final current = storageService.loadDailyRecords();
+          for (final entry in imported.entries) {
+            if (current.containsKey(entry.key)) {
+              final cur = current[entry.key]!;
+              final maxSec = entry.value.totalSeconds > cur.totalSeconds ? entry.value.totalSeconds : cur.totalSeconds;
+              final maxWords = entry.value.totalWords > cur.totalWords ? entry.value.totalWords : cur.totalWords;
+              final maxCh = entry.value.chaptersCompleted > cur.chaptersCompleted ? entry.value.chaptersCompleted : cur.chaptersCompleted;
+              current[entry.key] = cur.copyWith(totalSeconds: maxSec, totalWords: maxWords, chaptersCompleted: maxCh);
+            } else {
+              current[entry.key] = entry.value;
+            }
+          }
+          await storageService.saveDailyRecords(current);
+        } else {
+          await storageService.saveDailyRecords(imported);
         }
       }
 
@@ -211,7 +239,6 @@ class DataSyncService {
   }) async {
     try {
       final client = HttpClient();
-      client.badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
 
       final uri = Uri.parse(serverUrl.endsWith('/') ? '$serverUrl$remoteFileName' : '$serverUrl/$remoteFileName');
       final request = await client.putUrl(uri);
@@ -242,7 +269,6 @@ class DataSyncService {
   }) async {
     try {
       final client = HttpClient();
-      client.badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
 
       final uri = Uri.parse(serverUrl.endsWith('/') ? '$serverUrl$remoteFileName' : '$serverUrl/$remoteFileName');
       final request = await client.getUrl(uri);

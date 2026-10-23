@@ -182,17 +182,34 @@ class EpubLinterService {
     out = out.replaceAll(RegExp(r'<br(?!\s*/)>', caseSensitive: false), '<br />');
     out = out.replaceAll(RegExp(r'<hr(?!\s*/)>', caseSensitive: false), '<hr />');
 
-    final tags = ['p', 'div', 'span', 'b', 'i', 'em', 'strong', 'h1', 'h2', 'h3', 'h4', 'blockquote', 'li'];
+    const voidElements = {'br', 'hr', 'img', 'meta', 'link', 'input'};
+    final tagRegex = RegExp(r'<(/)?([a-zA-Z0-9]+)(?:\s+[^>]*)?(/)?>');
+    final stack = <String>[];
 
-    for (final tag in tags) {
-      final openCount = RegExp('<$tag(?:\\s+[^>]*)?>', caseSensitive: false).allMatches(out).length;
-      final closeCount = RegExp('</$tag>', caseSensitive: false).allMatches(out).length;
-      final missing = openCount - closeCount;
-      if (missing > 0) {
-        out = out + ('</$tag>' * missing);
+    for (final match in tagRegex.allMatches(out)) {
+      final isClosing = match.group(1) == '/';
+      final tagName = match.group(2)!.toLowerCase();
+      final isSelfClosing = match.group(3) == '/';
+
+      if (voidElements.contains(tagName) || isSelfClosing) continue;
+
+      if (isClosing) {
+        if (stack.contains(tagName)) {
+          while (stack.isNotEmpty) {
+            final popped = stack.removeLast();
+            if (popped == tagName) break;
+          }
+        }
+      } else {
+        stack.add(tagName);
       }
     }
 
-    return out;
+    final closingBuffer = StringBuffer();
+    while (stack.isNotEmpty) {
+      closingBuffer.write('</${stack.removeLast()}>');
+    }
+
+    return out + closingBuffer.toString();
   }
 }

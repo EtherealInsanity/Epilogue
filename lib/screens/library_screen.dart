@@ -120,10 +120,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
     for (final book in missing) {
       try {
         final cover = await EpubParserService.extractCoverImage(book.filePath);
-        if (cover != null && File(cover).existsSync()) {
-          final idx = updatedList.indexWhere((b) => b.id == book.id);
-          if (idx >= 0) {
+        final idx = updatedList.indexWhere((b) => b.id == book.id);
+        if (idx >= 0) {
+          if (cover != null && File(cover).existsSync()) {
             updatedList[idx] = updatedList[idx].copyWith(coverImagePath: cover);
+            hasUpdates = true;
+          } else {
+            updatedList[idx] = updatedList[idx].copyWith(coverImagePath: 'none');
             hasUpdates = true;
           }
         }
