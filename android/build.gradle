@@ -17,14 +17,10 @@ subprojects {
 subprojects { subproject ->
     if (subproject.name != 'app') {
         subproject.afterEvaluate {
-            if (subproject.hasProperty("android")) {
-                subproject.android {
-                    compileSdk = 36
-                    lintOptions {
-                        checkReleaseBuilds = false
-                        abortOnError = false
-                    }
-                }
+            def androidExt = subproject.extensions.findByName('android')
+            if (androidExt != null) {
+                androidExt.compileSdk = 35
+                androidExt.compileSdkVersion 35
             }
         }
     }
