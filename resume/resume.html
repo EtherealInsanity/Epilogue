@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{YOUR FULL NAME}}</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --secondary: #475569;
+      --accent: #2563eb;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --tag-bg: #f1f5f9;
+      --tag-text: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--primary);
+      background-color: var(--bg);
+      line-height: 1.5;
+      font-size: 13.5px;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px 12px;
+    }
+
+    .no-print-bar {
+      max-width: 820px;
+      margin: 0 auto 16px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 10px 16px;
+      border-radius: 8px;
+      color: #1e40af;
+      font-size: 13px;
+    }
+
+    .print-btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.15s ease;
+    }
+
+    .print-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .resume-container {
+      max-width: 820px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 32px 36px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .header-info {
+      flex: 1;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .header .subtitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      font-size: 12.5px;
+      color: var(--secondary);
+    }
+
+    .contact-links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .contact-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* PHOTO BOX */
+    .photo-slot {
+      width: 95px;
+      height: 120px;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px;
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 10.5px;
+      flex-shrink: 0;
+    }
+
+    .photo-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    /* LEGAL BOX */
+    .legal-strip {
+      background: #f1f5f9;
+      border-radius: 4px;
+      padding: 6px 12px;
+      margin: 12px 0 16px 0;
+      font-size: 11.5px;
+      color: #475569;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 18px;
+    }
+
+    .legal-strip strong {
+      color: #1e293b;
+    }
+
+    /* SECTION */
+    section {
+      margin-top: 18px;
+    }
+
+    h2 {
+      font-size: 13.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    p.summary-text {
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    /* ITEM BLOCKS */
+    .item {
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2px;
+    }
+
+    .item-title {
+      font-weight: 700;
+      font-size: 13.5px;
+      color: #0f172a;
+    }
+
+    .item-meta {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .item-sub {
+      font-size: 12.5px;
+      color: var(--secondary);
+      font-style: italic;
+      margin-bottom: 4px;
+    }
+
+    .tech-stack {
+      display: inline-block;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 11.5px;
+      margin-left: 6px;
+    }
+
+    ul.bullets {
+      list-style-type: disc;
+      padding-left: 18px;
+      margin-top: 4px;
+    }
+
+    ul.bullets li {
+      margin-bottom: 3.5px;
+      color: #334155;
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    ul.bullets li strong {
+      color: #0f172a;
+    }
+
+    /* SKILLS GRID */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 6px 12px;
+      font-size: 12.5px;
+    }
+
+    .skill-cat {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .skill-list {
+      color: #334155;
+    }
+
+    /* PRINT STYLING */
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+        font-size: 12px;
+        color: #000000;
+      }
+
+      .no-print-bar {
+        display: none !important;
+      }
+
+      .resume-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+
+      @page {
+        size: A4;
+        margin: 12mm 14mm;
+      }
+
+      .photo-slot {
+        border-color: #94a3b8;
+      }
+
+      a {
+        color: #000000;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Controls Bar (Hidden during Print / PDF generation) -->
+  <div class="no-print-bar">
+    <span>💡 <strong>Quick Tip:</strong> Replace <code>{{PLACEHOLDERS}}</code> with your personal details, then click Print.</span>
+    <button class="print-btn" onclick="window.print()">
+      🖨️ Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="resume-container">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-info">
+        <h1>{{YOUR FULL NAME}}</h1>
+        <div class="subtitle">Computer Science Undergraduate • Aspiring Software Engineer</div>
+        <div class="contact-links">
+          <span>📍 {{CITY, STATE / COUNTRY}}</span>
+          <span>📞 {{PHONE NUMBER}}</span>
+          <span>✉️ <a href="mailto:{{EMAIL_ADDRESS}}">{{EMAIL_ADDRESS}}</a></span>
+          <span>🌐 <a href="https://github.com/{{YOUR_GITHUB_HANDLE}}">github.com/{{YOUR_GITHUB_HANDLE}}</a></span>
+          <span>🔗 <a href="https://linkedin.com/in/{{YOUR_LINKEDIN_PROFILE}}">linkedin.com/in/{{YOUR_LINKEDIN_PROFILE}}</a></span>
+          <span>💻 <a href="https://{{YOUR_PORTFOLIO_URL}}">{{YOUR_PORTFOLIO_URL}}</a></span>
+        </div>
+      </div>
+
+      <!-- PHOTO PLACEHOLDER (Remove or embed image: <img src="photo.jpg" alt="Photo" />) -->
+      <div class="photo-slot">
+        <!-- Replace this comment with <img src="your-photo.jpg" alt="Profile" /> -->
+        <span>📷<br/><strong>PHOTO</strong><br/>35mm × 45mm<br/>(Optional)</span>
+      </div>
+    </header>
+
+    <!-- LEGAL DETAILS STRIP -->
+    <div class="legal-strip">
+      <span><strong>Legal Name:</strong> {{LEGAL FULL NAME AS PER PASSPORT / ID}}</span>
+      <span><strong>Nationality:</strong> {{NATIONALITY / WORK AUTHORIZATION STATUS}}</span>
+      <span><strong>Date of Birth:</strong> {{DD / MONTH / YYYY}}</span>
+    </div>
+
+    <!-- SUMMARY -->
+    <section>
+      <h2>Professional Summary</h2>
+      <p class="summary-text">
+        Motivated Computer Science student with practical experience building high-performance cross-platform software and modern web applications. Proficient in <strong>C++</strong>, <strong>Java</strong>, and <strong>Python</strong>, with hands-on expertise developing responsive frontends in <strong>React</strong> and scalable client architectures in <strong>Flutter/Dart</strong>. Strong foundation in data structures, algorithms, object-oriented design, and automated testing, with a track record of shipping open-source software and maintaining clean, tested codebases.
+      </p>
+    </section>
+
+    <!-- EDUCATION -->
+    <section>
+      <h2>Education</h2>
+      <div class="item">
+        <div class="item-header">
+          <div class="item-title">{{YOUR UNIVERSITY / COLLEGE NAME}}</div>
+          <div class="item-meta">{{City, Country}} • Expected {{Month, Year}}</div>
+        </div>
+        <div class="item-sub">Bachelor of Science in Computer Science | <strong>GPA:</strong> {{X.XX / 4.00}}</div>
+        <ul class="bullets">
+          <li><strong>Relevant Coursework:</strong> Data Structures & Algorithms, Object-Oriented Programming (Java/C++), Operating Systems, Database Management Systems, Computer Architecture, Web Development, Software Engineering.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section>
+      <h2>Technical Skills</h2>
+      <div class="skills-grid">
+        <div class="skill-cat">Languages</div>
+        <div class="skill-list">C++, Java, Python, Dart, JavaScript (ES6+), TypeScript, C, SQL, HTML5, CSS3</div>
+
+        <div class="skill-cat">Web & Frameworks</div>
+        <div class="skill-list">React.js, Flutter, Node.js, Express, Tailwind CSS, REST APIs</div>
+
+        <div class="skill-cat">Tools & Platforms</div>
+        <div class="skill-list">Git, GitHub, Linux / Unix CLI, Android Studio, VS Code, CMake, Postman, CI/CD (GitHub Actions)</div>
+
+        <div class="skill-cat">Core Concepts</div>
+        <div class="skill-list">OOP, Data Structures, Algorithms, GLSL Shaders, Unit & Integration Testing, State Management</div>
+      </div>
+    </section>
+
+    <!-- FEATURED PROJECTS -->
+    <section>
+      <h2>Featured Projects</h2>
+
+      <!-- PROJECT 1: Epilogue -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-title">
+            Epilogue — Cross-Platform Reader & Studio
+            <span class="tech-stack">[Flutter, Dart, GLSL Shaders, Linux/Android/Windows]</span>
+          </div>
+          <div class="item-meta"><a href="https://github.com/EtherealInsanity/Epilogue">Open Source Repo</a></div>
+        </div>
+        <ul class="bullets">
+          <li>Architected and published an open-source, distraction-free reading companion and EPUB authoring engine supporting 500+ chapter epics across Android, Linux, and Windows.</li>
+          <li>Engineered a paper-pure typography engine integrated with custom GLSL fragment shaders for GPU-accelerated visual effects and progression telemetry.</li>
+          <li>Maintained rigorous software reliability with <strong>31/31 passing unit tests</strong>, automated GitHub Actions CI/CD workflows, and 0 static analyzer issues.</li>
+          <li>Implemented modular chapter parsing and local caching to deliver sub-second chapter navigation and seamless offline reading persistence.</li>
+        </ul>
+      </div>
+
+      <!-- PROJECT 2: React Web App -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-title">
+            Full-Stack Web Application
+            <span class="tech-stack">[React, Node.js, Express, REST APIs, Tailwind CSS]</span>
+          </div>
+          <div class="item-meta">{{Month Year}}</div>
+        </div>
+        <ul class="bullets">
+          <li>Developed a responsive web application utilizing React functional components, custom hooks, and client-side routing for seamless single-page navigation.</li>
+          <li>Constructed modular REST API endpoints in Node.js/Express featuring schema validation, robust error handling, and structured response formatting.</li>
+          <li>Optimized frontend bundle size and rendering cycles to achieve fast first-contentful-paint (FCP) and fluid responsiveness across all screen sizes.</li>
+        </ul>
+      </div>
+
+      <!-- PROJECT 3: Java/C++ Systems Application -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-title">
+            Systems & Algorithms Utility
+            <span class="tech-stack">[C++, Java, OOP, Data Structures]</span>
+          </div>
+          <div class="item-meta">{{Month Year}}</div>
+        </div>
+        <ul class="bullets">
+          <li>Engineered a high-performance command-line utility implementing custom graph and tree traversal algorithms with optimized time and space complexity.</li>
+          <li>Applied strict OOP design patterns (Factory, Observer) to structure modular abstractions, and verified memory safety with zero leaks using Valgrind.</li>
+          <li>Authored automated test suites in Java/JUnit covering edge cases, verifying sorting, traversal, and boundary constraints.</li>
+        </ul>
+      </div>
+
+      <!-- PROJECT 4: Python Automation -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-title">
+            Automated Data Pipeline & Web Scraper
+            <span class="tech-stack">[Python, BeautifulSoup, Pandas, Automation]</span>
+          </div>
+          <div class="item-meta">{{Month Year}}</div>
+        </div>
+        <ul class="bullets">
+          <li>Built an automated Python scraping engine to ingest, clean, and structure unstructured web content into normalized JSON and CSV data stores.</li>
+          <li>Implemented resilient network logic with exponential backoff and rate-limiting, reducing manual data collection time by over 80%.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE & LEADERSHIP -->
+    <section>
+      <h2>Experience & Leadership</h2>
+      <div class="item">
+        <div class="item-header">
+          <div class="item-title">Undergraduate Teaching Assistant / Peer Tutor — Computer Science</div>
+          <div class="item-meta">{{University Name}} • {{Month Year}} – Present</div>
+        </div>
+        <ul class="bullets">
+          <li>Mentored 40+ undergraduate students in foundational C++, Java, and data structure concepts during weekly laboratory sessions.</li>
+          <li>Assisted students in isolating runtime bugs, understanding memory models, and adopting disciplined testing habits.</li>
+          <li>Evaluated programming assignments, offering detailed constructive feedback on algorithmic efficiency and clean coding standards.</li>
+        </ul>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-title">Developer Club Member & Open-Source Contributor</div>
+          <div class="item-meta">{{Club Name}} • {{Month Year}} – Present</div>
+        </div>
+        <ul class="bullets">
+          <li>Collaborated with student developers in weekly agile sprints to build collaborative tools and hackathon prototypes.</li>
+          <li>Contributed bug fixes and documentation improvements to community repositories on GitHub.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS & HONORS -->
+    <section>
+      <h2>Certifications & Honors</h2>
+      <ul class="bullets">
+        <li><strong>Dean’s Honor List / Academic Merit Scholarship:</strong> Recognized for academic achievement in Computer Science ({{Semester / Year}}).</li>
+        <li><strong>Hackathon Finalist / Participant:</strong> Built a functional full-stack prototype within 36 hours at {{Hackathon Name}} ({{Year}}).</li>
+        <li><strong>Technical Certification:</strong> {{e.g. HackerRank Problem Solving (Intermediate) / Meta Frontend Developer Certificate}} ({{Year}}).</li>
+      </ul>
+    </section>
+
+  </div>
+
+</body>
+</html>

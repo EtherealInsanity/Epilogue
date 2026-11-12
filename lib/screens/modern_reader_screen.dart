@@ -37,7 +37,7 @@ class ModernReaderScreen extends StatefulWidget {
   State<ModernReaderScreen> createState() => _ModernReaderScreenState();
 }
 
-class _ModernReaderScreenState extends State<ModernReaderScreen> {
+class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBindingObserver {
   late ReaderConfig _config;
   late int _currentChapterIndex;
   bool _hudVisible = false;
@@ -60,6 +60,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   List<String> _pageChunks = [];
   int _currentPageIndex = 0;
   Size? _lastMeasuredSize;
+  bool _initialPositionRestored = false;
 
   // Book images cache map: normalized name/src -> absolute file path on disk
   final Map<String, String> _bookImageFiles = {};
@@ -69,9 +70,16 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _config = widget.config;
     _currentChapterIndex = widget.initialChapterIndex.clamp(0, widget.chapters.length - 1);
     _fourthWallActive = widget.config.fourthWallActive;
+    _lastScrollOffset = (widget.book.lastReadChapterIndex == widget.initialChapterIndex)
+        ? widget.book.lastReadScrollOffset
+        : 0.0;
+    _currentPageIndex = (widget.book.lastReadChapterIndex == widget.initialChapterIndex)
+        ? widget.book.lastReadPageIndex
+        : 0;
     _pageController = PageController();
     _scrollController.addListener(_onContinuousScroll);
 
@@ -86,6 +94,16 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
         }
       }
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.hidden) {
+      _updateProgress();
+    }
   }
 
   void _triggerConstellationReaction() {
@@ -105,14 +123,17 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   }
 
   double _lastScrollOffset = 0.0;
+  double _lastRecordedOffset = 0.0;
   void _onContinuousScroll() {
     _recordInteraction();
     if (!_scrollController.hasClients) return;
     final currentOffset = _scrollController.offset;
-    final delta = (currentOffset - _lastScrollOffset).abs();
+    _lastScrollOffset = currentOffset;
+    final delta = (currentOffset - _lastRecordedOffset).abs();
     if (delta > 200) {
-      _lastScrollOffset = currentOffset;
+      _lastRecordedOffset = currentOffset;
       _activeWords += 50;
+      _updateProgress();
     }
   }
 
@@ -131,9 +152,11 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _activityTicker?.cancel();
     _constellationDismissTimer?.cancel();
     _commitSession();
+    _updateProgress();
     _scrollController.removeListener(_onContinuousScroll);
     _pageController.dispose();
     _scrollController.dispose();
@@ -185,6 +208,27 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
         _splitTextIntoPages(viewportSize);
       }
     }
+    _restoreInitialPositionIfNeeded();
+  }
+
+  void _restoreInitialPositionIfNeeded() {
+    if (_initialPositionRestored || _currentChapterIndex != widget.initialChapterIndex) return;
+    _initialPositionRestored = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_config.pageAnimation == PageAnimationType.continuousScroll) {
+        if (_scrollController.hasClients && widget.book.lastReadScrollOffset > 0) {
+          final max = _scrollController.position.maxScrollExtent;
+          _scrollController.jumpTo(widget.book.lastReadScrollOffset.clamp(0.0, max > 0 ? max : widget.book.lastReadScrollOffset));
+        }
+      } else {
+        if (_pageController.hasClients && widget.book.lastReadPageIndex > 0 && _pageChunks.isNotEmpty) {
+          final target = widget.book.lastReadPageIndex.clamp(0, _pageChunks.length - 1);
+          _pageController.jumpToPage(target);
+        }
+      }
+    });
   }
 
   void _splitHtmlIntoPages(Size size) {
@@ -337,6 +381,10 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
       }
     }
 
+    _initialPositionRestored = true;
+    _currentPageIndex = 0;
+    _lastScrollOffset = 0.0;
+    _lastRecordedOffset = 0.0;
     _updateProgress();
     if (_config.pageAnimation != PageAnimationType.continuousScroll) {
       if (_pageController.hasClients) _pageController.jumpToPage(0);
@@ -348,10 +396,13 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   void _updateProgress() {
     final total = widget.chapters.length;
     final progress = total > 0 ? (((_currentChapterIndex + 1) / total) * 100).clamp(0.0, 100.0) : 0.0;
+    final double currentOffset = _scrollController.hasClients ? _scrollController.offset : _lastScrollOffset;
     widget.storageService.updateBookProgress(
       bookId: widget.book.id,
       chapterIndex: _currentChapterIndex,
       progressPercent: progress,
+      scrollOffset: currentOffset,
+      pageIndex: _currentPageIndex,
     );
   }
 
@@ -896,6 +947,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
         _recordInteraction();
         _activeWords += 150;
         setState(() => _currentPageIndex = idx);
+        _updateProgress();
       },
       itemBuilder: (context, pageIdx) {
         final chunk = _pageChunks[pageIdx];
@@ -920,6 +972,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   }
 
   Widget _buildContinuousScrollView(Color fg) {
+    _restoreInitialPositionIfNeeded();
     final margin = _config.horizontalMargin > 0 ? _config.horizontalMargin : 20.0;
 
     return ListView(

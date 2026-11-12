@@ -9,6 +9,8 @@ class BookInfo {
   final int totalChapters;
   final int lastReadChapterIndex;
   final double lastReadProgressPercent; // 0.0 to 100.0
+  final double lastReadScrollOffset;
+  final int lastReadPageIndex;
   final int? lastReadTimestamp;
   final int? addedTimestamp;
   final int totalSecondsSpentReading;
@@ -24,6 +26,8 @@ class BookInfo {
     this.totalChapters = 0,
     this.lastReadChapterIndex = 0,
     this.lastReadProgressPercent = 0.0,
+    this.lastReadScrollOffset = 0.0,
+    this.lastReadPageIndex = 0,
     this.lastReadTimestamp,
     this.addedTimestamp,
     this.totalSecondsSpentReading = 0,
@@ -40,6 +44,8 @@ class BookInfo {
     int? totalChapters,
     int? lastReadChapterIndex,
     double? lastReadProgressPercent,
+    double? lastReadScrollOffset,
+    int? lastReadPageIndex,
     int? lastReadTimestamp,
     int? addedTimestamp,
     int? totalSecondsSpentReading,
@@ -56,6 +62,8 @@ class BookInfo {
       lastReadChapterIndex: lastReadChapterIndex ?? this.lastReadChapterIndex,
       lastReadProgressPercent:
           lastReadProgressPercent ?? this.lastReadProgressPercent,
+      lastReadScrollOffset: lastReadScrollOffset ?? this.lastReadScrollOffset,
+      lastReadPageIndex: lastReadPageIndex ?? this.lastReadPageIndex,
       lastReadTimestamp: lastReadTimestamp ?? this.lastReadTimestamp,
       addedTimestamp: addedTimestamp ?? this.addedTimestamp,
       totalSecondsSpentReading:
@@ -75,6 +83,8 @@ class BookInfo {
       'totalChapters': totalChapters,
       'lastReadChapterIndex': lastReadChapterIndex,
       'lastReadProgressPercent': lastReadProgressPercent,
+      'lastReadScrollOffset': lastReadScrollOffset,
+      'lastReadPageIndex': lastReadPageIndex,
       'lastReadTimestamp': lastReadTimestamp,
       'addedTimestamp': addedTimestamp,
       'totalSecondsSpentReading': totalSecondsSpentReading,
@@ -95,6 +105,10 @@ class BookInfo {
           (map['lastReadChapterIndex'] as num?)?.toInt() ?? 0,
       lastReadProgressPercent:
           (map['lastReadProgressPercent'] as num?)?.toDouble() ?? 0.0,
+      lastReadScrollOffset:
+          (map['lastReadScrollOffset'] as num?)?.toDouble() ?? 0.0,
+      lastReadPageIndex:
+          (map['lastReadPageIndex'] as num?)?.toInt() ?? 0,
       lastReadTimestamp: (map['lastReadTimestamp'] as num?)?.toInt(),
       addedTimestamp: (map['addedTimestamp'] as num?)?.toInt(),
       totalSecondsSpentReading:

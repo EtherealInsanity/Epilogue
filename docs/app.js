@@ -227,7 +227,7 @@ async function initDynamicReleases() {
             if (sizeWindows) sizeWindows.innerText = `~${sizeMb} MB • Portable Zip`;
             if (heroDownloadBtn && isWindows) heroDownloadBtn.href = url;
           }
-        } else if (name.includes('linux') && (name.endsWith('.tar.gz') || name.endsWith('.zip'))) {
+        } else if (name.includes('linux') && name.endsWith('.tar.gz')) {
           if (linuxLink) linuxLink.href = url;
           if (sizeLinux) sizeLinux.innerText = `~${sizeMb} MB • Portable Archive`;
           if (heroDownloadBtn && isLinux) heroDownloadBtn.href = url;
