@@ -126,72 +126,9 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
-  build-android:
-    name: Build Android APK
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - name: Setup Android Keystore
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: |
-          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
-            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
-            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD" > android/key.properties
-            echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/key.properties
-            echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
-            echo "storeFile=upload-keystore.jks" >> android/key.properties
-          fi
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --release --android-skip-build-dependency-validation
-
-      - name: Determine Version
-        id: version
-        shell: bash
-        run: |
-          TAG="${{ github.event.inputs.tag_name }}"
-          if [ -z "$TAG" ]; then
-            TAG="${{ github.ref_name }}"
-          fi
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-
-      - name: Package APK
-        run: |
-          mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk \
-             "dist/Epilogue-${{ steps.version.outputs.tag }}-android.apk"
-
-      - name: Upload Android Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-release-binary
-          path: dist/*
-          if-no-files-found: error
-
   publish-release:
     name: Publish GitHub Release
-    needs: [build-linux, build-windows, build-android]
+    needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -217,12 +154,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: windows-release-binaries
-          path: release-assets
-
-      - name: Download Android Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: android-release-binary
           path: release-assets
 
       - name: List Gathered Release Assets
