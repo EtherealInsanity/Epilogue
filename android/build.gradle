@@ -19,8 +19,8 @@ subprojects { subproject ->
         subproject.afterEvaluate {
             def androidExt = subproject.extensions.findByName('android')
             if (androidExt != null) {
-                androidExt.compileSdk = 35
-                androidExt.compileSdkVersion 35
+                androidExt.compileSdk = 36
+                androidExt.compileSdkVersion 36
             }
         }
     }
