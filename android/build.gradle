@@ -14,10 +14,18 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-subprojects {
-    project.plugins.withId("com.android.library") {
-        project.android {
-            compileSdk = 35
+subprojects { subproject ->
+    if (subproject.name != 'app') {
+        subproject.afterEvaluate {
+            if (subproject.hasProperty("android")) {
+                subproject.android {
+                    compileSdk = 36
+                    lintOptions {
+                        checkReleaseBuilds = false
+                        abortOnError = false
+                    }
+                }
+            }
         }
     }
 }

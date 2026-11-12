@@ -1,7 +1,7 @@
 name: epilogue
 description: "Epilogue - Immersive EPUB & Web Novel Reader for Android, Linux & Windows with Star Stream Progression"
 publish_to: 'none'
-version: 2.0.4+204
+version: 2.0.5+2205
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
