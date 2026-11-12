@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/book_info.dart';
 import '../services/file_explorer_service.dart';
 import '../services/storage_permission_service.dart';
@@ -40,17 +41,15 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
     if (mounted) {
       setState(() => _hasStoragePermission = granted);
     }
-    // Prefer starting in Documents or Manga if available
-    final mangaDir = Directory('${FileExplorerService.rootStoragePath}/Documents/Manga');
-    if (await mangaDir.exists()) {
-      _navigateTo(mangaDir.path);
+    // Prefer starting in standard Downloads or Documents folder if available
+    final downloadDir = Directory('${FileExplorerService.rootStoragePath}/Download');
+    final docDir = Directory('${FileExplorerService.rootStoragePath}/Documents');
+    if (await downloadDir.exists()) {
+      _navigateTo(downloadDir.path);
+    } else if (await docDir.exists()) {
+      _navigateTo(docDir.path);
     } else {
-      final docDir = Directory('${FileExplorerService.rootStoragePath}/Documents');
-      if (await docDir.exists()) {
-        _navigateTo(docDir.path);
-      } else {
-        _navigateTo(FileExplorerService.rootStoragePath);
-      }
+      _navigateTo(FileExplorerService.rootStoragePath);
     }
   }
 
@@ -126,6 +125,58 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
     }
   }
 
+  Future<void> _pickWithSystemPicker() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['epub', 'epub3'],
+        allowMultiple: true,
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      setState(() => _isLoading = true);
+      BookInfo? lastImported;
+      int count = 0;
+
+      for (final file in result.files) {
+        if (file.path != null && file.path!.isNotEmpty) {
+          final book = await _explorerService.importSingleEpub(file.path!);
+          lastImported = book;
+          count++;
+        }
+      }
+
+      setState(() => _isLoading = false);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Imported $count EPUB novel(s) to Library.'),
+            backgroundColor: EpilogueTheme.accent,
+          ),
+        );
+
+        if (count == 1 && lastImported != null && widget.onBookSelected != null) {
+          widget.onBookSelected!(lastImported);
+          Navigator.pop(context);
+        } else if (count > 0) {
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error selecting file: $e'),
+            backgroundColor: EpilogueTheme.dangerAccent,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final quickDirs = FileExplorerService.getQuickDirectories();
@@ -135,6 +186,11 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
       appBar: AppBar(
         title: const Text('Browse Files'),
         actions: [
+          IconButton(
+            tooltip: 'System File Picker',
+            icon: Icon(Icons.file_open_outlined, color: EpilogueTheme.accent),
+            onPressed: _pickWithSystemPicker,
+          ),
           IconButton(
             tooltip: 'Import all EPUBs in this directory',
             icon: Icon(Icons.download_for_offline, color: EpilogueTheme.accent),
@@ -160,19 +216,30 @@ class _InAppFileExplorerScreenState extends State<InAppFileExplorerScreen> {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Storage permission required to read EPUBs on Android 11+.',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF991B1B), fontWeight: FontWeight.w500),
+                      'Storage permission required for folder scan, or pick individual EPUBs directly.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF991B1B), fontWeight: FontWeight.w500),
                     ),
                   ),
                   const SizedBox(width: 8),
+                  OutlinedButton(
+                    onPressed: _pickWithSystemPicker,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF991B1B),
+                      side: const BorderSide(color: Color(0xFFFCA5A5)),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                    child: const Text('PICK FILE'),
+                  ),
+                  const SizedBox(width: 6),
                   ElevatedButton(
                     onPressed: _requestPermission,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: EpilogueTheme.dangerAccent,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                     child: const Text('ENABLE'),
                   ),

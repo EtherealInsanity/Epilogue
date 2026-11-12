@@ -65,12 +65,37 @@ void main() {
         bookId: '/path/lotm.epub',
         chapterIndex: 451,
         progressPercent: 64.2,
+        scrollOffset: 1250.5,
+        pageIndex: 7,
       );
 
       final lastRead = storage.getLastReadBook();
       expect(lastRead, isNotNull);
       expect(lastRead!.lastReadChapterIndex, equals(451));
       expect(lastRead.lastReadProgressPercent, equals(64.2));
+      expect(lastRead.lastReadScrollOffset, equals(1250.5));
+      expect(lastRead.lastReadPageIndex, equals(7));
+    });
+
+    test('BookInfo serializes and deserializes reading position', () {
+      const book = BookInfo(
+        id: 'book_orv',
+        title: 'Omniscient Reader',
+        author: 'Sing Shong',
+        filePath: '/books/orv.epub',
+        lastReadChapterIndex: 182,
+        lastReadProgressPercent: 33.5,
+        lastReadScrollOffset: 840.25,
+        lastReadPageIndex: 14,
+      );
+
+      final json = book.toJson();
+      final loaded = BookInfo.fromJson(json);
+
+      expect(loaded.lastReadChapterIndex, equals(182));
+      expect(loaded.lastReadProgressPercent, equals(33.5));
+      expect(loaded.lastReadScrollOffset, equals(840.25));
+      expect(loaded.lastReadPageIndex, equals(14));
     });
 
     test('StorageService adds and deletes bookmarks', () async {
@@ -337,17 +362,6 @@ void main() {
       // Restore streak
       await storage.restoreBrokenStreak();
       expect(storage.getCurrentStreakDays(), greaterThanOrEqualTo(15));
-    });
-
-    test('ReaderConfig enableEpubStudio defaults to false and serializes accurately', () {
-      const config = ReaderConfig();
-      expect(config.enableEpubStudio, isFalse);
-
-      final modified = config.copyWith(enableEpubStudio: true);
-      expect(modified.enableEpubStudio, isTrue);
-
-      final reloaded = ReaderConfig.fromJson(modified.toJson());
-      expect(reloaded.enableEpubStudio, isTrue);
     });
 
     test('ORV Service contains 150+ scaled scenarios with prerequisite locks', () async {

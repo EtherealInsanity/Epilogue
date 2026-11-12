@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class ModernReaderScreen extends StatefulWidget {
   State<ModernReaderScreen> createState() => _ModernReaderScreenState();
 }
 
-class _ModernReaderScreenState extends State<ModernReaderScreen> {
+class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBindingObserver {
   late ReaderConfig _config;
   late int _currentChapterIndex;
   bool _hudVisible = false;
@@ -60,18 +61,27 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   List<String> _pageChunks = [];
   int _currentPageIndex = 0;
   Size? _lastMeasuredSize;
+  bool _initialPositionRestored = false;
 
   // Book images cache map: normalized name/src -> absolute file path on disk
   final Map<String, String> _bookImageFiles = {};
   String _bookCss = '';
   String _selectedTextContent = '';
+  SelectableRegionState? _selectableRegionState; // saved from contextMenuBuilder
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _config = widget.config;
     _currentChapterIndex = widget.initialChapterIndex.clamp(0, widget.chapters.length - 1);
     _fourthWallActive = widget.config.fourthWallActive;
+    _lastScrollOffset = (widget.book.lastReadChapterIndex == widget.initialChapterIndex)
+        ? widget.book.lastReadScrollOffset
+        : 0.0;
+    _currentPageIndex = (widget.book.lastReadChapterIndex == widget.initialChapterIndex)
+        ? widget.book.lastReadPageIndex
+        : 0;
     _pageController = PageController();
     _scrollController.addListener(_onContinuousScroll);
 
@@ -86,6 +96,16 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
         }
       }
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.hidden) {
+      _updateProgress();
+    }
   }
 
   void _triggerConstellationReaction() {
@@ -105,25 +125,30 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   }
 
   double _lastScrollOffset = 0.0;
+  double _lastRecordedOffset = 0.0;
   void _onContinuousScroll() {
     _recordInteraction();
     if (!_scrollController.hasClients) return;
     final currentOffset = _scrollController.offset;
-    final delta = (currentOffset - _lastScrollOffset).abs();
+    _lastScrollOffset = currentOffset;
+    final delta = (currentOffset - _lastRecordedOffset).abs();
     if (delta > 200) {
-      _lastScrollOffset = currentOffset;
+      _lastRecordedOffset = currentOffset;
       _activeWords += 50;
+      _updateProgress();
     }
   }
 
   Future<void> _loadBookImages() async {
     try {
-      final css = await EpubParserService.extractAllBookCss(widget.book.filePath);
-      final images = await EpubParserService.extractAllBookImages(widget.book.filePath);
+      final results = await Future.wait([
+        EpubParserService.extractAllBookCss(widget.book.filePath),
+        EpubParserService.extractAllBookImages(widget.book.filePath),
+      ]);
       if (mounted) {
         setState(() {
-          _bookCss = css;
-          _bookImageFiles.addAll(images);
+          _bookCss = results[0] as String;
+          _bookImageFiles.addAll(results[1] as Map<String, String>);
         });
       }
     } catch (_) {}
@@ -131,9 +156,11 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _activityTicker?.cancel();
     _constellationDismissTimer?.cancel();
     _commitSession();
+    _updateProgress();
     _scrollController.removeListener(_onContinuousScroll);
     _pageController.dispose();
     _scrollController.dispose();
@@ -185,6 +212,27 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
         _splitTextIntoPages(viewportSize);
       }
     }
+    _restoreInitialPositionIfNeeded();
+  }
+
+  void _restoreInitialPositionIfNeeded() {
+    if (_initialPositionRestored || _currentChapterIndex != widget.initialChapterIndex) return;
+    _initialPositionRestored = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_config.pageAnimation == PageAnimationType.continuousScroll) {
+        if (_scrollController.hasClients && widget.book.lastReadScrollOffset > 0) {
+          final max = _scrollController.position.maxScrollExtent;
+          _scrollController.jumpTo(widget.book.lastReadScrollOffset.clamp(0.0, max > 0 ? max : widget.book.lastReadScrollOffset));
+        }
+      } else {
+        if (_pageController.hasClients && widget.book.lastReadPageIndex > 0 && _pageChunks.isNotEmpty) {
+          final target = widget.book.lastReadPageIndex.clamp(0, _pageChunks.length - 1);
+          _pageController.jumpToPage(target);
+        }
+      }
+    });
   }
 
   void _splitHtmlIntoPages(Size size) {
@@ -204,7 +252,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
     final int dynamicBudget = (linesPerPage * charsPerLine).clamp(1200, 3200);
 
     final blockRegex = RegExp(
-      r'<(?:p|div|h[1-6]|blockquote|hr|img|table|ul|ol)[^>]*>[\s\S]*?<\/(?:p|div|h[1-6]|blockquote|hr|table|ul|ol)>|<(?:hr|img)[^>]*\/?>',
+      r'<(?:p|div|h[1-6]|blockquote|hr|img|image|svg|figure|table|ul|ol)[^>]*>[\s\S]*?<\/(?:p|div|h[1-6]|blockquote|hr|svg|figure|table|ul|ol)>|<(?:hr|img|image)[^>]*\/?>',
       caseSensitive: false,
     );
 
@@ -242,7 +290,11 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   void _splitTextIntoPages(Size size) {
     final text = _currentChapter.plainTextContent;
     if (text.isEmpty) {
-      _pageChunks = ['[This chapter contains no text content]'];
+      if (_currentChapter.imageSrcs.isNotEmpty) {
+        _pageChunks = [_currentChapter.imageSrcs.map((src) => '[EPILOGUE_IMG:$src]').join('\n')];
+      } else {
+        _pageChunks = ['[This chapter contains no text content]'];
+      }
       return;
     }
 
@@ -337,6 +389,10 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
       }
     }
 
+    _initialPositionRestored = true;
+    _currentPageIndex = 0;
+    _lastScrollOffset = 0.0;
+    _lastRecordedOffset = 0.0;
     _updateProgress();
     if (_config.pageAnimation != PageAnimationType.continuousScroll) {
       if (_pageController.hasClients) _pageController.jumpToPage(0);
@@ -348,10 +404,13 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   void _updateProgress() {
     final total = widget.chapters.length;
     final progress = total > 0 ? (((_currentChapterIndex + 1) / total) * 100).clamp(0.0, 100.0) : 0.0;
+    final double currentOffset = _scrollController.hasClients ? _scrollController.offset : _lastScrollOffset;
     widget.storageService.updateBookProgress(
       bookId: widget.book.id,
       chapterIndex: _currentChapterIndex,
       progressPercent: progress,
+      scrollOffset: currentOffset,
+      pageIndex: _currentPageIndex,
     );
   }
 
@@ -534,9 +593,18 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                 // Reading Canvas with SelectionArea
                 SelectionArea(
                   onSelectionChanged: (content) {
-                    _selectedTextContent = content?.plainText ?? '';
+                    final text = content?.plainText ?? '';
+                    if (text != _selectedTextContent) {
+                      setState(() => _selectedTextContent = text);
+                    }
                   },
                   contextMenuBuilder: (context, selectableRegionState) {
+                    _selectableRegionState = selectableRegionState;
+                    // Hide toolbar when selection is cleared
+                    if (_selectedTextContent.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+
                     final buttonItems = selectableRegionState.contextMenuButtonItems;
                     final selectedText = _selectedTextContent;
 
@@ -571,6 +639,12 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
                   child: GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTapUp: (details) {
+                      // Any tap clears text selection and hides toolbar
+                      if (_selectedTextContent.isNotEmpty) {
+                        _selectableRegionState?.clearSelection();
+                        _selectableRegionState?.hideToolbar();
+                        setState(() => _selectedTextContent = '');
+                      }
                       final width = constraints.maxWidth;
                       final dx = details.globalPosition.dx;
                       if (dx < width * 0.25) {
@@ -896,6 +970,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
         _recordInteraction();
         _activeWords += 150;
         setState(() => _currentPageIndex = idx);
+        _updateProgress();
       },
       itemBuilder: (context, pageIdx) {
         final chunk = _pageChunks[pageIdx];
@@ -920,6 +995,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   }
 
   Widget _buildContinuousScrollView(Color fg) {
+    _restoreInitialPositionIfNeeded();
     final margin = _config.horizontalMargin > 0 ? _config.horizontalMargin : 20.0;
 
     return ListView(
@@ -992,7 +1068,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
           ),
           const SizedBox(height: 16),
         ],
-        if (chapterImages.isNotEmpty) ...[
+        if (_currentPageIndex == 0 && chapterImages.isNotEmpty) ...[
           _buildImagesCarousel(chapterImages),
           const SizedBox(height: 20),
         ],
@@ -1002,6 +1078,62 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
     );
   }
 
+  Widget _buildRenderedImage(String src) {
+    if (src.isEmpty) return const SizedBox.shrink();
+
+    if (src.startsWith('data:image/')) {
+      try {
+        final commaIdx = src.indexOf(',');
+        if (commaIdx != -1) {
+          final base64Data = src.substring(commaIdx + 1);
+          final bytes = base64Decode(base64Data);
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.memory(
+                  bytes,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
+          );
+        }
+      } catch (_) {
+        return const SizedBox.shrink();
+      }
+    }
+
+    final localPath = EpubParserService.resolveImagePath(
+      imageIndex: _bookImageFiles,
+      src: src,
+      chapterHref: _currentChapter.contentFileName,
+    );
+
+    if (localPath != null && File(localPath).existsSync()) {
+      return GestureDetector(
+        onTap: () => _showFullscreenImage(localPath),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                File(localPath),
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
   Widget _buildHtmlWidget(String html, Color fg) {
     final styledHtml = (_bookCss.isNotEmpty) ? '<style>$_bookCss</style>$html' : html;
 
@@ -1009,37 +1141,27 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
       data: styledHtml,
       extensions: [
         TagExtension(
-          tagsToExtend: {'img'},
+          tagsToExtend: {'img', 'image', 'svg'},
           builder: (extensionContext) {
-            final src = extensionContext.attributes['src'];
-            if (src == null) return const SizedBox.shrink();
+            String? src = extensionContext.attributes['src'] ??
+                extensionContext.attributes['xlink:href'] ??
+                extensionContext.attributes['href'];
 
-            String? localPath;
-            if (_bookImageFiles.containsKey(src)) {
-              localPath = _bookImageFiles[src];
-            } else {
-              final simple = src.replaceAll('\\', '/').split('/').last;
-              localPath = _bookImageFiles[simple] ?? _bookImageFiles['../images/$simple'] ?? _bookImageFiles['images/$simple'];
+            if (src == null && extensionContext.elementName.toLowerCase() == 'svg') {
+              final element = extensionContext.element;
+              if (element != null) {
+                final imageChild = element.getElementsByTagName('image');
+                if (imageChild.isNotEmpty) {
+                  final imgEl = imageChild.first;
+                  src = imgEl.attributes['xlink:href'] ??
+                      imgEl.attributes['href'] ??
+                      imgEl.attributes['src'];
+                }
+              }
             }
 
-            if (localPath != null && File(localPath).existsSync()) {
-              return GestureDetector(
-                onTap: () => _showFullscreenImage(localPath!),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(localPath),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
+            if (src == null || src.isEmpty) return const SizedBox.shrink();
+            return _buildRenderedImage(src);
           },
         ),
       ],
@@ -1083,12 +1205,14 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   List<String> _getChapterImages() {
     final List<String> list = [];
     for (final src in _currentChapter.imageSrcs) {
-      if (_bookImageFiles.containsKey(src)) {
-        list.add(_bookImageFiles[src]!);
-      } else {
-        final simple = src.replaceAll('\\', '/').split('/').last;
-        if (_bookImageFiles.containsKey(simple)) {
-          list.add(_bookImageFiles[simple]!);
+      final localPath = EpubParserService.resolveImagePath(
+        imageIndex: _bookImageFiles,
+        src: src,
+        chapterHref: _currentChapter.contentFileName,
+      );
+      if (localPath != null && File(localPath).existsSync()) {
+        if (!list.contains(localPath)) {
+          list.add(localPath);
         }
       }
     }
@@ -1140,6 +1264,56 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> {
   Widget _buildStyledParagraph(String text, Color fg, BuildContext context) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return const SizedBox.shrink();
+
+    if (trimmed.contains('[EPILOGUE_IMG:') && trimmed.contains(']')) {
+      final pattern = RegExp(r'\[EPILOGUE_IMG:([^\]]+)\]');
+      final matches = pattern.allMatches(trimmed).toList();
+      if (matches.isNotEmpty) {
+        if (trimmed.startsWith('[EPILOGUE_IMG:') && trimmed.endsWith(']') && matches.length == 1) {
+          return _buildRenderedImage(matches.first.group(1)!);
+        }
+        final List<Widget> children = [];
+        int lastEnd = 0;
+        for (final match in matches) {
+          if (match.start > lastEnd) {
+            final prefix = trimmed.substring(lastEnd, match.start).trim();
+            if (prefix.isNotEmpty) {
+              children.add(Text(
+                prefix,
+                style: TextStyle(
+                  fontSize: _config.fontSize,
+                  height: _config.lineSpacing,
+                  fontFamily: _fontFamily,
+                  color: fg,
+                  letterSpacing: 0.2,
+                ),
+              ));
+            }
+          }
+          children.add(_buildRenderedImage(match.group(1)!));
+          lastEnd = match.end;
+        }
+        if (lastEnd < trimmed.length) {
+          final suffix = trimmed.substring(lastEnd).trim();
+          if (suffix.isNotEmpty) {
+            children.add(Text(
+              suffix,
+              style: TextStyle(
+                fontSize: _config.fontSize,
+                height: _config.lineSpacing,
+                fontFamily: _fontFamily,
+                color: fg,
+                letterSpacing: 0.2,
+              ),
+            ));
+          }
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        );
+      }
+    }
 
     final isConstellationMsg = _config.customCssEnabled &&
         trimmed.startsWith('[') &&

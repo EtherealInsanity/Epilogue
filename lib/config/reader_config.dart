@@ -41,7 +41,6 @@ class ReaderConfig {
   final bool useOriginalBookStyles;
   final bool fourthWallActive;
   final String fourthWallHexColor;
-  final bool enableEpubStudio;
 
   const ReaderConfig({
     this.themePreset = ReaderThemePreset.paperLight,
@@ -64,7 +63,6 @@ class ReaderConfig {
     this.useOriginalBookStyles = false,
     this.fourthWallActive = false,
     this.fourthWallHexColor = '#0A192F',
-    this.enableEpubStudio = false,
   });
 
   ReaderConfig copyWith({
@@ -88,7 +86,6 @@ class ReaderConfig {
     bool? useOriginalBookStyles,
     bool? fourthWallActive,
     String? fourthWallHexColor,
-    bool? enableEpubStudio,
   }) {
     return ReaderConfig(
       themePreset: themePreset ?? this.themePreset,
@@ -111,7 +108,6 @@ class ReaderConfig {
       useOriginalBookStyles: useOriginalBookStyles ?? this.useOriginalBookStyles,
       fourthWallActive: fourthWallActive ?? this.fourthWallActive,
       fourthWallHexColor: fourthWallHexColor ?? this.fourthWallHexColor,
-      enableEpubStudio: enableEpubStudio ?? this.enableEpubStudio,
     );
   }
 
@@ -137,7 +133,6 @@ class ReaderConfig {
       'useOriginalBookStyles': useOriginalBookStyles,
       'fourthWallActive': fourthWallActive,
       'fourthWallHexColor': fourthWallHexColor,
-      'enableEpubStudio': enableEpubStudio,
     };
   }
 
@@ -172,7 +167,6 @@ class ReaderConfig {
       useOriginalBookStyles: map['useOriginalBookStyles'] as bool? ?? false,
       fourthWallActive: map['fourthWallActive'] as bool? ?? false,
       fourthWallHexColor: map['fourthWallHexColor'] as String? ?? '#0A192F',
-      enableEpubStudio: map['enableEpubStudio'] as bool? ?? false,
     );
   }
 

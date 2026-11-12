@@ -22,29 +22,26 @@ class FileExplorerService {
     final root = rootStoragePath;
     if (Platform.isAndroid) {
       return {
-        'Manga': '$root/Documents/Manga',
-        'Archives': '$root/Documents/archives',
-        'Documents': '$root/Documents',
         'Downloads': '$root/Download',
+        'Documents': '$root/Documents',
         'Books': '$root/Books',
-        'Root': root,
+        'Internal Storage': root,
       };
     } else if (Platform.isWindows) {
       return {
-        'Documents': '$root\\Documents',
         'Downloads': '$root\\Downloads',
+        'Documents': '$root\\Documents',
         'Books': '$root\\Documents\\Books',
         'Desktop': '$root\\Desktop',
         'Home': root,
       };
     } else {
       return {
-        'Documents': '$root/Documents',
         'Downloads': '$root/Downloads',
+        'Documents': '$root/Documents',
         'Books': '$root/Documents/Books',
         'Desktop': '$root/Desktop',
         'Home': root,
-        'Root': '/',
       };
     }
   }

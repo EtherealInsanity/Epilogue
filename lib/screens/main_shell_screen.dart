@@ -8,7 +8,6 @@ import 'attribute_window_screen.dart';
 import 'library_screen.dart';
 import 'scenario_screen.dart';
 import 'settings_screen.dart';
-import 'studio_dashboard_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
   final StorageService storageService;
@@ -98,7 +97,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
   @override
   Widget build(BuildContext context) {
     final orvState = widget.storageService.loadOrvState();
-    final showStudio = _config.enableEpubStudio;
 
     final screens = <Widget>[
       LibraryScreen(
@@ -108,7 +106,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
       ),
       ScenarioScreen(storageService: widget.storageService),
       AttributeWindowScreen(storageService: widget.storageService),
-      if (showStudio) const StudioDashboardScreen(),
       SettingsScreen(
         initialConfig: _config,
         storageService: widget.storageService,
@@ -134,12 +131,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
         selectedIcon: _buildAvatarIcon(orvState, true),
         label: 'Attributes',
       ),
-      if (showStudio)
-        NavigationDestination(
-          icon: const Icon(Icons.edit_note_outlined, size: 24),
-          selectedIcon: Icon(Icons.edit_note, size: 24, color: EpilogueTheme.accent),
-          label: 'Studio',
-        ),
       NavigationDestination(
         icon: const Icon(Icons.settings_suggest_outlined, size: 24),
         selectedIcon: Icon(Icons.settings_suggest, size: 24, color: EpilogueTheme.accent),

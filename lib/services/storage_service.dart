@@ -73,6 +73,8 @@ class StorageService {
     required String bookId,
     required int chapterIndex,
     required double progressPercent,
+    double? scrollOffset,
+    int? pageIndex,
   }) async {
     final books = loadBooks();
     final index = books.indexWhere((b) => b.id == bookId);
@@ -82,6 +84,8 @@ class StorageService {
       final updated = books[index].copyWith(
         lastReadChapterIndex: chapterIndex,
         lastReadProgressPercent: progressPercent,
+        lastReadScrollOffset: scrollOffset ?? books[index].lastReadScrollOffset,
+        lastReadPageIndex: pageIndex ?? books[index].lastReadPageIndex,
         lastReadTimestamp: now,
       );
       books[index] = updated;

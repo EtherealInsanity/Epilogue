@@ -77,9 +77,22 @@ class _LibraryScreenState extends State<LibraryScreen> {
     _backfillCoversIfNeeded(cached);
   }
 
+  String _getDefaultLibraryFolder() {
+    final root = FileExplorerService.rootStoragePath;
+    final booksDir = Directory('$root/Documents/Books');
+    if (booksDir.existsSync()) return booksDir.path;
+    final altBooksDir = Directory('$root/Books');
+    if (altBooksDir.existsSync()) return altBooksDir.path;
+    final dlDir = Directory('$root/Download');
+    if (dlDir.existsSync()) return dlDir.path;
+    final docDir = Directory('$root/Documents');
+    if (docDir.existsSync()) return docDir.path;
+    return booksDir.path;
+  }
+
   Future<void> _autoSyncOnStartup() async {
     final config = widget.storageService.loadConfig();
-    final folder = config.libraryFolderPath ?? '${FileExplorerService.rootStoragePath}/Documents/Books';
+    final folder = config.libraryFolderPath ?? _getDefaultLibraryFolder();
     if (Directory(folder).existsSync()) {
       await _syncLibrary(showSnackBar: false);
     }
@@ -87,7 +100,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Future<void> _syncLibrary({bool showSnackBar = true}) async {
     final config = widget.storageService.loadConfig();
-    final folder = config.libraryFolderPath ?? '${FileExplorerService.rootStoragePath}/Documents/Books';
+    final folder = config.libraryFolderPath ?? _getDefaultLibraryFolder();
     if (!Directory(folder).existsSync()) {
       _loadBooksAndShelves();
       return;
@@ -144,12 +157,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Future<void> _openBook(BookInfo book) async {
     setState(() => _isLoading = true);
+    final freshBook = widget.storageService.loadBooks().firstWhere((b) => b.id == book.id, orElse: () => book);
     List<Chapter> chapters;
 
     try {
       chapters = await EpubParserService.loadInitialChapterWindow(
-        book.filePath,
-        initialChapterIndex: book.lastReadChapterIndex,
+        freshBook.filePath,
+        initialChapterIndex: freshBook.lastReadChapterIndex,
       );
     } catch (e) {
       setState(() => _isLoading = false);
@@ -168,8 +182,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
     if (!mounted || chapters.isEmpty) return;
 
     // Auto-assign to reading shelf if not completed
-    if (book.lastReadProgressPercent < 98.0) {
-      await widget.storageService.addBookToShelf('reading', book.id);
+    if (freshBook.lastReadProgressPercent < 98.0) {
+      await widget.storageService.addBookToShelf('reading', freshBook.id);
     }
 
     if (!mounted) return;
@@ -178,9 +192,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => ModernReaderScreen(
-          book: book,
+          book: freshBook,
           chapters: chapters,
-          initialChapterIndex: book.lastReadChapterIndex,
+          initialChapterIndex: freshBook.lastReadChapterIndex,
           config: widget.config,
           storageService: widget.storageService,
         ),
@@ -792,6 +806,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               style: TextStyle(
                                 color: EpilogueTheme.textSecondary,
                                 fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              onPressed: _openFileExplorer,
+                              icon: const Icon(Icons.add_circle_outline, size: 18),
+                              label: const Text('Add EPUBs to Library'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: EpilogueTheme.accent,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                             ),
                           ],
