@@ -364,17 +364,6 @@ void main() {
       expect(storage.getCurrentStreakDays(), greaterThanOrEqualTo(15));
     });
 
-    test('ReaderConfig enableEpubStudio defaults to false and serializes accurately', () {
-      const config = ReaderConfig();
-      expect(config.enableEpubStudio, isFalse);
-
-      final modified = config.copyWith(enableEpubStudio: true);
-      expect(modified.enableEpubStudio, isTrue);
-
-      final reloaded = ReaderConfig.fromJson(modified.toJson());
-      expect(reloaded.enableEpubStudio, isTrue);
-    });
-
     test('ORV Service contains 150+ scaled scenarios with prerequisite locks', () async {
       final allScenarios = Scenario.defaultScenarios();
       expect(allScenarios.length, greaterThanOrEqualTo(150));

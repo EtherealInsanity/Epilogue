@@ -33,10 +33,10 @@ This project resolves three core requirements across four functional subsystems:
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Complete Removal of Epub Studio | Delete 11 studio files, decouple routes, clean config & settings, remove orphaned dependency | none | PLANNED |
+| M1 | Complete Removal of Epub Studio | Delete 11 studio files, decouple routes, clean config & settings, remove orphaned dependency | none | DONE |
 | M2 | Reader Mode Image Loading Pipeline | Implement comprehensive asset extraction, chapter href retention, path resolver, and reader rendering | none | PLANNED |
 | M3 | Text Highlight Bar Dismissal | Implement tap-outside dismissal, toolbar guards, and selection lifecycle cleanup | M2 | PLANNED |
-| E2E | E2E Testing Track | Design and implement automated test suite across Tiers 1–4, publish `TEST_READY.md` | none | PLANNED |
+| E2E | E2E Testing Track | Design and implement automated test suite across Tiers 1–4, publish `TEST_READY.md` | none | DONE |
 | M4 | Final Acceptance & Adversarial Hardening | Pass 100% of E2E tests (Phase 1) and execute Tier 5 adversarial hardening (Phase 2) | M1, M2, M3, E2E | PLANNED |
 
 ---

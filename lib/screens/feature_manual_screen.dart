@@ -153,31 +153,6 @@ class _FeatureManualScreenState extends State<FeatureManualScreen> {
         ),
       ],
     ),
-    ManualSection(
-      title: 'Epilogue Studio',
-      icon: Icons.edit_note,
-      summary: 'Professional-grade EPUB creator and editor built for retail distribution.',
-      topics: [
-        ManualTopic(
-          heading: 'Tri-Mode Chapter Editor',
-          content: 'Seamlessly switch between three authoring environments:',
-          bulletPoints: [
-            'Visual WYSIWYG: Write with a mobile formatting bar for headings, quotes, images, and drop caps.',
-            'Markdown Mode: Distraction-free drafting with intuitive syntax.',
-            'Raw XHTML/CSS Source Inspector: Directly view and modify tags and styles like desktop Sigil.',
-          ],
-        ),
-        ManualTopic(
-          heading: 'Retail-Ready Packaging (EPUB 3.3 + NCX)',
-          content: 'Studio packages books to pass W3C epubcheck with 0 errors:',
-          bulletPoints: [
-            'Byte-exact uncompressed mimetype stored at byte offset 30.',
-            'EPUB 3.3 nav.xhtml navigation with legacy EPUB 2 toc.ncx fallback for older Kindles.',
-            'Built-in Pre-Flight Linter to catch broken links, unclosed tags, and metadata errors.',
-          ],
-        ),
-      ],
-    ),
   ];
 
   @override

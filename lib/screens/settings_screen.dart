@@ -537,7 +537,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: const Icon(Icons.discord, color: Color(0xFF5865F2), size: 20),
                     ),
                     title: Text('Join Discord Community', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: Text('Chat with readers, share EPUB studio creations & get support', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
+                    subtitle: Text('Chat with readers & get support', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
                     trailing: Icon(Icons.open_in_new, size: 18, color: EpilogueTheme.textMuted),
                     onTap: () => UrlLauncherService.openDiscord(context),
                   ),
@@ -683,7 +683,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         applicationLegalese: 'MIT License • Copyright (c) 2026 EtherealInsanity',
                         children: [
                           const SizedBox(height: 12),
-                          const Text('Immersive EPUB & Web Novel Reader with Studio Authoring & Star Stream Progression.'),
+                          const Text('Immersive EPUB & Web Novel Reader with Star Stream Progression.'),
                         ],
                       );
                     },
@@ -770,7 +770,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.menu_book_outlined,
             iconColor: EpilogueTheme.greenAccent,
             title: 'Reading Engine & Controls',
-            subtitle: 'Volume keys paging, haptics, constellation CSS, Epilogue Studio',
+            subtitle: 'Volume keys paging, haptics, constellation CSS',
             pageBuilder: () => _ReadingControlsPage(initialConfig: _config, onConfigChanged: _updateConfig),
           ),
           _buildCategoryTile(
@@ -1264,15 +1264,6 @@ class _ReadingControlsPageState extends State<_ReadingControlsPage> {
                     value: _config.useOriginalBookStyles,
                     activeThumbColor: EpilogueTheme.cyanAccent,
                     onChanged: (val) => _update(_config.copyWith(useOriginalBookStyles: val)),
-                  ),
-                  Divider(color: EpilogueTheme.border, height: 16),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('Enable Epilogue Studio', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),
-                    subtitle: Text('Show EPUB 3.3 Authoring & Editing Studio in bottom navigation bar', style: TextStyle(fontSize: 11, color: EpilogueTheme.textSecondary)),
-                    value: _config.enableEpubStudio,
-                    activeThumbColor: EpilogueTheme.accent,
-                    onChanged: (val) => _update(_config.copyWith(enableEpubStudio: val)),
                   ),
                 ],
               ),

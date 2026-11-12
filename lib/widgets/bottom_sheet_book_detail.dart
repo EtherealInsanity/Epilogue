@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/book_info.dart';
-import '../screens/studio_editor_screen.dart';
 import '../services/storage_service.dart';
-import '../services/studio_project_service.dart';
 import '../theme/epilogue_theme.dart';
 import 'dialog_edit_metadata.dart';
 
@@ -20,31 +18,6 @@ class BottomSheetBookDetail extends StatelessWidget {
     required this.onOpenBook,
     required this.onUpdated,
   });
-
-  Future<void> _editInStudio(BuildContext context) async {
-    Navigator.pop(context);
-    try {
-      final proj = await StudioProjectService.importFromEpub(book.filePath);
-      await StudioProjectService.saveProject(proj);
-      if (context.mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => StudioEditorScreen(project: proj, onSave: onUpdated),
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load into Studio: $e'),
-            backgroundColor: EpilogueTheme.dangerAccent,
-          ),
-        );
-      }
-    }
-  }
 
   void _showEditMetadataDialog(BuildContext context) {
     showDialog(
@@ -321,22 +294,6 @@ class BottomSheetBookDetail extends StatelessWidget {
                 backgroundColor: EpilogueTheme.accent,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // Edit in Studio Action
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _editInStudio(context),
-              icon: Icon(Icons.edit_note, size: 18, color: EpilogueTheme.cyanAccent),
-              label: Text('EDIT IN STUDIO', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: EpilogueTheme.cyanAccent)),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: EpilogueTheme.cyanAccent),
-                padding: const EdgeInsets.symmetric(vertical: 10),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
