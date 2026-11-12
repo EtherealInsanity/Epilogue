@@ -102,7 +102,10 @@ final RegExp _brRegex = RegExp(r'<br\s*\/?>', caseSensitive: false);
 final RegExp _blockCloseRegex = RegExp(r'<\/(p|div|h[1-6]|li|blockquote|tr)>', caseSensitive: false);
 final RegExp _blockOpenRegex = RegExp(r'<(p|div|h[1-6]|li|blockquote|tr)[^>]*>', caseSensitive: false);
 final RegExp _tagStripRegex = RegExp(r'<[^>]+>');
-final RegExp _imgRegex = RegExp(r'<img[^>]+src=["\x27]([^"\x27]+)["\x27]', caseSensitive: false);
+final RegExp _imgRegex = RegExp(
+  r'<(?:img[^>]+?\bsrc|image[^>]+?\b(?:xlink:href|href))\s*=\s*["\x27]([^"\x27]+)["\x27][^>]*>',
+  caseSensitive: false,
+);
 final RegExp _styleTagRegex = RegExp(r'<style[^>]*>([\s\S]*?)<\/style>', caseSensitive: false);
 
 /// Top-level function for isolate text cleanup
@@ -111,6 +114,13 @@ String _computeHtmlToPlainText(String html) {
   String text = html;
   text = text.replaceAll(_scriptRegex, '');
   text = text.replaceAll(_styleRegex, '');
+  text = text.replaceAllMapped(_imgRegex, (m) {
+    final src = m.group(1);
+    if (src != null && src.isNotEmpty) {
+      return '\n[EPILOGUE_IMG:$src]\n';
+    }
+    return '';
+  });
   text = text.replaceAll(_brRegex, '\n');
   text = text.replaceAll(_blockCloseRegex, '\n\n');
   text = text.replaceAll(_blockOpenRegex, '');
@@ -318,6 +328,7 @@ class EpubParserService {
       htmlContent: html,
       plainTextContent: plain,
       imageSrcs: imageSrcs,
+      contentFileName: meta.href,
     );
 
     // Keep window bounded to 5 chapters to prevent memory leaks on 1,000+ chapter books
@@ -347,6 +358,7 @@ class EpubParserService {
       chapters.add(Chapter.placeholder(
         index: i,
         title: meta.title,
+        contentFileName: meta.href,
       ));
     }
 
@@ -520,67 +532,238 @@ class EpubParserService {
     return result;
   }
 
-  /// Extracts all images embedded in the EPUB to local cache directory.
-  static Future<Map<String, String>> extractAllBookImages(String filePath) async {
-    if (_cachedImagesMap.containsKey(filePath)) {
-      return _cachedImagesMap[filePath]!;
+  /// Specification-compliant path resolver matching PROJECT.md Contract #2
+  static String? resolveImagePath({
+    required Map<String, String> imageIndex,
+    required String src,
+    String? chapterHref,
+  }) {
+    if (src.isEmpty) return null;
+    if (src.startsWith('data:image/')) return src;
+
+    // 1. Strip URI query and fragment
+    var cleaned = src.split('#').first.split('?').first;
+    // 2. Normalize backslashes
+    cleaned = cleaned.replaceAll('\\', '/');
+    // 3. Decode URI components
+    try {
+      cleaned = Uri.decodeFull(cleaned);
+    } catch (_) {}
+
+    // 4. Exact / direct lookup
+    if (imageIndex.containsKey(cleaned)) return imageIndex[cleaned];
+
+    // 5. Relative resolution against chapter directory
+    if (chapterHref != null && chapterHref.isNotEmpty) {
+      final chapterDirParts = chapterHref.replaceAll('\\', '/').split('/');
+      chapterDirParts.removeLast(); // strip chapter filename
+
+      final targetParts = List<String>.from(chapterDirParts);
+      for (final segment in cleaned.split('/')) {
+        if (segment == '.' || segment.isEmpty) continue;
+        if (segment == '..') {
+          if (targetParts.isNotEmpty) targetParts.removeLast();
+        } else {
+          targetParts.add(segment);
+        }
+      }
+      final resolvedRelative = targetParts.join('/');
+      if (imageIndex.containsKey(resolvedRelative)) return imageIndex[resolvedRelative];
+      final lowerRelative = resolvedRelative.toLowerCase();
+      if (imageIndex.containsKey(lowerRelative)) return imageIndex[lowerRelative];
     }
 
+    // 6. Basename lookup
+    final simpleName = cleaned.split('/').last;
+    if (imageIndex.containsKey(simpleName)) return imageIndex[simpleName];
+
+    // 7. Case-insensitive lookup
+    final lowerSimple = simpleName.toLowerCase();
+    for (final entry in imageIndex.entries) {
+      final k = entry.key.toLowerCase();
+      if (k == lowerSimple || k.endsWith('/$lowerSimple')) {
+        return entry.value;
+      }
+    }
+
+    return null;
+  }
+
+  /// Extracts all images embedded in the EPUB to local cache directory.
+  static Future<Map<String, String>> extractAllBookImages(String filePath) async {
     final file = File(filePath);
     if (!await file.exists()) return {};
 
+    final appDir = await getApplicationDocumentsDirectory();
+    final imagesDir = Directory('${appDir.path}/epub_images/${filePath.hashCode}');
+    final indexFile = File('${imagesDir.path}/.index.json');
+    final mtimeMarkerFile = File('${imagesDir.path}/.extracted_mtime');
+
+    final currentMtime = (await file.lastModified()).millisecondsSinceEpoch.toString();
+
+    // Check disk cache with mtime and valid index to prevent cache poisoning
+    if (await imagesDir.exists() && await indexFile.exists() && await mtimeMarkerFile.exists()) {
+      try {
+        final markerMtime = (await mtimeMarkerFile.readAsString()).trim();
+        if (markerMtime == currentMtime) {
+          final indexContent = await indexFile.readAsString();
+          final decoded = jsonDecode(indexContent) as Map<String, dynamic>;
+          final cachedIndex = decoded.map((k, v) => MapEntry(k, v.toString()));
+          if (cachedIndex.isNotEmpty) {
+            final samplePath = cachedIndex.values.first;
+            if (await File(samplePath).exists()) {
+              _cachedImagesMap[filePath] = cachedIndex;
+              return cachedIndex;
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (!await imagesDir.exists()) {
+      await imagesDir.create(recursive: true);
+    }
+
     final map = <String, String>{};
     try {
-      final appDir = await getApplicationDocumentsDirectory();
-      final imagesDir = Directory('${appDir.path}/epub_images/${filePath.hashCode}');
+      epubx.EpubBookRef? bookRef = _openBookRefCache[filePath];
+      if (bookRef == null) {
+        final bytes = await file.readAsBytes();
+        bookRef = await epubx.EpubReader.openBook(bytes);
+        _cacheBookRef(filePath, bookRef);
+      }
 
-      if (await imagesDir.exists()) {
-        final existingFiles = imagesDir.listSync().whereType<File>();
-        if (existingFiles.isNotEmpty) {
-          for (final f in existingFiles) {
-            final simpleName = f.uri.pathSegments.last;
-            map[simpleName] = f.path;
-            map['../images/$simpleName'] = f.path;
-            map['images/$simpleName'] = f.path;
-            map['../Images/$simpleName'] = f.path;
-            map['Images/$simpleName'] = f.path;
+      bool isImageFileName(String name) {
+        final lower = name.split('#').first.split('?').first.toLowerCase();
+        return lower.endsWith('.jpg') ||
+            lower.endsWith('.jpeg') ||
+            lower.endsWith('.png') ||
+            lower.endsWith('.gif') ||
+            lower.endsWith('.webp') ||
+            lower.endsWith('.bmp') ||
+            lower.endsWith('.svg');
+      }
+
+      final Map<String, List<int>> imageEntries = {};
+
+      // 1. Scan ZIP archive entries directly (covers unmanifested and WebP files)
+      final archive = bookRef.EpubArchive();
+      if (archive != null) {
+        for (final entry in archive.files) {
+          if (isImageFileName(entry.name)) {
+            try {
+              final content = entry.content;
+              if (content is List<int> && content.isNotEmpty) {
+                imageEntries[entry.name] = content;
+              }
+            } catch (_) {}
           }
-          _cachedImagesMap[filePath] = map;
-          return map;
         }
-      } else {
-        await imagesDir.create(recursive: true);
       }
 
-      final bytes = await file.readAsBytes();
-      final bookRef = await epubx.EpubReader.openBook(bytes);
+      // 2. Scan bookRef.Content?.Images
       final images = bookRef.Content?.Images;
-      if (images == null || images.isEmpty) {
-        _cachedImagesMap[filePath] = map;
-        return map;
+      if (images != null) {
+        for (final entry in images.entries) {
+          if (!imageEntries.containsKey(entry.key) && isImageFileName(entry.key)) {
+            try {
+              final bytes = await entry.value.readContentAsBytes();
+              if (bytes.isNotEmpty) {
+                imageEntries[entry.key] = bytes;
+              }
+            } catch (_) {}
+          }
+        }
       }
 
-      for (final entry in images.entries) {
-        final key = entry.key;
-        final simpleName = key.replaceAll('\\', '/').split('/').last;
-        final targetFile = File('${imagesDir.path}/$simpleName');
-        if (!await targetFile.exists()) {
+      // 3. Scan bookRef.Content?.AllFiles
+      final allFiles = bookRef.Content?.AllFiles;
+      if (allFiles != null) {
+        for (final entry in allFiles.entries) {
+          if (!imageEntries.containsKey(entry.key) && isImageFileName(entry.key)) {
+            try {
+              final bytes = await entry.value.readContentAsBytes();
+              if (bytes.isNotEmpty) {
+                imageEntries[entry.key] = bytes;
+              }
+            } catch (_) {}
+          }
+        }
+      }
+
+      for (final entry in imageEntries.entries) {
+        final originalKey = entry.key;
+        final normalizedKey = originalKey.replaceAll('\\', '/');
+        final cleanRelPath = normalizedKey.startsWith('/') ? normalizedKey.substring(1) : normalizedKey;
+        final diskPath = cleanRelPath.replaceAll('..', '__');
+        final targetFile = File('${imagesDir.path}/$diskPath');
+
+        try {
+          if (!await targetFile.exists() || await targetFile.length() != entry.value.length) {
+            await targetFile.parent.create(recursive: true);
+            await targetFile.writeAsBytes(entry.value);
+          }
+        } catch (_) {
+          continue;
+        }
+
+        if (!await targetFile.exists()) continue;
+        final targetPath = targetFile.path;
+
+        void addKey(String k) {
+          if (k.isEmpty) return;
+          map[k] = targetPath;
+        }
+
+        addKey(originalKey);
+        addKey(normalizedKey);
+        addKey(cleanRelPath);
+
+        // URL decoded variants
+        try {
+          final decoded = Uri.decodeFull(normalizedKey);
+          addKey(decoded);
+          final decodedClean = Uri.decodeFull(cleanRelPath);
+          addKey(decodedClean);
+        } catch (_) {}
+
+        // Basename
+        final simpleName = cleanRelPath.split('/').last;
+        addKey(simpleName);
+        try {
+          addKey(Uri.decodeFull(simpleName));
+        } catch (_) {}
+        try {
+          addKey(Uri.encodeComponent(simpleName));
+        } catch (_) {}
+
+        // Lowercase variants
+        addKey(originalKey.toLowerCase());
+        addKey(normalizedKey.toLowerCase());
+        addKey(cleanRelPath.toLowerCase());
+        addKey(simpleName.toLowerCase());
+
+        // Relative path sub-segments
+        final segments = cleanRelPath.split('/');
+        for (int i = 1; i < segments.length; i++) {
+          final subPath = segments.sublist(i).join('/');
+          addKey(subPath);
+          addKey('../$subPath');
+          addKey('../../$subPath');
           try {
-            final content = await entry.value.readContentAsBytes();
-            if (content.isNotEmpty) {
-              await targetFile.writeAsBytes(content);
-            }
+            final decodedSub = Uri.decodeFull(subPath);
+            addKey(decodedSub);
+            addKey('../$decodedSub');
+            addKey('../../$decodedSub');
           } catch (_) {}
         }
-        if (await targetFile.exists()) {
-          map[key] = targetFile.path;
-          map[simpleName] = targetFile.path;
-          map['../images/$simpleName'] = targetFile.path;
-          map['images/$simpleName'] = targetFile.path;
-          map['../Images/$simpleName'] = targetFile.path;
-          map['Images/$simpleName'] = targetFile.path;
-        }
       }
+
+      // Persist index and cache marker
+      try {
+        await indexFile.writeAsString(jsonEncode(map));
+        await mtimeMarkerFile.writeAsString(currentMtime);
+      } catch (_) {}
     } catch (_) {}
 
     _cachedImagesMap[filePath] = map;

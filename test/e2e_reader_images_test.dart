@@ -199,12 +199,8 @@ void main() {
   late Directory tempDir;
   late StorageService storageService;
 
-  setUp(() async {
+  setUp(() {
     tempDir = Directory.systemTemp.createTempSync('epilogue_e2e_images_');
-    SharedPreferences.setMockInitialValues({});
-    final prefs = await SharedPreferences.getInstance();
-    storageService = StorageService(prefs);
-
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.flutter.io/path_provider'),
@@ -213,6 +209,11 @@ void main() {
   });
 
   tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      null,
+    );
     try {
       if (tempDir.existsSync()) {
         tempDir.deleteSync(recursive: true);
@@ -472,17 +473,21 @@ void main() {
     // Tier 4: Real-World Workloads & ModernReaderScreen Widget Rendering
     // =========================================================================
     testWidgets('Tier 4: ModernReaderScreen renders Image.file and Base64 images without crashing', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final storageService = StorageService(prefs);
+
       await tester.binding.setSurfaceSize(const Size(800, 1200));
 
       // Create dummy image files on disk
       final diskCover = File('${tempDir.path}/disk_cover.jpg');
-      await diskCover.writeAsBytes(k1x1JpgBytes);
+      diskCover.writeAsBytesSync(k1x1JpgBytes);
 
       final diskFig = File('${tempDir.path}/disk_figure.png');
-      await diskFig.writeAsBytes(k1x1PngBytes);
+      diskFig.writeAsBytesSync(k1x1PngBytes);
 
       final readerEpub = File('${tempDir.path}/reader_book.epub');
-      await readerEpub.writeAsBytes(createZipArchive({
+      readerEpub.writeAsBytesSync(createZipArchive({
         'mimetype': utf8.encode('application/epub+zip'),
         'META-INF/container.xml': utf8.encode('''<?xml version="1.0"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -566,7 +571,7 @@ void main() {
       expect(tester.takeException(), isNull, reason: 'Rendering images must not produce unhandled exceptions');
 
       // The reader screen should be mounted and displaying content
-      expect(find.textContaining('The First Scenario'), findsOneWidget);
+      expect(find.text('The First Scenario'), findsOneWidget);
 
       // Allow background image & css extraction futures to settle
       await tester.runAsync(() async {

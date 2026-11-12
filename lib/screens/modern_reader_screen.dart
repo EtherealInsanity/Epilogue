@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -139,12 +140,14 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
 
   Future<void> _loadBookImages() async {
     try {
-      final css = await EpubParserService.extractAllBookCss(widget.book.filePath);
-      final images = await EpubParserService.extractAllBookImages(widget.book.filePath);
+      final results = await Future.wait([
+        EpubParserService.extractAllBookCss(widget.book.filePath),
+        EpubParserService.extractAllBookImages(widget.book.filePath),
+      ]);
       if (mounted) {
         setState(() {
-          _bookCss = css;
-          _bookImageFiles.addAll(images);
+          _bookCss = results[0] as String;
+          _bookImageFiles.addAll(results[1] as Map<String, String>);
         });
       }
     } catch (_) {}
@@ -248,7 +251,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
     final int dynamicBudget = (linesPerPage * charsPerLine).clamp(1200, 3200);
 
     final blockRegex = RegExp(
-      r'<(?:p|div|h[1-6]|blockquote|hr|img|table|ul|ol)[^>]*>[\s\S]*?<\/(?:p|div|h[1-6]|blockquote|hr|table|ul|ol)>|<(?:hr|img)[^>]*\/?>',
+      r'<(?:p|div|h[1-6]|blockquote|hr|img|image|svg|figure|table|ul|ol)[^>]*>[\s\S]*?<\/(?:p|div|h[1-6]|blockquote|hr|svg|figure|table|ul|ol)>|<(?:hr|img|image)[^>]*\/?>',
       caseSensitive: false,
     );
 
@@ -286,7 +289,11 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
   void _splitTextIntoPages(Size size) {
     final text = _currentChapter.plainTextContent;
     if (text.isEmpty) {
-      _pageChunks = ['[This chapter contains no text content]'];
+      if (_currentChapter.imageSrcs.isNotEmpty) {
+        _pageChunks = [_currentChapter.imageSrcs.map((src) => '[EPILOGUE_IMG:$src]').join('\n')];
+      } else {
+        _pageChunks = ['[This chapter contains no text content]'];
+      }
       return;
     }
 
@@ -585,9 +592,17 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
                 // Reading Canvas with SelectionArea
                 SelectionArea(
                   onSelectionChanged: (content) {
-                    _selectedTextContent = content?.plainText ?? '';
+                    final text = content?.plainText ?? '';
+                    if (text != _selectedTextContent) {
+                      setState(() => _selectedTextContent = text);
+                    }
                   },
                   contextMenuBuilder: (context, selectableRegionState) {
+                    // Hide toolbar when selection is cleared
+                    if (_selectedTextContent.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+
                     final buttonItems = selectableRegionState.contextMenuButtonItems;
                     final selectedText = _selectedTextContent;
 
@@ -1045,7 +1060,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
           ),
           const SizedBox(height: 16),
         ],
-        if (chapterImages.isNotEmpty) ...[
+        if (_currentPageIndex == 0 && chapterImages.isNotEmpty) ...[
           _buildImagesCarousel(chapterImages),
           const SizedBox(height: 20),
         ],
@@ -1055,6 +1070,62 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
     );
   }
 
+  Widget _buildRenderedImage(String src) {
+    if (src.isEmpty) return const SizedBox.shrink();
+
+    if (src.startsWith('data:image/')) {
+      try {
+        final commaIdx = src.indexOf(',');
+        if (commaIdx != -1) {
+          final base64Data = src.substring(commaIdx + 1);
+          final bytes = base64Decode(base64Data);
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.memory(
+                  bytes,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
+          );
+        }
+      } catch (_) {
+        return const SizedBox.shrink();
+      }
+    }
+
+    final localPath = EpubParserService.resolveImagePath(
+      imageIndex: _bookImageFiles,
+      src: src,
+      chapterHref: _currentChapter.contentFileName,
+    );
+
+    if (localPath != null && File(localPath).existsSync()) {
+      return GestureDetector(
+        onTap: () => _showFullscreenImage(localPath),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                File(localPath),
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
   Widget _buildHtmlWidget(String html, Color fg) {
     final styledHtml = (_bookCss.isNotEmpty) ? '<style>$_bookCss</style>$html' : html;
 
@@ -1062,37 +1133,27 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
       data: styledHtml,
       extensions: [
         TagExtension(
-          tagsToExtend: {'img'},
+          tagsToExtend: {'img', 'image', 'svg'},
           builder: (extensionContext) {
-            final src = extensionContext.attributes['src'];
-            if (src == null) return const SizedBox.shrink();
+            String? src = extensionContext.attributes['src'] ??
+                extensionContext.attributes['xlink:href'] ??
+                extensionContext.attributes['href'];
 
-            String? localPath;
-            if (_bookImageFiles.containsKey(src)) {
-              localPath = _bookImageFiles[src];
-            } else {
-              final simple = src.replaceAll('\\', '/').split('/').last;
-              localPath = _bookImageFiles[simple] ?? _bookImageFiles['../images/$simple'] ?? _bookImageFiles['images/$simple'];
+            if (src == null && extensionContext.elementName.toLowerCase() == 'svg') {
+              final element = extensionContext.element;
+              if (element != null) {
+                final imageChild = element.getElementsByTagName('image');
+                if (imageChild.isNotEmpty) {
+                  final imgEl = imageChild.first;
+                  src = imgEl.attributes['xlink:href'] ??
+                      imgEl.attributes['href'] ??
+                      imgEl.attributes['src'];
+                }
+              }
             }
 
-            if (localPath != null && File(localPath).existsSync()) {
-              return GestureDetector(
-                onTap: () => _showFullscreenImage(localPath!),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(localPath),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
+            if (src == null || src.isEmpty) return const SizedBox.shrink();
+            return _buildRenderedImage(src);
           },
         ),
       ],
@@ -1136,12 +1197,14 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
   List<String> _getChapterImages() {
     final List<String> list = [];
     for (final src in _currentChapter.imageSrcs) {
-      if (_bookImageFiles.containsKey(src)) {
-        list.add(_bookImageFiles[src]!);
-      } else {
-        final simple = src.replaceAll('\\', '/').split('/').last;
-        if (_bookImageFiles.containsKey(simple)) {
-          list.add(_bookImageFiles[simple]!);
+      final localPath = EpubParserService.resolveImagePath(
+        imageIndex: _bookImageFiles,
+        src: src,
+        chapterHref: _currentChapter.contentFileName,
+      );
+      if (localPath != null && File(localPath).existsSync()) {
+        if (!list.contains(localPath)) {
+          list.add(localPath);
         }
       }
     }
@@ -1193,6 +1256,56 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
   Widget _buildStyledParagraph(String text, Color fg, BuildContext context) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return const SizedBox.shrink();
+
+    if (trimmed.contains('[EPILOGUE_IMG:') && trimmed.contains(']')) {
+      final pattern = RegExp(r'\[EPILOGUE_IMG:([^\]]+)\]');
+      final matches = pattern.allMatches(trimmed).toList();
+      if (matches.isNotEmpty) {
+        if (trimmed.startsWith('[EPILOGUE_IMG:') && trimmed.endsWith(']') && matches.length == 1) {
+          return _buildRenderedImage(matches.first.group(1)!);
+        }
+        final List<Widget> children = [];
+        int lastEnd = 0;
+        for (final match in matches) {
+          if (match.start > lastEnd) {
+            final prefix = trimmed.substring(lastEnd, match.start).trim();
+            if (prefix.isNotEmpty) {
+              children.add(Text(
+                prefix,
+                style: TextStyle(
+                  fontSize: _config.fontSize,
+                  height: _config.lineSpacing,
+                  fontFamily: _fontFamily,
+                  color: fg,
+                  letterSpacing: 0.2,
+                ),
+              ));
+            }
+          }
+          children.add(_buildRenderedImage(match.group(1)!));
+          lastEnd = match.end;
+        }
+        if (lastEnd < trimmed.length) {
+          final suffix = trimmed.substring(lastEnd).trim();
+          if (suffix.isNotEmpty) {
+            children.add(Text(
+              suffix,
+              style: TextStyle(
+                fontSize: _config.fontSize,
+                height: _config.lineSpacing,
+                fontFamily: _fontFamily,
+                color: fg,
+                letterSpacing: 0.2,
+              ),
+            ));
+          }
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        );
+      }
+    }
 
     final isConstellationMsg = _config.customCssEnabled &&
         trimmed.startsWith('[') &&
