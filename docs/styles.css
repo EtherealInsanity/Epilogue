@@ -402,6 +402,35 @@ button {
   -webkit-text-fill-color: transparent;
 }
 
+/* ==========================================================================
+   Typed.js Dynamic Tagline & CLS Safeguard
+   ========================================================================== */
+.hero-tagline-wrapper {
+  min-height: 2.2rem;
+  display: flex;
+  align-items: center;
+  font-size: 1.18rem;
+  font-weight: 500;
+  color: var(--color-cyan);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.typed-cursor {
+  color: var(--color-cyan);
+  font-weight: 300;
+  margin-left: 2px;
+  opacity: 1;
+  animation: typedBlink 0.75s infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes typedBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .hero-description {
   font-size: 1.05rem;
   color: var(--text-secondary);
@@ -1045,3 +1074,19 @@ button {
     width: 100%;
   }
 }
+
+/* ==========================================================================
+   Accessibility: Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .typed-cursor {
+    display: none !important;
+  }
+}
+
