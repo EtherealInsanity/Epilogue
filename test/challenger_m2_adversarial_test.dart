@@ -287,14 +287,31 @@ void main() {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>'''),
-          'OEBPS/content.opf': utf8.encode('''<?xml version="1.0"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+          'OEBPS/content.opf': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>Cache Test Book</dc:title>
+    <dc:language>en</dc:language>
+    <dc:identifier id="BookId">cache-test-001</dc:identifier>
+  </metadata>
   <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
     <item id="img1" href="image_v1.png" media-type="image/png"/>
   </manifest>
-  <spine><itemref idref="ch1"/></spine>
+  <spine toc="ncx"><itemref idref="ch1"/></spine>
 </package>'''),
+          'OEBPS/toc.ncx': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head><meta name="dtb:uid" content="cache-test-001"/></head>
+  <docTitle><text>Cache Test Book</text></docTitle>
+  <navMap>
+    <navPoint id="np1" playOrder="1">
+      <navLabel><text>Chapter 1</text></navLabel>
+      <content src="ch1.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>'''),
           'OEBPS/ch1.xhtml': utf8.encode('<html><body><img src="image_v1.png"/></body></html>'),
           'OEBPS/image_v1.png': kAdv1x1PngBytes,
         };
@@ -327,14 +344,31 @@ void main() {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>'''),
-          'OEBPS/content.opf': utf8.encode('''<?xml version="1.0"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+          'OEBPS/content.opf': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>Mtime Test Book</dc:title>
+    <dc:language>en</dc:language>
+    <dc:identifier id="BookId">mtime-test-001</dc:identifier>
+  </metadata>
   <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
     <item id="img1" href="img_old.png" media-type="image/png"/>
   </manifest>
-  <spine><itemref idref="ch1"/></spine>
+  <spine toc="ncx"><itemref idref="ch1"/></spine>
 </package>'''),
+          'OEBPS/toc.ncx': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head><meta name="dtb:uid" content="mtime-test-001"/></head>
+  <docTitle><text>Mtime Test Book</text></docTitle>
+  <navMap>
+    <navPoint id="np1" playOrder="1">
+      <navLabel><text>Chapter 1</text></navLabel>
+      <content src="ch1.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>'''),
           'OEBPS/ch1.xhtml': utf8.encode('<html><body><p>V1</p></body></html>'),
           'OEBPS/img_old.png': kAdv1x1PngBytes,
         };
@@ -380,11 +414,31 @@ void main() {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>'''),
-          'OEBPS/content.opf': utf8.encode('''<?xml version="1.0"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="2.0">
-  <manifest><item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/></manifest>
-  <spine><itemref idref="ch1"/></spine>
+          'OEBPS/content.opf': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>Corrupt Cache Test</dc:title>
+    <dc:language>en</dc:language>
+    <dc:identifier id="BookId">corrupt-test-001</dc:identifier>
+  </metadata>
+  <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
+    <item id="img1" href="recovery.png" media-type="image/png"/>
+  </manifest>
+  <spine toc="ncx"><itemref idref="ch1"/></spine>
 </package>'''),
+          'OEBPS/toc.ncx': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head><meta name="dtb:uid" content="corrupt-test-001"/></head>
+  <docTitle><text>Corrupt Cache Test</text></docTitle>
+  <navMap>
+    <navPoint id="np1" playOrder="1">
+      <navLabel><text>Chapter 1</text></navLabel>
+      <content src="ch1.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>'''),
           'OEBPS/ch1.xhtml': utf8.encode('<html><body><p>Hi</p></body></html>'),
           'OEBPS/recovery.png': kAdv1x1PngBytes,
         };

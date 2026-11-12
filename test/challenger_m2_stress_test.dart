@@ -362,13 +362,25 @@ void main() {
 </container>'''),
         'OEBPS/content.opf': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>V1</dc:title><dc:identifier id="BookId">v1</dc:identifier></metadata>
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>V1</dc:title><dc:language>en</dc:language><dc:identifier id="BookId">v1</dc:identifier></metadata>
   <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
     <item id="img1" href="image_v1.png" media-type="image/png"/>
   </manifest>
-  <spine><itemref idref="ch1"/></spine>
+  <spine toc="ncx"><itemref idref="ch1"/></spine>
 </package>'''),
+        'OEBPS/toc.ncx': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head><meta name="dtb:uid" content="v1"/></head>
+  <docTitle><text>V1</text></docTitle>
+  <navMap>
+    <navPoint id="np1" playOrder="1">
+      <navLabel><text>Chapter 1</text></navLabel>
+      <content src="ch1.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>'''),
         'OEBPS/ch1.xhtml': utf8.encode('<html><body>V1</body></html>'),
         'OEBPS/image_v1.png': _k1x1Png,
       };
@@ -400,13 +412,25 @@ void main() {
 </container>'''),
         'OEBPS/content.opf': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>V2</dc:title><dc:identifier id="BookId">v2</dc:identifier></metadata>
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>V2</dc:title><dc:language>en</dc:language><dc:identifier id="BookId">v2</dc:identifier></metadata>
   <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
     <item id="img2" href="image_v2.png" media-type="image/png"/>
   </manifest>
-  <spine><itemref idref="ch1"/></spine>
+  <spine toc="ncx"><itemref idref="ch1"/></spine>
 </package>'''),
+        'OEBPS/toc.ncx': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head><meta name="dtb:uid" content="v2"/></head>
+  <docTitle><text>V2</text></docTitle>
+  <navMap>
+    <navPoint id="np1" playOrder="1">
+      <navLabel><text>Chapter 1</text></navLabel>
+      <content src="ch1.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>'''),
         'OEBPS/ch1.xhtml': utf8.encode('<html><body>V2</body></html>'),
         'OEBPS/image_v2.png': _k1x1Png,
       };
@@ -438,13 +462,25 @@ void main() {
 </container>'''),
         'OEBPS/content.opf': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Recovery</dc:title><dc:identifier id="BookId">rec</dc:identifier></metadata>
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Recovery</dc:title><dc:language>en</dc:language><dc:identifier id="BookId">rec</dc:identifier></metadata>
   <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
     <item id="img1" href="recover.png" media-type="image/png"/>
   </manifest>
-  <spine><itemref idref="ch1"/></spine>
+  <spine toc="ncx"><itemref idref="ch1"/></spine>
 </package>'''),
+        'OEBPS/toc.ncx': utf8.encode('''<?xml version="1.0" encoding="utf-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head><meta name="dtb:uid" content="rec"/></head>
+  <docTitle><text>Recovery</text></docTitle>
+  <navMap>
+    <navPoint id="np1" playOrder="1">
+      <navLabel><text>Chapter 1</text></navLabel>
+      <content src="ch1.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>'''),
         'OEBPS/ch1.xhtml': utf8.encode('<html><body>R</body></html>'),
         'OEBPS/recover.png': _k1x1Png,
       };

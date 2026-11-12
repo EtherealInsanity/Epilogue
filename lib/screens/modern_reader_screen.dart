@@ -67,6 +67,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
   final Map<String, String> _bookImageFiles = {};
   String _bookCss = '';
   String _selectedTextContent = '';
+  SelectableRegionState? _selectableRegionState; // saved from contextMenuBuilder
 
   @override
   void initState() {
@@ -598,6 +599,7 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
                     }
                   },
                   contextMenuBuilder: (context, selectableRegionState) {
+                    _selectableRegionState = selectableRegionState;
                     // Hide toolbar when selection is cleared
                     if (_selectedTextContent.isEmpty) {
                       return const SizedBox.shrink();
@@ -637,6 +639,12 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
                   child: GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTapUp: (details) {
+                      // Any tap clears text selection and hides toolbar
+                      if (_selectedTextContent.isNotEmpty) {
+                        _selectableRegionState?.clearSelection();
+                        _selectableRegionState?.hideToolbar();
+                        setState(() => _selectedTextContent = '');
+                      }
                       final width = constraints.maxWidth;
                       final dx = details.globalPosition.dx;
                       if (dx < width * 0.25) {
