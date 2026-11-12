@@ -15,14 +15,16 @@ subprojects {
 }
 
 subprojects {
-    afterEvaluate { project ->
-        if (project.hasProperty("android")) {
-            android {
-                compileSdkVersion 35
+    if (project.name != 'app') {
+        afterEvaluate { project ->
+            if (project.hasProperty("android")) {
+                project.android {
+                    compileSdkVersion 35
+                }
             }
-        }
-        project.tasks.matching { it.name.contains("AarMetadata") }.configureEach {
-            enabled = false
+            project.tasks.matching { it.name.contains("AarMetadata") }.configureEach {
+                enabled = false
+            }
         }
     }
 }
