@@ -1054,6 +1054,57 @@ class _DisplaySettingsPageState extends State<_DisplaySettingsPage> {
                   ),
                   Divider(color: EpilogueTheme.border, height: 20),
 
+                  Text('Reading Mode', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.unfold_more, size: 18),
+                          label: const Text('Vertical Scroll'),
+                          onPressed: () => _update(_config.copyWith(pageAnimation: PageAnimationType.continuousScroll)),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: _config.pageAnimation == PageAnimationType.continuousScroll
+                                ? const Color(0xFFE0F2FE)
+                                : EpilogueTheme.surface,
+                            side: BorderSide(
+                              color: _config.pageAnimation == PageAnimationType.continuousScroll
+                                  ? EpilogueTheme.cyanAccent
+                                  : EpilogueTheme.border,
+                              width: _config.pageAnimation == PageAnimationType.continuousScroll ? 1.5 : 1.0,
+                            ),
+                            foregroundColor: _config.pageAnimation == PageAnimationType.continuousScroll
+                                ? EpilogueTheme.cyanAccent
+                                : EpilogueTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.swipe, size: 18),
+                          label: const Text('Page Turn'),
+                          onPressed: () => _update(_config.copyWith(pageAnimation: PageAnimationType.smoothSlide)),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: _config.pageAnimation != PageAnimationType.continuousScroll
+                                ? const Color(0xFFE0F2FE)
+                                : EpilogueTheme.surface,
+                            side: BorderSide(
+                              color: _config.pageAnimation != PageAnimationType.continuousScroll
+                                  ? EpilogueTheme.cyanAccent
+                                  : EpilogueTheme.border,
+                              width: _config.pageAnimation != PageAnimationType.continuousScroll ? 1.5 : 1.0,
+                            ),
+                            foregroundColor: _config.pageAnimation != PageAnimationType.continuousScroll
+                                ? EpilogueTheme.cyanAccent
+                                : EpilogueTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 20),
+
                   Text('Reading Theme Preset', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
                   const SizedBox(height: 8),
                   Row(
@@ -1230,6 +1281,56 @@ class _ReadingControlsPageState extends State<_ReadingControlsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text('Reading Mode', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: EpilogueTheme.textPrimary)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.unfold_more, size: 18),
+                          label: const Text('Vertical Scroll'),
+                          onPressed: () => _update(_config.copyWith(pageAnimation: PageAnimationType.continuousScroll)),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: _config.pageAnimation == PageAnimationType.continuousScroll
+                                ? const Color(0xFFE0F2FE)
+                                : EpilogueTheme.surface,
+                            side: BorderSide(
+                              color: _config.pageAnimation == PageAnimationType.continuousScroll
+                                  ? EpilogueTheme.cyanAccent
+                                  : EpilogueTheme.border,
+                              width: _config.pageAnimation == PageAnimationType.continuousScroll ? 1.5 : 1.0,
+                            ),
+                            foregroundColor: _config.pageAnimation == PageAnimationType.continuousScroll
+                                ? EpilogueTheme.cyanAccent
+                                : EpilogueTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.swipe, size: 18),
+                          label: const Text('Page Turn'),
+                          onPressed: () => _update(_config.copyWith(pageAnimation: PageAnimationType.smoothSlide)),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: _config.pageAnimation != PageAnimationType.continuousScroll
+                                ? const Color(0xFFE0F2FE)
+                                : EpilogueTheme.surface,
+                            side: BorderSide(
+                              color: _config.pageAnimation != PageAnimationType.continuousScroll
+                                  ? EpilogueTheme.cyanAccent
+                                  : EpilogueTheme.border,
+                              width: _config.pageAnimation != PageAnimationType.continuousScroll ? 1.5 : 1.0,
+                            ),
+                            foregroundColor: _config.pageAnimation != PageAnimationType.continuousScroll
+                                ? EpilogueTheme.cyanAccent
+                                : EpilogueTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(color: EpilogueTheme.border, height: 16),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text('Volume Keys Page Turn', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: EpilogueTheme.textPrimary)),

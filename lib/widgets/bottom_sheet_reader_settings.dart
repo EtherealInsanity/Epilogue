@@ -44,11 +44,9 @@ class _BottomSheetReaderSettingsState extends State<BottomSheetReaderSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: EpilogueTheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    return Material(
+      color: EpilogueTheme.surface,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

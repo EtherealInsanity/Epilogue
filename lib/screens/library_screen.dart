@@ -195,12 +195,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
           book: freshBook,
           chapters: chapters,
           initialChapterIndex: freshBook.lastReadChapterIndex,
-          config: widget.config,
+          config: widget.storageService.loadConfig(),
           storageService: widget.storageService,
         ),
       ),
     );
 
+    widget.onSettingsChanged?.call();
     _loadBooksAndShelves();
   }
 
