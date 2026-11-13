@@ -395,27 +395,25 @@ img, svg {
 }
 
 .hero-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 48px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto;
 }
 
 @media (max-width: 960px) {
   .hero-section {
     padding: 48px 0 64px;
   }
-
-  .hero-grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
 }
 
 .hero-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  gap: 22px;
 }
 
 /* Version Badge */
@@ -505,6 +503,7 @@ img, svg {
 .hero-cta-group {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 14px;
   margin-top: 8px;
 }
@@ -609,95 +608,7 @@ img, svg {
 }
 
 /* ==========================================================================
-   5. Hero 3D Book & Artwork Media Stage
-   ========================================================================== */
-
-.hero-media-wrapper {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.hero-3d-stage {
-  position: relative;
-  width: 100%;
-  max-width: 480px;
-  aspect-ratio: 1 / 1;
-  min-height: 380px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#hero-3d-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 2;
-  cursor: grab;
-}
-
-#hero-3d-canvas:active {
-  cursor: grabbing;
-}
-
-/* Hero Artwork Frame (Homage / Fallback Layer) */
-.hero-artwork-frame {
-  position: relative;
-  width: 100%;
-  max-width: 440px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-card), 0 0 40px rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  background: var(--bg-surface);
-  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
-}
-
-.hero-artwork-img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  display: block;
-}
-
-.hero-artwork-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 24px;
-  background: linear-gradient(to top, rgba(7, 10, 19, 0.95) 0%, rgba(7, 10, 19, 0.6) 70%, transparent 100%);
-  color: var(--text-primary);
-}
-
-.quote-speaker {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--fourth-wall);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.quote-text {
-  font-family: var(--font-serif);
-  font-size: 0.92rem;
-  font-style: italic;
-  color: #e2e8f0;
-  line-height: 1.5;
-}
-
-/* ==========================================================================
-   6. Section Headers & Bento Grids
+   5. Section Headers & Bento Grids
    ========================================================================== */
 
 .section {

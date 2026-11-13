@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileNav();
   initTypedTagline();
   initAnimeAnimations();
-  initHero3D();
 });
 
 /* ==========================================================================
@@ -502,13 +501,4 @@ function initInteractiveMicroInteractions() {
       });
     });
   });
-}
-
-/* ==========================================================================
-   7. Hero 3D Book Experience
-   ========================================================================== */
-function initHero3D() {
-  if (typeof initHero3DBook === 'function') {
-    initHero3DBook('#hero-3d-canvas');
-  }
 }

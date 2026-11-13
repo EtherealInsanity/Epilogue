@@ -10,7 +10,7 @@
   <meta name="keywords" content="Epilogue, Book Reader, EPUB Reader, Android Book Reader, Offline Reader, Distraction-Free Reading, Eye Comfort, Omniscient Reader">
   <meta property="og:title" content="Epilogue (독자의 에필로그) — Distraction-Free Book Reader">
   <meta property="og:description" content="A clean, distraction-free book reader for Android, Windows, and Linux. 100% Free & Open Source. Zero ads, zero tracking.">
-  <meta property="og:image" content="assets/images/orv_hero.webp">
+  <meta property="og:image" content="assets/images/orvlogo.png">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -154,23 +154,6 @@
             <div class="stat-item">
               <span class="stat-number">Eye Comfort</span>
               <span class="stat-label">Warm paper, sepia & OLED</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3D Book & Homage Artwork Stage -->
-        <div class="hero-media-wrapper">
-          <div class="hero-3d-stage">
-            <!-- Three.js Interactive 3D Book Canvas -->
-            <canvas id="hero-3d-canvas" aria-label="Interactive 3D Book Preview"></canvas>
-
-            <!-- Visual Artwork Base -->
-            <div class="hero-artwork-frame">
-              <img src="assets/images/orv_hero.webp" alt="The Reader under the Star Stream" class="hero-artwork-img" loading="eager">
-              <div class="hero-artwork-overlay">
-                <span class="quote-speaker">[The Fourth Wall whispers]</span>
-                <p class="quote-text">"There are three ways to survive in a ruined world... you who are reading this will survive."</p>
-              </div>
             </div>
           </div>
         </div>
@@ -431,24 +414,6 @@
             </a>
           </div>
 
-          <!-- F-Droid -->
-          <div class="download-card">
-            <h3 class="download-card-title">F-Droid Repository</h3>
-            <span class="download-card-arch">Open-Source App Store</span>
-            <p class="download-card-desc">
-              Install and receive automatic updates through the verified open-source F-Droid catalog.
-            </p>
-            <span class="download-card-size">Official F-Droid Package</span>
-            <a href="https://f-droid.org/packages/com.etherealinsanity.epilogue/" target="_blank" rel="noopener noreferrer" class="btn-download-store">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                <path d="M2 17l10 5 10-5"></path>
-                <path d="M2 12l10 5 10-5"></path>
-              </svg>
-              <span>Get on F-Droid</span>
-            </a>
-          </div>
-
           <!-- Classic 32-bit Phones & Emulators -->
           <div class="download-card">
             <h3 class="download-card-title">Android (Classic & Emulators)</h3>
@@ -625,11 +590,6 @@
 
   </div>
 
-  <!-- Three.js r128 (Primary CDN with SRI + Local Vendor Fallback) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
-          integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"
-          crossorigin="anonymous"></script>
-  <script>window.THREE || document.write('<script src="vendor/three.min.js"><\/script>');</script>
 
   <!-- anime.js v3.2.2 (Primary CDN with SRI + Local Vendor Fallback) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"
@@ -646,246 +606,5 @@
   <!-- Epilogue Platform Script -->
   <script src="app.js"></script>
 
-  <!-- Three.js 3D Book Interactive Renderer -->
-  <script>
-    (function initHero3DBook() {
-      const canvas = document.getElementById('hero-3d-canvas');
-      if (!canvas || typeof THREE === 'undefined') return;
-
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      let renderer, scene, camera, bookGroup;
-      let targetRotX = 0.2;
-      let targetRotY = -0.45;
-      let currentRotX = 0.2;
-      let currentRotY = -0.45;
-      let isInteracting = false;
-      let prevMouseX = 0;
-      let prevMouseY = 0;
-
-      try {
-        const rect = canvas.getBoundingClientRect();
-        const width = rect.width || canvas.parentElement.clientWidth || 400;
-        const height = rect.height || canvas.parentElement.clientHeight || 400;
-
-        renderer = new THREE.WebGLRenderer({
-          canvas: canvas,
-          alpha: true,
-          antialias: true,
-          powerPreference: 'high-performance'
-        });
-        renderer.setSize(width, height);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
-        scene = new THREE.Scene();
-
-        camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-        camera.position.set(0, 0, 7.5);
-
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
-        scene.add(ambientLight);
-
-        const dirLight = new THREE.DirectionalLight(0x38bdf8, 1.4);
-        dirLight.position.set(4, 5, 5);
-        scene.add(dirLight);
-
-        const warmLight = new THREE.DirectionalLight(0xf59e0b, 0.9);
-        warmLight.position.set(-4, -2, 3);
-        scene.add(warmLight);
-
-        // Book Group
-        bookGroup = new THREE.Group();
-        scene.add(bookGroup);
-
-        // Procedural Book Cover Texture
-        const coverCanvas = document.createElement('canvas');
-        coverCanvas.width = 512;
-        coverCanvas.height = 720;
-        const ctx = coverCanvas.getContext('2d');
-
-        // Background
-        const grad = ctx.createLinearGradient(0, 0, 512, 720);
-        grad.addColorStop(0, '#070f22');
-        grad.addColorStop(0.5, '#0d1b3e');
-        grad.addColorStop(1, '#050a18');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 512, 720);
-
-        // Gold & Cyan borders
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
-        ctx.lineWidth = 6;
-        ctx.strokeRect(24, 24, 464, 672);
-
-        ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(36, 36, 440, 648);
-
-        // Title
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 44px "Cinzel", "Merriweather", serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('EPILOGUE', 256, 260);
-
-        ctx.fillStyle = '#38bdf8';
-        ctx.font = '500 20px "Inter", sans-serif';
-        ctx.fillText('독자의 에필로그', 256, 305);
-
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = 'italic 16px "Merriweather", serif';
-        ctx.fillText('Distraction-Free Sanctuary', 256, 350);
-
-        // Constellation star emblem
-        ctx.strokeStyle = 'rgba(100, 255, 218, 0.5)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(256, 460, 48, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.fillStyle = '#64ffda';
-        ctx.beginPath();
-        ctx.arc(256, 460, 4, 0, Math.PI * 2);
-        ctx.fill();
-
-        const coverTexture = new THREE.CanvasTexture(coverCanvas);
-        coverTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-
-        // Book materials (Right side is cover, left side is back, top/bottom/front are pages)
-        const coverMaterial = new THREE.MeshStandardMaterial({
-          map: coverTexture,
-          roughness: 0.35,
-          metalness: 0.25
-        });
-
-        const darkCoverMaterial = new THREE.MeshStandardMaterial({
-          color: 0x091122,
-          roughness: 0.4,
-          metalness: 0.2
-        });
-
-        const pageEdgeMaterial = new THREE.MeshStandardMaterial({
-          color: 0xf5eedb,
-          roughness: 0.9,
-          metalness: 0.05
-        });
-
-        // BoxGeometry: width (x), height (y), depth (z)
-        const bookGeometry = new THREE.BoxGeometry(2.6, 3.6, 0.52);
-
-        // Material array order in Three.js: [+X, -X, +Y, -Y, +Z, -Z]
-        // +X: page edges (front opening)
-        // -X: spine
-        // +Y: top pages
-        // -Y: bottom pages
-        // +Z: front cover
-        // -Z: back cover
-        const materials = [
-          pageEdgeMaterial,    // Right (+X)
-          darkCoverMaterial,   // Spine (-X)
-          pageEdgeMaterial,    // Top (+Y)
-          pageEdgeMaterial,    // Bottom (-Y)
-          coverMaterial,       // Front Cover (+Z)
-          darkCoverMaterial    // Back Cover (-Z)
-        ];
-
-        const bookMesh = new THREE.Mesh(bookGeometry, materials);
-        bookGroup.add(bookMesh);
-
-        // Gold bookmark ribbon
-        const ribbonGeom = new THREE.BoxGeometry(0.12, 1.8, 0.02);
-        const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3 });
-        const ribbon = new THREE.Mesh(ribbonGeom, ribbonMat);
-        ribbon.position.set(0.4, -1.5, 0.28);
-        ribbon.rotation.z = 0.08;
-        bookGroup.add(ribbon);
-
-        // Interaction Listeners
-        function onPointerDown(e) {
-          isInteracting = true;
-          prevMouseX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-          prevMouseY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-        }
-
-        function onPointerMove(e) {
-          if (!isInteracting) {
-            // Subtle mouse parallax when hovering
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.clientX || 0;
-            const clientY = e.clientY || 0;
-            const nx = (clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
-            const ny = (clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
-            targetRotY = -0.45 + nx * 0.45;
-            targetRotX = 0.2 + ny * 0.25;
-            return;
-          }
-
-          const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-          const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-          const deltaX = clientX - prevMouseX;
-          const deltaY = clientY - prevMouseY;
-
-          targetRotY += deltaX * 0.008;
-          targetRotX += deltaY * 0.008;
-
-          prevMouseX = clientX;
-          prevMouseY = clientY;
-        }
-
-        function onPointerUp() {
-          isInteracting = false;
-        }
-
-        canvas.addEventListener('mousedown', onPointerDown);
-        window.addEventListener('mousemove', onPointerMove);
-        window.addEventListener('mouseup', onPointerUp);
-
-        canvas.addEventListener('touchstart', onPointerDown, { passive: true });
-        window.addEventListener('touchmove', onPointerMove, { passive: true });
-        window.addEventListener('touchend', onPointerUp, { passive: true });
-
-        // Responsive Resize
-        function onResize() {
-          const w = canvas.parentElement.clientWidth || 400;
-          const h = canvas.parentElement.clientHeight || 400;
-          camera.aspect = w / h;
-          camera.updateProjectionMatrix();
-          renderer.setSize(w, h);
-        }
-
-        window.addEventListener('resize', onResize);
-
-        // Animation Loop
-        let clock = new THREE.Clock();
-        function animate() {
-          requestAnimationFrame(animate);
-
-          const delta = clock.getDelta();
-
-          if (!prefersReducedMotion && !isInteracting) {
-            const time = clock.getElapsedTime();
-            // Gentle ambient breathing float
-            bookGroup.position.y = Math.sin(time * 1.5) * 0.08;
-            bookGroup.rotation.z = Math.sin(time * 0.8) * 0.03;
-          }
-
-          // Smooth damping
-          currentRotX += (targetRotX - currentRotX) * 0.08;
-          currentRotY += (targetRotY - currentRotY) * 0.08;
-
-          bookMesh.rotation.x = currentRotX;
-          bookMesh.rotation.y = currentRotY;
-
-          renderer.render(scene, camera);
-        }
-
-        animate();
-
-      } catch (err) {
-        // Graceful degradation: Hide canvas if WebGL is unavailable
-        console.warn('Three.js book initialization fallback:', err);
-        canvas.style.display = 'none';
-      }
-    })();
-  </script>
 </body>
 </html>
