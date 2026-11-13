@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Version tag (e.g. v2.0.4)'
+        description: 'Release tag to attach APKs to (e.g. v2.0.5). Leave empty for latest release.'
         required: false
-        default: 'v2.0.4'
+        default: ''
 
 permissions:
   contents: write
 
 jobs:
   build-apk:
-    name: Build Android APK
+    name: Build Android APKs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -49,33 +49,58 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build Release APK
-        run: flutter build apk --release --android-skip-build-dependency-validation
-
-      - name: Determine Version
+      - name: Determine Target Release Version
         id: version
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ github.event.inputs.tag_name }}"
           if [ -z "$TAG" ]; then
-            TAG="v2.0.4"
+            TAG=$(gh release view --json tagName -q .tagName 2>/dev/null || true)
           fi
+          if [ -z "$TAG" ]; then
+            PUBSPEC_VER=$(grep '^version:' pubspec.yaml | head -n 1 | awk '{print $2}' | cut -d'+' -f1)
+            TAG="v${PUBSPEC_VER}"
+          fi
+          echo "Target release tag: $TAG"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Package APK
+      - name: Build Universal APK
         run: |
+          flutter build apk --release --android-skip-build-dependency-validation
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk \
-             "dist/Epilogue-${{ steps.version.outputs.tag }}-android.apk"
+             "dist/Epilogue-${{ steps.version.outputs.tag }}-android-universal.apk"
 
-      - name: Upload APK as Workflow Artifact
+      - name: Build Split-per-ABI APKs (arm64-v8a, armeabi-v7a, x86_64)
+        run: |
+          flutter build apk --release --split-per-abi --android-skip-build-dependency-validation
+          mkdir -p dist
+          if [ -f "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" ]; then
+            cp "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" \
+               "dist/Epilogue-${{ steps.version.outputs.tag }}-android-arm64-v8a.apk"
+          fi
+          if [ -f "build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk" ]; then
+            cp "build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk" \
+               "dist/Epilogue-${{ steps.version.outputs.tag }}-android-armeabi-v7a.apk"
+          fi
+          if [ -f "build/app/outputs/flutter-apk/app-x86_64-release.apk" ]; then
+            cp "build/app/outputs/flutter-apk/app-x86_64-release.apk" \
+               "dist/Epilogue-${{ steps.version.outputs.tag }}-android-x86_64.apk"
+          fi
+
+      - name: List Generated APKs
+        run: ls -lh dist/
+
+      - name: Upload APKs as Workflow Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Epilogue-${{ steps.version.outputs.tag }}-android-apk
+          name: Epilogue-${{ steps.version.outputs.tag }}-android-apks
           path: dist/*
           if-no-files-found: error
 
-      - name: Attach APK to GitHub Release (if release exists)
+      - name: Upload APKs to GitHub Release
         uses: softprops/action-gh-release@v2
         if: ${{ steps.version.outputs.tag != '' }}
         with:
