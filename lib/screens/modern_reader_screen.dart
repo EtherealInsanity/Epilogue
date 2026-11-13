@@ -57,11 +57,12 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
 
   // Page & scroll controllers
   late PageController _pageController;
-  final ScrollController _scrollController = ScrollController();
+  late ScrollController _scrollController;
   List<String> _pageChunks = [];
   int _currentPageIndex = 0;
   Size? _lastMeasuredSize;
   bool _initialPositionRestored = false;
+  int _restoreRetryCount = 0;
 
   // Book images cache map: normalized name/src -> absolute file path on disk
   final Map<String, String> _bookImageFiles = {};
@@ -75,14 +76,15 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
     WidgetsBinding.instance.addObserver(this);
     _config = widget.config;
     _currentChapterIndex = widget.initialChapterIndex.clamp(0, widget.chapters.length - 1);
-    _fourthWallActive = widget.config.fourthWallActive;
+    _fourthWallActive = _config.fourthWallActive;
     _lastScrollOffset = (widget.book.lastReadChapterIndex == widget.initialChapterIndex)
         ? widget.book.lastReadScrollOffset
         : 0.0;
     _currentPageIndex = (widget.book.lastReadChapterIndex == widget.initialChapterIndex)
         ? widget.book.lastReadPageIndex
         : 0;
-    _pageController = PageController();
+    _pageController = PageController(initialPage: _currentPageIndex);
+    _scrollController = ScrollController(initialScrollOffset: _lastScrollOffset);
     _scrollController.addListener(_onContinuousScroll);
 
     _loadBookImages();
@@ -217,19 +219,65 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
 
   void _restoreInitialPositionIfNeeded() {
     if (_initialPositionRestored || _currentChapterIndex != widget.initialChapterIndex) return;
-    _initialPositionRestored = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+      if (!mounted || _initialPositionRestored) return;
       if (_config.pageAnimation == PageAnimationType.continuousScroll) {
-        if (_scrollController.hasClients && widget.book.lastReadScrollOffset > 0) {
-          final max = _scrollController.position.maxScrollExtent;
-          _scrollController.jumpTo(widget.book.lastReadScrollOffset.clamp(0.0, max > 0 ? max : widget.book.lastReadScrollOffset));
+        final targetOffset = widget.book.lastReadScrollOffset;
+        if (targetOffset > 0) {
+          if (_scrollController.hasClients) {
+            final max = _scrollController.position.maxScrollExtent;
+            if (max > 0) {
+              final clamped = targetOffset.clamp(0.0, max);
+              _scrollController.jumpTo(clamped);
+              if (max >= targetOffset || _restoreRetryCount >= 6) {
+                _initialPositionRestored = true;
+              } else {
+                _restoreRetryCount++;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && !_initialPositionRestored) {
+                    _restoreInitialPositionIfNeeded();
+                  }
+                });
+              }
+            } else {
+              _restoreRetryCount++;
+              if (_restoreRetryCount <= 6) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && !_initialPositionRestored) {
+                    _restoreInitialPositionIfNeeded();
+                  }
+                });
+              } else {
+                _initialPositionRestored = true;
+              }
+            }
+          }
+        } else {
+          _initialPositionRestored = true;
         }
       } else {
-        if (_pageController.hasClients && widget.book.lastReadPageIndex > 0 && _pageChunks.isNotEmpty) {
-          final target = widget.book.lastReadPageIndex.clamp(0, _pageChunks.length - 1);
-          _pageController.jumpToPage(target);
+        final targetPage = widget.book.lastReadPageIndex;
+        if (targetPage > 0) {
+          if (_pageController.hasClients && _pageChunks.isNotEmpty) {
+            final target = targetPage.clamp(0, _pageChunks.length - 1);
+            _pageController.jumpToPage(target);
+            _currentPageIndex = target;
+            _initialPositionRestored = true;
+          } else {
+            _restoreRetryCount++;
+            if (_restoreRetryCount <= 6) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted && !_initialPositionRestored) {
+                  _restoreInitialPositionIfNeeded();
+                }
+              });
+            } else {
+              _initialPositionRestored = true;
+            }
+          }
+        } else {
+          _initialPositionRestored = true;
         }
       }
     });
@@ -402,6 +450,10 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
   }
 
   void _updateProgress() {
+    if (!_initialPositionRestored && _currentChapterIndex == widget.initialChapterIndex) {
+      // Guard: do not overwrite last saved position before initial position has settled
+      return;
+    }
     final total = widget.chapters.length;
     final progress = total > 0 ? (((_currentChapterIndex + 1) / total) * 100).clamp(0.0, 100.0) : 0.0;
     final double currentOffset = _scrollController.hasClients ? _scrollController.offset : _lastScrollOffset;
@@ -988,7 +1040,10 @@ class _ModernReaderScreenState extends State<ModernReaderScreen> with WidgetsBin
                   physics: const NeverScrollableScrollPhysics(),
                   child: _buildHtmlWidget(chunk, fg),
                 )
-              : _buildTextParagraphs(chunk, fg),
+              : SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: _buildTextParagraphs(chunk, fg),
+                ),
         );
       },
     );
