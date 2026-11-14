@@ -7,6 +7,7 @@ import '../services/storage_service.dart';
 import '../services/update_checker_service.dart';
 import '../services/url_launcher_service.dart';
 import '../theme/epilogue_theme.dart';
+import '../widgets/dialog_backup_import_selection.dart';
 import 'changelog_screen.dart';
 import 'feature_manual_screen.dart';
 import 'retrocognition_screen.dart';
@@ -82,22 +83,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (result != null && result.files.single.path != null) {
         final path = result.files.single.path!;
         final content = await File(path).readAsString();
-        final success = await _syncService.importBackupFromJson(content, smartMerge: true);
+        final summary = BackupSummary.fromJson(content);
+
+        if (summary == null || summary.isEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Invalid or empty backup file format.'),
+                backgroundColor: EpilogueTheme.dangerAccent,
+              ),
+            );
+          }
+          return;
+        }
+
+        if (!mounted) return;
+        final options = await showDialog<BackupImportOptions>(
+          context: context,
+          builder: (_) => DialogBackupImportSelection(summary: summary),
+        );
+
+        if (options == null || !options.hasAnySelected) return;
+
+        final success = await _syncService.importBackupFromJson(
+          content,
+          smartMerge: true,
+          options: options,
+        );
 
         if (mounted) {
           if (success) {
-            final reloaded = widget.storageService.loadConfig();
-            _updateConfig(reloaded);
+            if (options.importSettings) {
+              final reloaded = widget.storageService.loadConfig();
+              _updateConfig(reloaded);
+            }
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Backup restored and merged successfully!'),
+                content: const Text('Selected backup data restored and merged successfully!'),
                 backgroundColor: EpilogueTheme.accent,
               ),
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Invalid backup file format.'),
+                content: const Text('Failed to import backup.'),
                 backgroundColor: EpilogueTheme.dangerAccent,
               ),
             );
@@ -180,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ? null
                   : () async {
                       setDialogState(() => isSyncing = true);
-                      final ok = await _syncService.pullFromWebDav(
+                      final content = await _syncService.fetchFromWebDav(
                         serverUrl: urlCtrl.text.trim(),
                         username: userCtrl.text.trim(),
                         password: passCtrl.text.trim(),
@@ -189,13 +218,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       if (ctx.mounted) {
                         Navigator.pop(ctx);
                       }
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(ok ? 'Successfully synced from Cloud!' : 'Failed to pull from WebDAV server.'),
-                            backgroundColor: ok ? EpilogueTheme.accent : EpilogueTheme.dangerAccent,
-                          ),
-                        );
+                      if (content != null) {
+                        final summary = BackupSummary.fromJson(content);
+                        if (summary != null && !summary.isEmpty) {
+                          if (!mounted) return;
+                          final options = await showDialog<BackupImportOptions>(
+                            context: context,
+                            builder: (_) => DialogBackupImportSelection(summary: summary),
+                          );
+                          if (options != null && options.hasAnySelected) {
+                            final ok = await _syncService.importBackupFromJson(
+                              content,
+                              smartMerge: true,
+                              options: options,
+                            );
+                            if (mounted) {
+                              if (ok && options.importSettings) {
+                                final reloaded = widget.storageService.loadConfig();
+                                _updateConfig(reloaded);
+                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(ok
+                                      ? 'Selected cloud backup data merged successfully!'
+                                      : 'Failed to import cloud backup.'),
+                                  backgroundColor: ok ? EpilogueTheme.accent : EpilogueTheme.dangerAccent,
+                                ),
+                              );
+                            }
+                          }
+                        } else {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Cloud backup contains invalid or empty data.'),
+                                backgroundColor: EpilogueTheme.dangerAccent,
+                              ),
+                            );
+                          }
+                        }
+                      } else {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Failed to pull from WebDAV server or backup not found.'),
+                              backgroundColor: EpilogueTheme.dangerAccent,
+                            ),
+                          );
+                        }
                       }
                     },
               child: const Text('PULL (MERGE)'),

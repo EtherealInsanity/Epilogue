@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import '../config/reader_config.dart';
 import '../models/book_info.dart';
 import '../models/book_highlight.dart';
 import '../models/book_shelf.dart';
@@ -9,6 +10,110 @@ import '../models/daily_reading_record.dart';
 import '../models/orv_state.dart';
 import '../models/reading_session.dart';
 import 'storage_service.dart';
+
+class BackupImportOptions {
+  final bool importBooks;
+  final bool importBookmarks;
+  final bool importHighlights;
+  final bool importTelemetry;
+  final bool importShelves;
+  final bool importOrvState;
+  final bool importSettings;
+
+  const BackupImportOptions({
+    this.importBooks = true,
+    this.importBookmarks = true,
+    this.importHighlights = true,
+    this.importTelemetry = true,
+    this.importShelves = true,
+    this.importOrvState = true,
+    this.importSettings = true,
+  });
+
+  bool get hasAnySelected =>
+      importBooks ||
+      importBookmarks ||
+      importHighlights ||
+      importTelemetry ||
+      importShelves ||
+      importOrvState ||
+      importSettings;
+
+  BackupImportOptions copyWith({
+    bool? importBooks,
+    bool? importBookmarks,
+    bool? importHighlights,
+    bool? importTelemetry,
+    bool? importShelves,
+    bool? importOrvState,
+    bool? importSettings,
+  }) {
+    return BackupImportOptions(
+      importBooks: importBooks ?? this.importBooks,
+      importBookmarks: importBookmarks ?? this.importBookmarks,
+      importHighlights: importHighlights ?? this.importHighlights,
+      importTelemetry: importTelemetry ?? this.importTelemetry,
+      importShelves: importShelves ?? this.importShelves,
+      importOrvState: importOrvState ?? this.importOrvState,
+      importSettings: importSettings ?? this.importSettings,
+    );
+  }
+}
+
+class BackupSummary {
+  final int bookCount;
+  final int bookmarkCount;
+  final int highlightCount;
+  final int sessionCount;
+  final int dailyRecordCount;
+  final int shelfCount;
+  final bool hasOrvState;
+  final bool hasSettings;
+
+  const BackupSummary({
+    this.bookCount = 0,
+    this.bookmarkCount = 0,
+    this.highlightCount = 0,
+    this.sessionCount = 0,
+    this.dailyRecordCount = 0,
+    this.shelfCount = 0,
+    this.hasOrvState = false,
+    this.hasSettings = false,
+  });
+
+  bool get isEmpty =>
+      bookCount == 0 &&
+      bookmarkCount == 0 &&
+      highlightCount == 0 &&
+      sessionCount == 0 &&
+      dailyRecordCount == 0 &&
+      shelfCount == 0 &&
+      !hasOrvState &&
+      !hasSettings;
+
+  static BackupSummary? fromJson(String jsonString) {
+    try {
+      final decoded = jsonDecode(jsonString);
+      if (decoded is! Map<String, dynamic>) return null;
+      return BackupSummary.fromMap(decoded);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static BackupSummary fromMap(Map<String, dynamic> data) {
+    return BackupSummary(
+      bookCount: data['books'] is List ? (data['books'] as List).length : 0,
+      bookmarkCount: data['bookmarks'] is List ? (data['bookmarks'] as List).length : 0,
+      highlightCount: data['highlights'] is List ? (data['highlights'] as List).length : 0,
+      sessionCount: data['reading_sessions'] is List ? (data['reading_sessions'] as List).length : 0,
+      dailyRecordCount: data['daily_records'] is Map ? (data['daily_records'] as Map).length : 0,
+      shelfCount: data['shelves'] is List ? (data['shelves'] as List).length : 0,
+      hasOrvState: data.containsKey('orv_state') && data['orv_state'] is Map,
+      hasSettings: data.containsKey('config') && data['config'] is Map,
+    );
+  }
+}
 
 class DataSyncService {
   final StorageService storageService;
@@ -63,12 +168,17 @@ class DataSyncService {
   }
 
   /// Imports a backup JSON snapshot with Smart Auto-Merge
-  Future<bool> importBackupFromJson(String jsonString, {bool smartMerge = true}) async {
+  Future<bool> importBackupFromJson(
+    String jsonString, {
+    bool smartMerge = true,
+    BackupImportOptions options = const BackupImportOptions(),
+  }) async {
     try {
       final Map<String, dynamic> data = jsonDecode(jsonString);
+      if (!options.hasAnySelected) return false;
 
       // 1. Books with Highest Progress Merge
-      if (data.containsKey('books') && data['books'] is List) {
+      if (options.importBooks && data.containsKey('books') && data['books'] is List) {
         final importedBooks = (data['books'] as List)
             .map((e) => BookInfo.fromMap(e as Map<String, dynamic>))
             .toList();
@@ -111,7 +221,7 @@ class DataSyncService {
       }
 
       // 2. ORV State Union Merge
-      if (data.containsKey('orv_state') && data['orv_state'] is Map) {
+      if (options.importOrvState && data.containsKey('orv_state') && data['orv_state'] is Map) {
         final importedOrv = OrvState.fromMap(data['orv_state'] as Map<String, dynamic>);
         if (smartMerge) {
           final currentOrv = storageService.loadOrvState();
@@ -135,7 +245,7 @@ class DataSyncService {
       }
 
       // 3. Bookmarks Union
-      if (data.containsKey('bookmarks') && data['bookmarks'] is List) {
+      if (options.importBookmarks && data.containsKey('bookmarks') && data['bookmarks'] is List) {
         final importedBookmarks = (data['bookmarks'] as List)
             .map((e) => Bookmark.fromMap(e as Map<String, dynamic>))
             .toList();
@@ -150,7 +260,7 @@ class DataSyncService {
       }
 
       // 4. Highlights Union
-      if (data.containsKey('highlights') && data['highlights'] is List) {
+      if (options.importHighlights && data.containsKey('highlights') && data['highlights'] is List) {
         final importedHighlights = (data['highlights'] as List)
             .map((e) => BookHighlight.fromMap(e as Map<String, dynamic>))
             .toList();
@@ -165,7 +275,7 @@ class DataSyncService {
       }
 
       // 5. Shelves Union
-      if (data.containsKey('shelves') && data['shelves'] is List) {
+      if (options.importShelves && data.containsKey('shelves') && data['shelves'] is List) {
         final importedShelves = (data['shelves'] as List)
             .map((e) => BookShelf.fromMap(e as Map<String, dynamic>))
             .toList();
@@ -184,7 +294,7 @@ class DataSyncService {
       }
 
       // 6. Reading Sessions Union
-      if (data.containsKey('reading_sessions') && data['reading_sessions'] is List) {
+      if (options.importTelemetry && data.containsKey('reading_sessions') && data['reading_sessions'] is List) {
         final importedSessions = (data['reading_sessions'] as List)
             .map((e) => ReadingSession.fromMap(e as Map<String, dynamic>))
             .toList();
@@ -201,7 +311,7 @@ class DataSyncService {
       }
 
       // 7. Daily Records Union
-      if (data.containsKey('daily_records') && data['daily_records'] is Map) {
+      if (options.importTelemetry && data.containsKey('daily_records') && data['daily_records'] is Map) {
         final imported = (data['daily_records'] as Map).map(
           (k, v) => MapEntry(k as String, DailyReadingRecord.fromMap(v as Map<String, dynamic>)),
         );
@@ -222,6 +332,14 @@ class DataSyncService {
         } else {
           await storageService.saveDailyRecords(imported);
         }
+      }
+
+      // 8. Settings & Preferences
+      if (options.importSettings && data.containsKey('config') && data['config'] is Map) {
+        try {
+          final importedConfig = ReaderConfig.fromMap(data['config'] as Map<String, dynamic>);
+          await storageService.saveConfig(importedConfig);
+        } catch (_) {}
       }
 
       return true;
@@ -260,8 +378,8 @@ class DataSyncService {
     }
   }
 
-  /// Pulls backup from WebDAV and merges into local state
-  Future<bool> pullFromWebDav({
+  /// Fetches raw backup content from WebDAV endpoint
+  Future<String?> fetchFromWebDav({
     required String serverUrl,
     required String username,
     required String password,
@@ -282,12 +400,30 @@ class DataSyncService {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final content = await response.transform(utf8.decoder).join();
         client.close();
-        return await importBackupFromJson(content, smartMerge: true);
+        return content;
       }
       client.close();
-      return false;
+      return null;
     } catch (_) {
-      return false;
+      return null;
     }
+  }
+
+  /// Pulls backup from WebDAV and merges into local state
+  Future<bool> pullFromWebDav({
+    required String serverUrl,
+    required String username,
+    required String password,
+    String remoteFileName = 'epilogue_sync.json',
+    BackupImportOptions options = const BackupImportOptions(),
+  }) async {
+    final content = await fetchFromWebDav(
+      serverUrl: serverUrl,
+      username: username,
+      password: password,
+      remoteFileName: remoteFileName,
+    );
+    if (content == null) return false;
+    return await importBackupFromJson(content, smartMerge: true, options: options);
   }
 }
