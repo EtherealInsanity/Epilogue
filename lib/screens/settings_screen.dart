@@ -8,6 +8,7 @@ import '../services/update_checker_service.dart';
 import '../services/url_launcher_service.dart';
 import '../theme/epilogue_theme.dart';
 import '../widgets/dialog_backup_import_selection.dart';
+import '../widgets/dialog_google_drive_sync.dart';
 import 'changelog_screen.dart';
 import 'feature_manual_screen.dart';
 import 'retrocognition_screen.dart';
@@ -143,6 +144,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       }
     }
+  }
+
+  void _showGoogleDriveDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => DialogGoogleDriveSync(
+        storageService: widget.storageService,
+        dataSyncService: _syncService,
+        onSyncCompleted: () {
+          final reloaded = widget.storageService.loadConfig();
+          _updateConfig(reloaded);
+        },
+      ),
+    );
   }
 
   void _showWebDavDialog() {
@@ -532,14 +547,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
+                      onPressed: _showGoogleDriveDialog,
+                      icon: const Icon(Icons.add_to_drive, size: 18),
+                      label: const Text('GOOGLE DRIVE CLOUD SYNC', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      style: FilledButton.styleFrom(backgroundColor: EpilogueTheme.cyanAccent, foregroundColor: Colors.black),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
                       onPressed: _showWebDavDialog,
                       icon: const Icon(Icons.cloud_sync, size: 18),
                       label: const Text('WEBDAV CLOUD SYNC', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                      style: FilledButton.styleFrom(backgroundColor: EpilogueTheme.accent),
                     ),
                   ),
                 ],
@@ -847,7 +871,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.cloud_sync_outlined,
             iconColor: EpilogueTheme.starGold,
             title: 'Data Hub & Cloud Sync',
-            subtitle: 'Retrocognition, JSON backup & restore, WebDAV cloud sync',
+            subtitle: 'Google Drive sync, WebDAV, JSON backup & Retrocognition',
             pageBuilder: _buildDataHubPage,
           ),
           _buildCategoryTile(

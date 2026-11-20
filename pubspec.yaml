@@ -22,6 +22,11 @@ dependencies:
   flutter_html: 3.0.0-beta.2
   # External link navigation for updates, community & bug reporting
   url_launcher: ^6.3.0
+  # Google Drive Cloud Sync & OAuth
+  google_sign_in: ^6.2.2
+  googleapis: ^13.2.0
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  http: ^1.2.2
 
 dependency_overrides:
   html: 0.15.4
